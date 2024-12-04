@@ -35,6 +35,9 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
           widget.config.layout === "dense" && "p-1 gap-1",
           widget.config.visualMode === "high-contrast" && "border-2",
           !widget.config.animations && "[&_*]:!transition-none",
+          widget.config.theme === "minimal" && "bg-transparent border-0",
+          widget.config.theme === "compact" && "shadow-sm",
+          widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
           "border border-border/50"
         )}>
         <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
