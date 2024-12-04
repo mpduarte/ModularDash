@@ -3,9 +3,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Widget, Plugin } from "../../lib/types";
-import { Plus, Trash2, Settings } from "lucide-react";
+import { Plus, Trash2, Power } from "lucide-react";
 import { usePlugins } from "../../hooks/usePlugins";
 import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface WidgetConfigProps {
   widgets: Widget[];
@@ -62,24 +65,33 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove }: Widg
           <TabsContent value="plugins" className="py-4">
             <ScrollArea className="h-[400px]">
               {plugins.map(plugin => (
-                <div
-                  key={plugin.id}
-                  className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg"
-                >
-                  <div className="flex-1">
-                    <h4 className="font-medium">{plugin.name}</h4>
-                    <p className="text-sm text-muted-foreground">{plugin.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => updatePlugin(plugin.id, { enabled: !plugin.enabled })}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <Card key={plugin.id} className="mb-4">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{plugin.name}</h4>
+                          <Badge variant="secondary" className="text-xs">
+                            v{plugin.version}
+                          </Badge>
+                          <Badge variant={plugin.enabled ? "default" : "secondary"} className="text-xs">
+                            {plugin.category}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">{plugin.description}</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Power className={`h-4 w-4 ${plugin.enabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <Switch
+                            checked={plugin.enabled}
+                            onCheckedChange={(checked) => updatePlugin(plugin.id, { enabled: checked })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </ScrollArea>
           </TabsContent>

@@ -2,6 +2,9 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { createServer } from "http";
+import { db } from "db";
+import { plugins } from "@db/schema";
+import { eq } from "drizzle-orm";
 
 function log(message: string) {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -48,7 +51,41 @@ app.use((req, res, next) => {
   next();
 });
 
+async function seedDefaultPlugins() {
+  const defaultPlugins = [
+    {
+      id: 'text-widget',
+      name: 'Text Widget',
+      description: 'Simple text display widget',
+      version: '1.0.0',
+      enabled: true,
+      component: 'TextWidget',
+      category: 'content',
+      config: {}
+    },
+    {
+      id: 'html-widget',
+      name: 'HTML Widget',
+      description: 'Display HTML content',
+      version: '1.0.0',
+      enabled: true,
+      component: 'HtmlWidget',
+      category: 'content',
+      config: {}
+    }
+  ];
+
+  for (const plugin of defaultPlugins) {
+    const existing = await db.select().from(plugins).where(eq(plugins.id, plugin.id));
+    if (existing.length === 0) {
+      await db.insert(plugins).values(plugin);
+      log(`Seeded plugin: ${plugin.id}`);
+    }
+  }
+}
+
 (async () => {
+  await seedDefaultPlugins();
   registerRoutes(app);
   const server = createServer(app);
 
