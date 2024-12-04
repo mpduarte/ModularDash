@@ -4,6 +4,11 @@ import { widgets, plugins } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 export function registerRoutes(app: express.Express) {
+  // Health check route
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok" });
+  });
+
   // Plugin routes
   app.get("/api/plugins", async (_req, res) => {
     try {
