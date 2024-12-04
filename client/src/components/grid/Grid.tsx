@@ -1,7 +1,7 @@
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import Widget from '../widgets/Widget';
-import { Widget as WidgetType } from '../../lib/types';
+import { Widget as WidgetType, GridLayout } from '../../lib/types';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -14,7 +14,7 @@ interface GridProps {
 export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridProps) {
   const layouts = {
     lg: widgets.map(widget => ({
-      i: widget.id,
+      i: String(widget.id),
       x: widget.x,
       y: widget.y,
       w: widget.w,
@@ -23,11 +23,11 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       maxW: 3,
       minH: 1,
       maxH: 3
-    }))
+    } as GridLayout))
   };
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full min-h-[600px]">
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -35,9 +35,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
         rowHeight={200}
         margin={[16, 16]}
-        onLayoutChange={(layout) => {
+        onLayoutChange={(layout: Layout[]) => {
           layout.forEach(item => {
-            const widget = widgets.find(w => w.id === item.i);
+            const widget = widgets.find(w => w.id.toString() === item.i);
             if (widget) {
               onWidgetUpdate(widget.id, {
                 x: item.x,
@@ -50,7 +50,7 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         }}
       >
         {widgets.map(widget => (
-          <div key={widget.id} className="relative">
+          <div key={String(widget.id)} className="relative">
             <Widget
               widget={widget}
               onShowOverlay={onShowOverlay}

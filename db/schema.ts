@@ -3,7 +3,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const widgets = pgTable("widgets", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   x: integer("x").notNull(),
@@ -15,7 +15,7 @@ export const widgets = pgTable("widgets", {
 });
 
 export const zones = pgTable("zones", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),
   widgets: jsonb("widgets").notNull().default([])
 });

@@ -16,16 +16,24 @@ export function registerRoutes(app: Express) {
   });
 
   app.patch("/api/widgets/:id", async (req, res) => {
+    const widgetId = parseInt(req.params.id, 10);
+    if (isNaN(widgetId)) {
+      return res.status(400).json({ error: "Invalid widget ID" });
+    }
     const widget = await db
       .update(widgets)
       .set(req.body)
-      .where(eq(widgets.id, parseInt(req.params.id)))
+      .where(eq(widgets.id, widgetId))
       .returning();
     res.json(widget[0]);
   });
 
   app.delete("/api/widgets/:id", async (req, res) => {
-    await db.delete(widgets).where(eq(widgets.id, parseInt(req.params.id)));
+    const widgetId = parseInt(req.params.id, 10);
+    if (isNaN(widgetId)) {
+      return res.status(400).json({ error: "Invalid widget ID" });
+    }
+    await db.delete(widgets).where(eq(widgets.id, widgetId));
     res.status(204).end();
   });
 
@@ -41,16 +49,24 @@ export function registerRoutes(app: Express) {
   });
 
   app.patch("/api/zones/:id", async (req, res) => {
+    const zoneId = parseInt(req.params.id, 10);
+    if (isNaN(zoneId)) {
+      return res.status(400).json({ error: "Invalid zone ID" });
+    }
     const zone = await db
       .update(zones)
       .set(req.body)
-      .where(eq(zones.id, parseInt(req.params.id)))
+      .where(eq(zones.id, zoneId))
       .returning();
     res.json(zone[0]);
   });
 
   app.delete("/api/zones/:id", async (req, res) => {
-    await db.delete(zones).where(eq(zones.id, parseInt(req.params.id)));
+    const zoneId = parseInt(req.params.id, 10);
+    if (isNaN(zoneId)) {
+      return res.status(400).json({ error: "Invalid zone ID" });
+    }
+    await db.delete(zones).where(eq(zones.id, zoneId));
     res.status(204).end();
   });
 }
