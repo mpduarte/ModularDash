@@ -25,9 +25,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
   const handleConfigClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!e.currentTarget.closest('.react-grid-item')) {
-      setShowConfig(true);
-    }
+    setShowConfig(true);
   };
 
   return (
