@@ -15,7 +15,7 @@ interface GridProps {
 export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridProps) {
   const layouts = {
     lg: widgets.map(widget => ({
-      i: String(widget.id),
+      i: widget.id.toString(),
       x: widget.x,
       y: widget.y,
       w: widget.w,

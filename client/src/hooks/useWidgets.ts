@@ -33,11 +33,13 @@ export function useWidgets() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: 'New Widget',
+          content: 'Empty widget',
           x: 0,
           y: 0,
           w: 1,
           h: 1,
-          content: 'Empty widget'
+          pluginId: 'text-widget', // Add default plugin
+          config: {} // Add empty config
         })
       });
       return response.json();
