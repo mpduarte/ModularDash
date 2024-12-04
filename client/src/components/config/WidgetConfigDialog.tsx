@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { getPlugin } from "../../lib/pluginRegistry";
 import { useState } from "react";
 
@@ -32,12 +33,10 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       visualMode: widget.config.visualMode || "auto",
       background: widget.config.background || "solid",
       animations: widget.config.animations ?? true,
-      // Advanced settings
       dataSource: widget.config.dataSource || "api",
       customStyles: widget.config.customStyles || "",
       borderRadius: widget.config.borderRadius || "default",
       padding: widget.config.padding || "normal",
-      // Alert settings
       enableAlerts: widget.config.enableAlerts || false,
       alertThreshold: widget.config.alertThreshold || 80,
       alertType: widget.config.alertType || "visual",
@@ -147,218 +146,222 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
 
               <TabsContent value="advanced" className="space-y-4 pt-4">
                 <Card>
-                  <CardContent className="space-y-4 pt-6">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="autoRefresh">Auto Refresh</Label>
-                      <Switch
-                        id="autoRefresh"
-                        checked={form.watch("autoRefresh")}
-                        onCheckedChange={(checked) => form.setValue("autoRefresh", checked)}
-                      />
-                    </div>
-
-                    {form.watch("autoRefresh") && (
-                      <div className="space-y-2">
-                        <Label htmlFor="refreshInterval">Refresh Interval (seconds)</Label>
-                        <Input
-                          id="refreshInterval"
-                          type="number"
-                          min="5"
-                          {...form.register("refreshInterval")}
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="theme">Widget Theme</Label>
-                        <Select
-                          value={form.watch("theme")}
-                          onValueChange={(value) => form.setValue("theme", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select theme" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="default">Default</SelectItem>
-                            <SelectItem value="minimal">Minimal</SelectItem>
-                            <SelectItem value="compact">Compact</SelectItem>
-                            <SelectItem value="performance">Performance</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="layout">Layout Style</Label>
-                        <Select
-                          value={form.watch("layout")}
-                          onValueChange={(value) => form.setValue("layout", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select layout" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="standard">Standard</SelectItem>
-                            <SelectItem value="compact">Compact</SelectItem>
-                            <SelectItem value="minimal">Minimal</SelectItem>
-                            <SelectItem value="dense">Dense</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="visualMode">Visual Mode</Label>
-                        <Select
-                          value={form.watch("visualMode")}
-                          onValueChange={(value) => form.setValue("visualMode", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select visual mode" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="auto">Auto (System)</SelectItem>
-                            <SelectItem value="light">Light</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="high-contrast">High Contrast</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="background">Background Style</Label>
-                        <Select
-                          value={form.watch("background")}
-                          onValueChange={(value) => form.setValue("background", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select background" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="solid">Solid</SelectItem>
-                            <SelectItem value="transparent">Transparent</SelectItem>
-                            <SelectItem value="blur">Blur</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="animations">Enable Animations</Label>
-                        <Switch
-                          id="animations"
-                          checked={form.watch("animations")}
-                          onCheckedChange={(checked) => form.setValue("animations", checked)}
-                        />
-                      </div>
-
-                      <div className="space-y-2 pt-4 border-t">
-                        <h4 className="font-medium">Data Source Settings</h4>
-                        <Select
-                          value={form.watch("dataSource")}
-                          onValueChange={(value) => form.setValue("dataSource", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select data source" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="api">API</SelectItem>
-                            <SelectItem value="database">Database</SelectItem>
-                            <SelectItem value="static">Static</SelectItem>
-                            <SelectItem value="realtime">Real-time</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2 pt-4 border-t">
-                        <h4 className="font-medium">Custom Styling</h4>
-                        <div className="space-y-2">
-                          <Label htmlFor="borderRadius">Border Radius</Label>
-                          <Select
-                            value={form.watch("borderRadius")}
-                            onValueChange={(value) => form.setValue("borderRadius", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select border radius" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="default">Default</SelectItem>
-                              <SelectItem value="rounded">Rounded</SelectItem>
-                              <SelectItem value="square">Square</SelectItem>
-                              <SelectItem value="pill">Pill</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="padding">Padding</Label>
-                          <Select
-                            value={form.watch("padding")}
-                            onValueChange={(value) => form.setValue("padding", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select padding" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="compact">Compact</SelectItem>
-                              <SelectItem value="normal">Normal</SelectItem>
-                              <SelectItem value="relaxed">Relaxed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="customStyles">Custom CSS</Label>
-                          <Input
-                            id="customStyles"
-                            placeholder="Enter custom CSS"
-                            {...form.register("customStyles")}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 pt-4 border-t">
-                        <h4 className="font-medium">Alert Settings</h4>
+                  <CardContent className="pt-6">
+                    <ScrollArea className="h-[400px] pr-4">
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="enableAlerts">Enable Alerts</Label>
+                          <Label htmlFor="autoRefresh">Auto Refresh</Label>
                           <Switch
-                            id="enableAlerts"
-                            checked={form.watch("enableAlerts")}
-                            onCheckedChange={(checked) => form.setValue("enableAlerts", checked)}
+                            id="autoRefresh"
+                            checked={form.watch("autoRefresh")}
+                            onCheckedChange={(checked) => form.setValue("autoRefresh", checked)}
                           />
                         </div>
 
-                        {form.watch("enableAlerts") && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="alertThreshold">Alert Threshold (%)</Label>
-                              <Input
-                                id="alertThreshold"
-                                type="number"
-                                min="0"
-                                max="100"
-                                {...form.register("alertThreshold")}
-                              />
-                            </div>
+                        {form.watch("autoRefresh") && (
+                          <div className="space-y-2">
+                            <Label htmlFor="refreshInterval">Refresh Interval (seconds)</Label>
+                            <Input
+                              id="refreshInterval"
+                              type="number"
+                              min="5"
+                              {...form.register("refreshInterval")}
+                            />
+                          </div>
+                        )}
 
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="theme">Widget Theme</Label>
+                            <Select
+                              value={form.watch("theme")}
+                              onValueChange={(value) => form.setValue("theme", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select theme" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="default">Default</SelectItem>
+                                <SelectItem value="minimal">Minimal</SelectItem>
+                                <SelectItem value="compact">Compact</SelectItem>
+                                <SelectItem value="performance">Performance</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="layout">Layout Style</Label>
+                            <Select
+                              value={form.watch("layout")}
+                              onValueChange={(value) => form.setValue("layout", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select layout" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="standard">Standard</SelectItem>
+                                <SelectItem value="compact">Compact</SelectItem>
+                                <SelectItem value="minimal">Minimal</SelectItem>
+                                <SelectItem value="dense">Dense</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="visualMode">Visual Mode</Label>
+                            <Select
+                              value={form.watch("visualMode")}
+                              onValueChange={(value) => form.setValue("visualMode", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select visual mode" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="auto">Auto (System)</SelectItem>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="high-contrast">High Contrast</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="background">Background Style</Label>
+                            <Select
+                              value={form.watch("background")}
+                              onValueChange={(value) => form.setValue("background", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select background" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="solid">Solid</SelectItem>
+                                <SelectItem value="transparent">Transparent</SelectItem>
+                                <SelectItem value="blur">Blur</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="animations">Enable Animations</Label>
+                            <Switch
+                              id="animations"
+                              checked={form.watch("animations")}
+                              onCheckedChange={(checked) => form.setValue("animations", checked)}
+                            />
+                          </div>
+
+                          <div className="space-y-2 pt-4 border-t">
+                            <h4 className="font-medium">Data Source Settings</h4>
+                            <Select
+                              value={form.watch("dataSource")}
+                              onValueChange={(value) => form.setValue("dataSource", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select data source" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="api">API</SelectItem>
+                                <SelectItem value="database">Database</SelectItem>
+                                <SelectItem value="static">Static</SelectItem>
+                                <SelectItem value="realtime">Real-time</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2 pt-4 border-t">
+                            <h4 className="font-medium">Custom Styling</h4>
                             <div className="space-y-2">
-                              <Label htmlFor="alertType">Alert Type</Label>
+                              <Label htmlFor="borderRadius">Border Radius</Label>
                               <Select
-                                value={form.watch("alertType")}
-                                onValueChange={(value) => form.setValue("alertType", value)}
+                                value={form.watch("borderRadius")}
+                                onValueChange={(value) => form.setValue("borderRadius", value)}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select alert type" />
+                                  <SelectValue placeholder="Select border radius" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="visual">Visual</SelectItem>
-                                  <SelectItem value="sound">Sound</SelectItem>
-                                  <SelectItem value="both">Both</SelectItem>
+                                  <SelectItem value="default">Default</SelectItem>
+                                  <SelectItem value="rounded">Rounded</SelectItem>
+                                  <SelectItem value="square">Square</SelectItem>
+                                  <SelectItem value="pill">Pill</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
-                          </>
-                        )}
+
+                            <div className="space-y-2">
+                              <Label htmlFor="padding">Padding</Label>
+                              <Select
+                                value={form.watch("padding")}
+                                onValueChange={(value) => form.setValue("padding", value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select padding" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="compact">Compact</SelectItem>
+                                  <SelectItem value="normal">Normal</SelectItem>
+                                  <SelectItem value="relaxed">Relaxed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customStyles">Custom CSS</Label>
+                              <Input
+                                id="customStyles"
+                                placeholder="Enter custom CSS"
+                                {...form.register("customStyles")}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 pt-4 border-t">
+                            <h4 className="font-medium">Alert Settings</h4>
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="enableAlerts">Enable Alerts</Label>
+                              <Switch
+                                id="enableAlerts"
+                                checked={form.watch("enableAlerts")}
+                                onCheckedChange={(checked) => form.setValue("enableAlerts", checked)}
+                              />
+                            </div>
+
+                            {form.watch("enableAlerts") && (
+                              <>
+                                <div className="space-y-2">
+                                  <Label htmlFor="alertThreshold">Alert Threshold (%)</Label>
+                                  <Input
+                                    id="alertThreshold"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    {...form.register("alertThreshold")}
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="alertType">Alert Type</Label>
+                                  <Select
+                                    value={form.watch("alertType")}
+                                    onValueChange={(value) => form.setValue("alertType", value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select alert type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="visual">Visual</SelectItem>
+                                      <SelectItem value="sound">Sound</SelectItem>
+                                      <SelectItem value="both">Both</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -404,6 +407,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                 </Card>
               </TabsContent>
             </Tabs>
+
             <div className="flex justify-end gap-2 pt-4 border-t">
               <Button
                 type="button"
