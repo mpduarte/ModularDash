@@ -404,8 +404,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                 </Card>
               </TabsContent>
             </Tabs>
-
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4 border-t">
               <Button
                 type="button"
                 variant="outline"
@@ -413,7 +412,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
               >
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" variant="default">
                 Save Changes
               </Button>
             </div>
