@@ -273,6 +273,14 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                       >
                         Compact View
                       </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => applyPreset("performance")}
+                      >
+                        Performance Mode
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
