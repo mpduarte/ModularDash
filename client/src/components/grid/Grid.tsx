@@ -34,6 +34,7 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         layouts={layouts}
         isDraggable={true}
         isResizable={true}
+        draggableHandle=".drag-handle"
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
         rowHeight={200}

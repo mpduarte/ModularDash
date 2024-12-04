@@ -12,7 +12,7 @@ interface WidgetProps {
 export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps) {
   return (
     <Card className="w-full h-full bg-background/60 backdrop-blur-lg border border-border/50 shadow-lg">
-      <CardHeader className="flex flex-row justify-between items-center p-4">
+      <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
         <h3 className="font-medium">{widget.title}</h3>
         <div className="flex gap-2">
           <Button

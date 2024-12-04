@@ -16,8 +16,12 @@
   @apply bg-transparent border border-dashed border-border/50 transition-all duration-200;
 }
 
+.drag-handle {
+  @apply cursor-move select-none;
+}
+
 .react-grid-item.react-draggable-dragging {
-  @apply border-primary/50 shadow-lg z-20;
+  @apply border-primary/50 shadow-lg z-[100] cursor-grabbing !important;
 }
 
 .react-grid-item.react-grid-placeholder {
