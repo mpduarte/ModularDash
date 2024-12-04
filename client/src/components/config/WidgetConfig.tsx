@@ -18,7 +18,7 @@ interface WidgetConfigProps {
 }
 
 export default function WidgetConfig({ widgets, onClose, onAdd, onRemove }: WidgetConfigProps) {
-  const { plugins, updatePlugin } = usePlugins();
+  const { plugins, updatePlugin, isLoading, isError, error } = usePlugins();
   const [activeTab, setActiveTab] = useState("widgets");
 
   return (
@@ -64,7 +64,17 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove }: Widg
 
           <TabsContent value="plugins" className="py-4">
             <ScrollArea className="h-[400px]">
-              {plugins.map(plugin => (
+              {isLoading && (
+                <div className="flex items-center justify-center p-4">
+                  <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+                </div>
+              )}
+              {isError && (
+                <div className="p-4 text-destructive text-center">
+                  <p>Error loading plugins: {error?.message}</p>
+                </div>
+              )}
+              {!isLoading && !isError && plugins.map(plugin => (
                 <Card key={plugin.id} className="mb-4">
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between">

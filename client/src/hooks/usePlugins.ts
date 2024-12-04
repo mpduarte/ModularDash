@@ -4,11 +4,27 @@ import { Plugin } from '../lib/types';
 export function usePlugins() {
   const queryClient = useQueryClient();
 
-  const { data: plugins = [] } = useQuery<Plugin[]>({
+  const { 
+    data: plugins = [], 
+    isLoading,
+    isError,
+    error
+  } = useQuery<Plugin[], Error>({
     queryKey: ['plugins'],
     queryFn: async () => {
-      const response = await fetch('/api/plugins');
-      return response.json();
+      try {
+        console.log('Fetching plugins...');
+        const response = await fetch('/api/plugins');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch plugins: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log('Plugins fetched successfully:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching plugins:', error);
+        throw error;
+      }
     }
   });
 

@@ -52,11 +52,13 @@ app.use((req, res, next) => {
 });
 
 async function seedDefaultPlugins() {
+  log('Starting plugin seeding process...');
+  
   const defaultPlugins = [
     {
       id: 'text-widget',
       name: 'Text Widget',
-      description: 'Simple text display widget',
+      description: 'Simple text display widget for content',
       version: '1.0.0',
       enabled: true,
       component: 'TextWidget',
@@ -66,7 +68,7 @@ async function seedDefaultPlugins() {
     {
       id: 'html-widget',
       name: 'HTML Widget',
-      description: 'Display HTML content',
+      description: 'Display custom HTML content with formatting',
       version: '1.0.0',
       enabled: true,
       component: 'HtmlWidget',
@@ -75,12 +77,20 @@ async function seedDefaultPlugins() {
     }
   ];
 
-  for (const plugin of defaultPlugins) {
-    const existing = await db.select().from(plugins).where(eq(plugins.id, plugin.id));
-    if (existing.length === 0) {
-      await db.insert(plugins).values(plugin);
-      log(`Seeded plugin: ${plugin.id}`);
+  try {
+    for (const plugin of defaultPlugins) {
+      const existing = await db.select().from(plugins).where(eq(plugins.id, plugin.id));
+      if (existing.length === 0) {
+        await db.insert(plugins).values(plugin);
+        log(`Successfully seeded plugin: ${plugin.id}`);
+      } else {
+        log(`Plugin already exists: ${plugin.id}`);
+      }
     }
+    log('Plugin seeding completed successfully');
+  } catch (error) {
+    log(`Error seeding plugins: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw error;
   }
 }
 

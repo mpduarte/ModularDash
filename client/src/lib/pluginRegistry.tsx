@@ -7,7 +7,17 @@ export function registerPlugin(
   component: PluginComponent,
   defaultConfig: Record<string, any> = {}
 ) {
-  registry[id] = { component, defaultConfig };
+  console.log(`Registering plugin: ${id}`);
+  try {
+    if (!component) {
+      throw new Error(`Invalid component for plugin: ${id}`);
+    }
+    registry[id] = { component, defaultConfig };
+    console.log(`Successfully registered plugin: ${id}`, { defaultConfig });
+  } catch (error) {
+    console.error(`Failed to register plugin ${id}:`, error);
+    throw error;
+  }
 }
 
 export function getPlugin(id: string) {
