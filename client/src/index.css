@@ -11,3 +11,23 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+.react-grid-item {
+  @apply bg-transparent border border-dashed border-border/50 transition-all duration-200;
+}
+
+.react-grid-item.react-draggable-dragging {
+  @apply border-primary/50 shadow-lg z-20;
+}
+
+.react-grid-item.react-grid-placeholder {
+  @apply bg-muted/20 border-2 border-dashed border-primary/30;
+}
+
+.react-resizable-handle {
+  @apply opacity-0 transition-opacity duration-200;
+}
+
+.react-grid-item:hover .react-resizable-handle {
+  @apply opacity-100;
+}
