@@ -22,6 +22,11 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
     onUpdate({ config: { ...widget.config, ...newConfig } });
   };
 
+  const handleConfigClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowConfig(true);
+  };
+
   return (
     <>
       <Card 
@@ -46,7 +51,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setShowConfig(true)}
+              onClick={handleConfigClick}
             >
               <Settings className="h-4 w-4" />
             </Button>
