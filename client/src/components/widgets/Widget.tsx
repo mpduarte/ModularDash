@@ -23,8 +23,11 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
   };
 
   const handleConfigClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    setShowConfig(true);
+    if (!e.currentTarget.closest('.react-grid-item')) {
+      setShowConfig(true);
+    }
   };
 
   return (
@@ -52,6 +55,8 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
               variant="ghost"
               size="icon"
               onClick={handleConfigClick}
+              className="no-drag"
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <Settings className="h-4 w-4" />
             </Button>
