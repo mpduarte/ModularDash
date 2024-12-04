@@ -132,8 +132,40 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
     // Start the server
     const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Server running at http://0.0.0.0:${PORT}`);
+    
+    // Add proper signal handling for production
+    process.on('SIGTERM', () => {
+      log('Received SIGTERM signal. Shutting down gracefully...');
+      server.close(() => {
+        log('Server closed');
+        process.exit(0);
+      });
+    });
+
+    // Start the server and wait for it to be ready
+    await new Promise<void>((resolve, reject) => {
+      server.listen(PORT, "0.0.0.0", () => {
+        log(`Server running at http://0.0.0.0:${PORT}`);
+        // Verify the server is actually listening
+        const healthCheck = async () => {
+          try {
+            const response = await fetch(`http://localhost:${PORT}/api/health`);
+            if (response.ok) {
+              log('Health check passed');
+              if (process.send) {
+                process.send('ready');
+              }
+              resolve();
+            } else {
+              reject(new Error('Health check failed'));
+            }
+          } catch (error) {
+            reject(error);
+          }
+        };
+        // Run health check after a short delay to ensure server is ready
+        setTimeout(healthCheck, 1000);
+      });
     });
   } catch (error) {
     console.error('Server startup error:', error);
