@@ -1,0 +1,17 @@
+[Unit]
+Description=Modular Dashboard Application
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=modular-dash
+WorkingDirectory=/opt/modular-dash
+Environment=NODE_ENV=production
+Environment=PORT=5000
+EnvironmentFile=/opt/modular-dash/.env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
