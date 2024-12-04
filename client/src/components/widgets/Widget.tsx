@@ -44,7 +44,15 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
           widget.config.theme === "minimal" && "bg-transparent border-0",
           widget.config.theme === "compact" && "shadow-sm",
           widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
-          "border border-border/50"
+          widget.config.borderRadius === "rounded" && "rounded-xl",
+          widget.config.borderRadius === "square" && "rounded-none",
+          widget.config.borderRadius === "pill" && "rounded-full",
+          widget.config.padding === "compact" && "p-2",
+          widget.config.padding === "normal" && "p-4",
+          widget.config.padding === "relaxed" && "p-6",
+          widget.config.enableAlerts && "relative",
+          "border border-border/50",
+          widget.config.customStyles
         )}>
         <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
           <h3 className="font-medium">{widget.title}</h3>

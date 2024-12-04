@@ -32,6 +32,15 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       visualMode: widget.config.visualMode || "auto",
       background: widget.config.background || "solid",
       animations: widget.config.animations ?? true,
+      // Advanced settings
+      dataSource: widget.config.dataSource || "api",
+      customStyles: widget.config.customStyles || "",
+      borderRadius: widget.config.borderRadius || "default",
+      padding: widget.config.padding || "normal",
+      // Alert settings
+      enableAlerts: widget.config.enableAlerts || false,
+      alertThreshold: widget.config.alertThreshold || 80,
+      alertType: widget.config.alertType || "visual",
     },
   });
 
@@ -239,6 +248,115 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                           checked={form.watch("animations")}
                           onCheckedChange={(checked) => form.setValue("animations", checked)}
                         />
+                      </div>
+
+                      <div className="space-y-2 pt-4 border-t">
+                        <h4 className="font-medium">Data Source Settings</h4>
+                        <Select
+                          value={form.watch("dataSource")}
+                          onValueChange={(value) => form.setValue("dataSource", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select data source" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="api">API</SelectItem>
+                            <SelectItem value="database">Database</SelectItem>
+                            <SelectItem value="static">Static</SelectItem>
+                            <SelectItem value="realtime">Real-time</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2 pt-4 border-t">
+                        <h4 className="font-medium">Custom Styling</h4>
+                        <div className="space-y-2">
+                          <Label htmlFor="borderRadius">Border Radius</Label>
+                          <Select
+                            value={form.watch("borderRadius")}
+                            onValueChange={(value) => form.setValue("borderRadius", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select border radius" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="default">Default</SelectItem>
+                              <SelectItem value="rounded">Rounded</SelectItem>
+                              <SelectItem value="square">Square</SelectItem>
+                              <SelectItem value="pill">Pill</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="padding">Padding</Label>
+                          <Select
+                            value={form.watch("padding")}
+                            onValueChange={(value) => form.setValue("padding", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select padding" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="compact">Compact</SelectItem>
+                              <SelectItem value="normal">Normal</SelectItem>
+                              <SelectItem value="relaxed">Relaxed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="customStyles">Custom CSS</Label>
+                          <Input
+                            id="customStyles"
+                            placeholder="Enter custom CSS"
+                            {...form.register("customStyles")}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-4 border-t">
+                        <h4 className="font-medium">Alert Settings</h4>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="enableAlerts">Enable Alerts</Label>
+                          <Switch
+                            id="enableAlerts"
+                            checked={form.watch("enableAlerts")}
+                            onCheckedChange={(checked) => form.setValue("enableAlerts", checked)}
+                          />
+                        </div>
+
+                        {form.watch("enableAlerts") && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="alertThreshold">Alert Threshold (%)</Label>
+                              <Input
+                                id="alertThreshold"
+                                type="number"
+                                min="0"
+                                max="100"
+                                {...form.register("alertThreshold")}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="alertType">Alert Type</Label>
+                              <Select
+                                value={form.watch("alertType")}
+                                onValueChange={(value) => form.setValue("alertType", value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select alert type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="visual">Visual</SelectItem>
+                                  <SelectItem value="sound">Sound</SelectItem>
+                                  <SelectItem value="both">Both</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardContent>
