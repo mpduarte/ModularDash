@@ -108,6 +108,9 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Configure Widget</DialogTitle>
+          <DialogDescription>
+            Customize widget settings and appearance
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

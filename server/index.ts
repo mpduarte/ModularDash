@@ -131,7 +131,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     }
 
     // Start the server
-    const PORT = parseInt(process.env.PORT || '5000', 10);
+    const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server running at http://0.0.0.0:${PORT}`);
     });
