@@ -30,6 +30,10 @@ args = "Development Server"
 task = "workflow.run"
 args = "Production Build"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build"
+
 [[workflows.workflow]]
 name = "Development Server"
 author = "agent"
@@ -59,3 +63,17 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npm run build && npm run start"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
