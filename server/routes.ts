@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { db } from "../db";
 import { widgets, zones } from "@db/schema";
+import { plugins } from "@db/schema";
 import { eq } from "drizzle-orm";
+import { and } from "drizzle-orm";
 
 export function registerRoutes(app: Express) {
   // Widget routes
@@ -68,5 +70,40 @@ export function registerRoutes(app: Express) {
     }
     await db.delete(zones).where(eq(zones.id, zoneId));
     res.status(204).end();
+  // Plugin routes
+  app.get("/api/plugins", async (req, res) => {
+    const allPlugins = await db.select().from(plugins);
+    res.json(allPlugins);
+  });
+
+  app.get("/api/plugins/:id", async (req, res) => {
+    const plugin = await db.select().from(plugins).where(eq(plugins.id, req.params.id));
+    if (!plugin.length) {
+      return res.status(404).json({ error: "Plugin not found" });
+    }
+    res.json(plugin[0]);
+  });
+
+  app.post("/api/plugins", async (req, res) => {
+    const plugin = await db.insert(plugins).values(req.body).returning();
+    res.json(plugin[0]);
+  });
+
+  app.patch("/api/plugins/:id", async (req, res) => {
+    const plugin = await db
+      .update(plugins)
+      .set(req.body)
+      .where(eq(plugins.id, req.params.id))
+      .returning();
+    if (!plugin.length) {
+      return res.status(404).json({ error: "Plugin not found" });
+    }
+    res.json(plugin[0]);
+  });
+
+  app.delete("/api/plugins/:id", async (req, res) => {
+    await db.delete(plugins).where(eq(plugins.id, req.params.id));
+    res.status(204).end();
+  });
   });
 }

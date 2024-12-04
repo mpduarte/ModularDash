@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Widget as WidgetType } from "../../lib/types";
-import { Maximize2, X } from "lucide-react";
+import { Maximize2, X, Settings } from "lucide-react";
+import { getPlugin } from "../../lib/pluginRegistry";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -10,6 +11,13 @@ interface WidgetProps {
 }
 
 export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps) {
+  const plugin = getPlugin(widget.pluginId);
+  const PluginComponent = plugin?.component;
+
+  const handleConfigChange = (newConfig: Record<string, any>) => {
+    onUpdate({ config: { ...widget.config, ...newConfig } });
+  };
+
   return (
     <Card className="w-full h-full bg-background/60 backdrop-blur-lg border border-border/50 shadow-lg">
       <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
@@ -32,7 +40,14 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
         </div>
       </CardHeader>
       <CardContent className="p-4">
-        {widget.content}
+        {PluginComponent ? (
+          <PluginComponent 
+            config={widget.config || {}}
+            onConfigChange={handleConfigChange}
+          />
+        ) : (
+          <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
+        )}
       </CardContent>
     </Card>
   );

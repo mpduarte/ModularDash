@@ -1,5 +1,16 @@
 import { Layout } from 'react-grid-layout';
 
+export interface Plugin {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  enabled: boolean;
+  config: Record<string, any>;
+  component: string;
+  category: string;
+}
+
 export interface Widget {
   id: string;
   title: string;
@@ -9,6 +20,8 @@ export interface Widget {
   w: number;
   h: number;
   visible: boolean;
+  pluginId: string;
+  config: Record<string, any>;
 }
 
 export interface GridLayout extends Layout {
@@ -32,4 +45,16 @@ export interface GridZone {
 export interface WidgetConfig {
   id: string;
   settings: Record<string, any>;
+}
+
+export type PluginComponent = React.ComponentType<{
+  config: Record<string, any>;
+  onConfigChange: (newConfig: Record<string, any>) => void;
+}>;
+
+export interface PluginRegistry {
+  [key: string]: {
+    component: PluginComponent;
+    defaultConfig: Record<string, any>;
+  };
 }

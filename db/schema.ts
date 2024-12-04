@@ -11,7 +11,19 @@ export const widgets = pgTable("widgets", {
   w: integer("w").notNull(),
   h: integer("h").notNull(),
   visible: boolean("visible").notNull().default(true),
-  config: jsonb("config").notNull().default({})
+  config: jsonb("config").notNull().default({}),
+  pluginId: text("plugin_id").notNull()
+});
+
+export const plugins = pgTable("plugins", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  version: text("version").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  config: jsonb("config").notNull().default({}),
+  component: text("component").notNull(),
+  category: text("category").notNull().default('general')
 });
 
 export const zones = pgTable("zones", {
@@ -24,6 +36,11 @@ export const insertWidgetSchema = createInsertSchema(widgets);
 export const selectWidgetSchema = createSelectSchema(widgets);
 export type InsertWidget = z.infer<typeof insertWidgetSchema>;
 export type Widget = z.infer<typeof selectWidgetSchema>;
+
+export const insertPluginSchema = createInsertSchema(plugins);
+export const selectPluginSchema = createSelectSchema(plugins);
+export type InsertPlugin = z.infer<typeof insertPluginSchema>;
+export type Plugin = z.infer<typeof selectPluginSchema>;
 
 export const insertZoneSchema = createInsertSchema(zones);
 export const selectZoneSchema = createSelectSchema(zones);
