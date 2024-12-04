@@ -18,9 +18,15 @@ export function usePlugins() {
         if (!response.ok) {
           throw new Error(`Failed to fetch plugins: ${response.statusText}`);
         }
-        const data = await response.json();
-        console.log('Plugins fetched successfully:', data);
-        return data;
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          console.log('Plugins fetched successfully:', data);
+          return data;
+        } catch (e) {
+          console.error('Failed to parse plugins response:', text);
+          throw new Error('Invalid JSON response from server');
+        }
       } catch (error) {
         console.error('Error fetching plugins:', error);
         throw error;
@@ -73,6 +79,8 @@ export function usePlugins() {
     updatePlugin: (id: string, updates: Partial<Plugin>) => 
       updatePlugin.mutate({ id, updates }),
     uninstallPlugin: (id: string) => uninstallPlugin.mutate(id),
-    isLoading: installPlugin.isPending || updatePlugin.isPending || uninstallPlugin.isPending
+    isLoading: isLoading || installPlugin.isPending || updatePlugin.isPending || uninstallPlugin.isPending,
+    isError,
+    error
   };
 }
