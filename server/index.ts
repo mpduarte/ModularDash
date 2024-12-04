@@ -82,17 +82,20 @@ async function seedDefaultPlugins() {
 
   try {
     for (const plugin of defaultPlugins) {
-      const existing = await db.select().from(plugins).where(eq(plugins.id, plugin.id));
-      if (existing.length === 0) {
-        await db.insert(plugins).values(plugin);
-        log(`Successfully seeded plugin: ${plugin.id}`);
-      } else {
-        log(`Plugin already exists: ${plugin.id}`);
+      try {
+        const existing = await db.select().from(plugins).where(eq(plugins.id, plugin.id));
+        if (existing.length === 0) {
+          await db.insert(plugins).values(plugin);
+          log(`Successfully seeded plugin: ${plugin.id}`);
+        }
+      } catch (error) {
+        log(`Error seeding plugin: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
       }
     }
     log('Plugin seeding completed successfully');
   } catch (error) {
-    log(`Error seeding plugins: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    log(`Error in seeding process: ${error instanceof Error ? error.message : String(error)}`);
     throw error;
   }
 }
@@ -128,9 +131,9 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     }
 
     // Start the server
-    const PORT = 5000;
+    const PORT = process.env.PORT || 5000;
     server.listen(PORT, "0.0.0.0", () => {
-      log(`Server running on port ${PORT}`);
+      log(`Server running at http://0.0.0.0:${PORT}`);
     });
   } catch (error) {
     console.error('Server startup error:', error);

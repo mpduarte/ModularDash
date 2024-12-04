@@ -5,6 +5,7 @@ import { Maximize2, X, Settings } from "lucide-react";
 import { getPlugin } from "../../lib/pluginRegistry";
 import { useState } from "react";
 import WidgetConfigDialog from "../config/WidgetConfigDialog";
+import { cn } from "@/lib/utils";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -23,7 +24,19 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
 
   return (
     <>
-      <Card className="w-full h-full bg-background/60 backdrop-blur-lg border border-border/50 shadow-lg">
+      <Card 
+        className={cn(
+          "w-full h-full shadow-lg",
+          widget.config.background === "blur" && "bg-background/60 backdrop-blur-lg",
+          widget.config.background === "transparent" && "bg-background/30",
+          widget.config.background === "solid" && "bg-background",
+          widget.config.layout === "compact" && "p-2",
+          widget.config.layout === "minimal" && "border-0 shadow-none",
+          widget.config.layout === "dense" && "p-1 gap-1",
+          widget.config.visualMode === "high-contrast" && "border-2",
+          !widget.config.animations && "[&_*]:!transition-none",
+          "border border-border/50"
+        )}>
         <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
           <h3 className="font-medium">{widget.title}</h3>
           <div className="flex gap-2">
