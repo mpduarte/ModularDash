@@ -38,6 +38,10 @@ args = "Production Server"
 task = "workflow.run"
 args = "Build Only"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server with Metrics"
+
 [[workflows.workflow]]
 name = "Development Server"
 author = "agent"
@@ -95,3 +99,18 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
+
+[[workflows.workflow]]
+name = "Development Server with Metrics"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "ENABLE_METRICS=true npm run dev"
+waitForPort = 5000

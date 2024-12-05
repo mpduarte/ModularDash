@@ -19,9 +19,18 @@ function log(message: string) {
 
 const app = express();
 
+// Import metrics middleware
+import { metricsMiddleware, metricsHandler } from './metrics';
+
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Enable metrics collection if environment variable is set
+if (process.env.ENABLE_METRICS === 'true') {
+  app.use(metricsMiddleware);
+  app.get('/metrics', metricsHandler);
+}
 
 // Request logging middleware
 app.use((req, res, next) => {

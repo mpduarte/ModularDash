@@ -42,12 +42,64 @@ if [ "$DEPLOY_METHOD" = "docker" ]; then
         sudo chmod +x /usr/local/bin/docker-compose
     fi
 
+    # Create backup directory
+    BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$BACKUP_DIR"
+
+    # Backup existing data if containers are running
+    if docker-compose -f deployment/docker-compose.yml ps | grep -q "Up"; then
+        echo "Creating backup of existing data..."
+        docker-compose -f deployment/docker-compose.yml exec -T db pg_dumpall -c -U "$PGUSER" > "$BACKUP_DIR/database_backup.sql"
+        echo "Backup created in $BACKUP_DIR"
+    fi
+
+    # Stop existing containers
+    echo "Stopping existing containers..."
+    docker-compose -f deployment/docker-compose.yml down || true
+
+    # Prune unused images to free up space
+    echo "Cleaning up unused Docker resources..."
+    docker image prune -f
+
     # Build and start containers
     echo "Building and starting Docker containers..."
-    docker-compose -f deployment/docker-compose.yml up --build -d
+    if ! docker-compose -f deployment/docker-compose.yml up --build -d; then
+        echo "Error: Failed to start containers"
+        echo "Rolling back to previous version..."
+        if [ -f "$BACKUP_DIR/database_backup.sql" ]; then
+            docker-compose -f deployment/docker-compose.yml up -d db
+            sleep 5
+            docker-compose -f deployment/docker-compose.yml exec -T db psql -U "$PGUSER" < "$BACKUP_DIR/database_backup.sql"
+        fi
+        exit 1
+    fi
 
-    echo "Docker deployment completed successfully!"
-    echo "The application should now be running at http://localhost:5000"
+    # Wait for health checks and monitoring services
+    echo "Waiting for services to be healthy..."
+    timeout 90 bash -c '
+        until docker-compose -f deployment/docker-compose.yml ps | grep -q "healthy"; do 
+            echo "Waiting for core services..."
+            sleep 1
+        done
+        until curl -s http://localhost:9090/-/healthy > /dev/null; do
+            echo "Waiting for Prometheus..."
+            sleep 1
+        done
+    ' || {
+        echo "Error: Services failed to become healthy within timeout"
+        exit 1
+    }
+
+    # Verify deployment
+    if curl -s http://localhost:5000/api/health | grep -q "ok"; then
+        echo "Docker deployment completed successfully!"
+        echo "The application is running at http://localhost:5000"
+        echo "Monitor logs with: docker-compose -f deployment/docker-compose.yml logs -f"
+    else
+        echo "Error: Application health check failed"
+        echo "Check logs with: docker-compose -f deployment/docker-compose.yml logs -f"
+        exit 1
+    fi
 
 else
     # Traditional deployment

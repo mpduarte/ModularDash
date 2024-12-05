@@ -16,17 +16,32 @@ services:
       - PGDATABASE=${PGDATABASE}
       - PGHOST=db
       - PGPORT=5432
+      - ENABLE_METRICS=true
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - app-network
+      - monitoring
 
   db:
     image: postgres:16-alpine
@@ -36,20 +51,83 @@ services:
       - POSTGRES_DB=${PGDATABASE}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+      - ./logs:/var/log/modular-dash
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PGUSER} -d ${PGDATABASE}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "5432:5432"
     networks:
       - app-network
 
+prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    expose:
+      - "9100"
+    networks:
+      - monitoring
+
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter:latest
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${PGUSER}:${PGPASSWORD}@db:5432/${PGDATABASE}?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - monitoring
+      - app-network
+    depends_on:
+      - db
+
 networks:
   app-network:
     driver: bridge
+    name: modular-dash-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+  monitoring:
+    driver: bridge
+    name: modular-dash-monitoring
 
 volumes:
   postgres_data:
     driver: local
+    name: modular-dash-data
+  prometheus_data:
+    driver: local
+    name: modular-dash-prometheus

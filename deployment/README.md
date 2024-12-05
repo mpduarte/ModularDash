@@ -38,18 +38,88 @@ PGPORT=5432
    docker-compose up -d
    ```
 
-3. Monitor the logs:
+3. Database Operations:
    ```bash
-   docker-compose logs -f
+   # Create a backup
+   ./deployment/db-ops.sh backup
+
+   # Restore from a backup
+   ./deployment/db-ops.sh restore backups/db_backup_20240205_123456.sql
+   ```
+
+4. Monitor the logs:
+   ```bash
+   # View all container logs
+   docker-compose -f deployment/docker-compose.yml logs -f
+
+   # View application logs
+   tail -f logs/modular-dash/error.log
+   tail -f logs/modular-dash/access.log
    ```
 
 4. Access the application at `http://localhost:5000`
 
-### Docker Health Checks
+### Docker Health Checks and Monitoring
 
-The application includes health checks for both the app and database services:
-- App Service: Checks `/api/health` endpoint every 30 seconds
-- Database: Checks PostgreSQL connectivity every 10 seconds
+The application includes comprehensive monitoring and health check capabilities:
+
+1. Health Checks:
+   - App Service: Checks `/api/health` endpoint every 30 seconds
+   - Database: Checks PostgreSQL connectivity every 10 seconds
+
+2. Monitoring Stack:
+   - Prometheus: Access metrics dashboard at `http://localhost:9090`
+   - Node Exporter: System metrics collection
+   - Postgres Exporter: Database metrics collection
+
+3. Metrics Available:
+   - Application performance metrics
+   - System resource utilization
+   - Database performance statistics
+   - Custom business metrics
+
+4. Accessing Monitoring:
+   ```bash
+   # View Prometheus dashboard
+   open http://localhost:9090
+
+   # Check Node Exporter metrics
+   curl http://localhost:9100/metrics
+
+   # View Postgres metrics
+   curl http://localhost:9187/metrics
+   ```
+
+## Monitoring Setup
+
+### Replit Deployment
+For Replit deployment, metrics are available at the `/metrics` endpoint when `ENABLE_METRICS=true` is set in the environment variables.
+
+### Docker Deployment
+The Docker deployment includes a full monitoring stack:
+
+1. Prometheus (metrics collection and storage)
+2. Node Exporter (system metrics)
+3. Postgres Exporter (database metrics)
+
+Access the monitoring interfaces:
+- Prometheus UI: `http://localhost:9090`
+- Node Exporter metrics: `http://localhost:9100/metrics`
+- Postgres Exporter metrics: `http://localhost:9187/metrics`
+
+### Available Metrics
+- HTTP request duration and counts
+- System resource utilization
+- Database performance metrics
+- Custom application metrics
+
+### Dashboard Setup
+1. Access Prometheus UI
+2. Navigate to Graph view
+3. Use PromQL to query metrics, e.g.:
+   - `http_requests_total`: Total HTTP requests
+   - `http_request_duration_seconds_bucket`: Request duration histogram
+   - `nodejs_heap_size_total_bytes`: Node.js memory usage
 
 ## Traditional Deployment
 
