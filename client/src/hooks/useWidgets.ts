@@ -22,15 +22,12 @@ export function useWidgets() {
       return response.json();
     },
     onMutate: async (updates) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['widgets'] });
-      // Get current widgets
       const previousWidgets = queryClient.getQueryData<Widget[]>(['widgets']);
-      // Optimistically update widgets
       if (previousWidgets) {
         queryClient.setQueryData(['widgets'], previousWidgets.map(widget => 
           widget.id === updates.id 
-            ? { ...widget, ...updates.updates } 
+            ? { ...widget, ...updates.updates }
             : widget
         ));
       }

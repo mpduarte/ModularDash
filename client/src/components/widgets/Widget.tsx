@@ -32,8 +32,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
     <>
       <Card 
         className={cn(
-          "w-full h-full shadow-lg transition-opacity duration-200",
-          !widget.visible && "opacity-0 pointer-events-none",
+          "w-full h-full shadow-lg",
           widget.config.background === "blur" && "bg-background/60 backdrop-blur-lg",
           widget.config.background === "transparent" && "bg-background/30",
           widget.config.background === "solid" && "bg-background",
