@@ -32,6 +32,8 @@ export function getAllPlugins() {
 }
 
 // Register built-in plugins here
+import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
+
 registerPlugin('text-widget', ({ config }) => (
   <div className="p-4">
     <p>{config.text || 'Empty text widget'}</p>
@@ -41,5 +43,11 @@ registerPlugin('text-widget', ({ config }) => (
 registerPlugin('html-widget', ({ config }) => (
   <div className="p-4" dangerouslySetInnerHTML={{ __html: config.html || '' }} />
 ), { html: '' });
+
+registerPlugin(
+  backgroundManagerPluginConfig.id,
+  backgroundManagerPluginConfig.component,
+  backgroundManagerPluginConfig.defaultConfig
+);
 
 export default registry;
