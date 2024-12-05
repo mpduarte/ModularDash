@@ -19,10 +19,23 @@ interface BackgroundState {
 }
 
 export const useBackgroundManager = create<BackgroundState>((set: any) => ({
-  images: [] as BackgroundImage[],
+  images: [
+    {
+      url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+      id: 'default-1'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6',
+      id: 'default-2'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1505144808419-1957a94ca61e',
+      id: 'default-3'
+    }
+  ] as BackgroundImage[],
   currentImageIndex: 0,
   interval: 5000,
-  isAutoRotate: false,
+  isAutoRotate: true,
   transition: 'fade',
   setImages: (images: BackgroundImage[]) => set({ images }),
   setCurrentImage: (currentImageIndex: number) => set({ currentImageIndex }),
