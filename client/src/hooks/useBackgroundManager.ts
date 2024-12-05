@@ -12,7 +12,7 @@ interface BackgroundState {
   isAutoRotate: boolean;
   transition: string;
   setImages: (images: BackgroundImage[]) => void;
-  setCurrentImage: (index: number) => void;
+  setCurrentImage: (indexOrUpdater: number | ((prev: number) => number)) => void;
   setInterval: (interval: number) => void;
   setAutoRotate: (isAutoRotate: boolean) => void;
   setTransition: (transition: string) => void;
