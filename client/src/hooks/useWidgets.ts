@@ -13,20 +13,29 @@ export function useWidgets() {
   });
 
   const updateWidget = useMutation({
-    mutationFn: async (updates: { id: string, updates: Partial<Widget> }) => {
-      const response = await fetch(`/api/widgets/${updates.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates.updates)
-      });
-      return response.json();
+    mutationFn: async (updates: { id: string, updates?: Partial<Widget>, delete?: boolean }) => {
+      if (updates.delete) {
+        const response = await fetch(`/api/widgets/${updates.id}`, {
+          method: 'DELETE'
+        });
+        return { id: updates.id };
+      } else {
+        const response = await fetch(`/api/widgets/${updates.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates.updates)
+        });
+        return response.json();
+      }
     },
     onMutate: async (updates) => {
       await queryClient.cancelQueries({ queryKey: ['widgets'] });
       const previousWidgets = queryClient.getQueryData<Widget[]>(['widgets']);
       if (previousWidgets) {
-        queryClient.setQueryData(['widgets'], previousWidgets.map(widget => 
-          widget.id === updates.id 
+        queryClient.setQueryData(['widgets'], previousWidgets.filter(widget => 
+          updates.delete ? widget.id !== updates.id : true
+        ).map(widget => 
+          widget.id === updates.id && updates.updates
             ? { ...widget, ...updates.updates }
             : widget
         ));
