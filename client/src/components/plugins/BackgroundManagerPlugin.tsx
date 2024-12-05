@@ -21,18 +21,27 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let timer: number;
+    let timer: ReturnType<typeof setInterval>;
+    
     if (isAutoRotate && images.length > 1) {
-      timer = window.setInterval(() => {
-        setCurrentImage((currentImageIndex + 1) % images.length);
+      // Force initial image load
+      setCurrentImage(currentImageIndex);
+      
+      // Set up the interval
+      timer = setInterval(() => {
+        setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
       }, interval);
+      
+      console.log('Background rotation started:', { interval, currentIndex: currentImageIndex });
     }
+
     return () => {
       if (timer) {
-        window.clearInterval(timer);
+        clearInterval(timer);
+        console.log('Background rotation stopped');
       }
     };
-  }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
+  }, [isAutoRotate, interval, images.length, setCurrentImage]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;

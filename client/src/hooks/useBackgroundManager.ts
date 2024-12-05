@@ -38,7 +38,13 @@ export const useBackgroundManager = create<BackgroundState>((set: any) => ({
   isAutoRotate: true,
   transition: 'fade',
   setImages: (images: BackgroundImage[]) => set({ images }),
-  setCurrentImage: (currentImageIndex: number) => set({ currentImageIndex }),
+  setCurrentImage: (indexOrUpdater: number | ((prev: number) => number)) => {
+    if (typeof indexOrUpdater === 'function') {
+      set((state: BackgroundState) => ({ currentImageIndex: indexOrUpdater(state.currentImageIndex) }));
+    } else {
+      set({ currentImageIndex: indexOrUpdater });
+    }
+  },
   setInterval: (interval: number) => set({ interval }),
   setAutoRotate: (isAutoRotate: boolean) => set({ isAutoRotate }),
   setTransition: (transition: string) => set({ transition }),
