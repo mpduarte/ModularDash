@@ -32,7 +32,7 @@ export function useWidgets() {
           widget.id === updates.id 
             ? { ...widget, ...updates.updates } 
             : widget
-        ).filter(widget => widget.visible !== false));
+        ));
       }
       return { previousWidgets };
     },
