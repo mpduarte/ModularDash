@@ -21,7 +21,27 @@ export function useWidgets() {
       });
       return response.json();
     },
-    onSuccess: () => {
+    onMutate: async (updates) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['widgets'] });
+      // Get current widgets
+      const previousWidgets = queryClient.getQueryData<Widget[]>(['widgets']);
+      // Optimistically update widgets
+      if (previousWidgets) {
+        queryClient.setQueryData(['widgets'], previousWidgets.map(widget => 
+          widget.id === updates.id 
+            ? { ...widget, ...updates.updates } 
+            : widget
+        ).filter(widget => widget.visible !== false));
+      }
+      return { previousWidgets };
+    },
+    onError: (_err, _updates, context) => {
+      if (context?.previousWidgets) {
+        queryClient.setQueryData(['widgets'], context.previousWidgets);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['widgets'] });
     }
   });
