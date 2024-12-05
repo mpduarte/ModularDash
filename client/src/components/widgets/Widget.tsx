@@ -83,7 +83,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                onUpdate({ id: widget.id, delete: true });
+                onUpdate({ visible: false });
               }}
               className="no-drag"
               onMouseDown={(e) => e.stopPropagation()}

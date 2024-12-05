@@ -88,8 +88,13 @@ export function useWidgets() {
 
   return {
     widgets,
-    updateWidget: (id: string, updates: Partial<Widget>) => 
-      updateWidget.mutate({ id, updates }),
+    updateWidget: (id: string, updates: Partial<Widget>) => {
+      if (updates.visible === false) {
+        removeWidget.mutate(id);
+      } else {
+        updateWidget.mutate({ id, updates });
+      }
+    },
     addWidget: () => addWidget.mutate(),
     removeWidget: (id: string) => removeWidget.mutate(id)
   };
