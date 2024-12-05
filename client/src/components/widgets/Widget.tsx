@@ -61,7 +61,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
               variant="ghost"
               size="icon"
               onClick={handleConfigClick}
-              className="no-drag"
+              className="no-drag flex items-center justify-center p-0 h-8 w-8"
               onMouseDown={(e) => e.stopPropagation()}
             >
               <Settings className="h-4 w-4" />
