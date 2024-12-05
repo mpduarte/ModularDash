@@ -20,6 +20,7 @@ export default function Dashboard() {
           <Button 
             variant="ghost" 
             size="icon"
+            className="p-2"
             onClick={() => setShowConfig(true)}
           >
             <Settings className="h-5 w-5" />
