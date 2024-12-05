@@ -21,13 +21,17 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
+    let timer: NodeJS.Timer | undefined;
     if (isAutoRotate && images.length > 1) {
       timer = setInterval(() => {
         setCurrentImage((currentImageIndex + 1) % images.length);
-      }, interval);
+      }, interval) as unknown as NodeJS.Timer;
     }
-    return () => timer && clearInterval(timer);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,13 +118,13 @@ export const BackgroundManagerPlugin: React.FC = () => {
   );
 };
 
-export const defaultConfig = {
+const defaultConfig = {
   images: [] as BackgroundImage[],
   currentImageIndex: 0,
   interval: 5000,
   isAutoRotate: false,
   transition: 'fade',
-};
+} as const;
 
 export const backgroundManagerPluginConfig = {
   id: 'background-manager',
@@ -129,5 +133,5 @@ export const backgroundManagerPluginConfig = {
   version: '1.0.0',
   component: BackgroundManagerPlugin,
   category: 'appearance',
-  defaultConfig,
+  defaultConfig: defaultConfig,
 };
