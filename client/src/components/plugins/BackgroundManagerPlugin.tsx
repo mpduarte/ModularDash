@@ -21,7 +21,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let timerId: NodeJS.Timeout | undefined;
+    let timerId: number | null = null;
 
     const rotateImage = () => {
       setCurrentImage((prev) => (prev + 1) % images.length);
@@ -38,7 +38,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
     }
 
     return () => {
-      if (timerId) {
+      if (timerId !== null) {
         window.clearInterval(timerId);
         console.log('Background rotation stopped');
       }
