@@ -8,15 +8,27 @@ interface BackgroundZoneProps {
 export default function BackgroundZone({ children }: BackgroundZoneProps) {
   const { images, currentImageIndex, transition } = useBackgroundManager();
   const currentBackground = images[currentImageIndex]?.url || null;
+  const prevBackground = images[(currentImageIndex - 1 + images.length) % images.length]?.url || null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0">
+      {prevBackground && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: `url(${prevBackground})`,
+            opacity: 0,
+            transition: 'opacity 1000ms ease-in-out'
+          }} 
+        />
+      )}
       {currentBackground && (
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
             backgroundImage: `url(${currentBackground})`,
-            opacity: 1
+            opacity: 1,
+            transition: 'opacity 1000ms ease-in-out'
           }} 
         />
       )}
