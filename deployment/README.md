@@ -1,5 +1,44 @@
 # Deployment Guide
 
+## Quick Start
+
+### Option 1: Docker Deployment
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd <repo-directory>
+
+# 2. Deploy with Docker
+sudo chmod +x deployment/deploy.sh
+sudo ./deployment/deploy.sh --docker
+
+# 3. Monitor logs
+docker-compose -f deployment/docker-compose.yml logs -f
+```
+
+### Option 2: Traditional Debian Deployment
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd <repo-directory>
+
+# 2. Deploy traditionally
+sudo chmod +x deployment/deploy.sh
+sudo ./deployment/deploy.sh
+
+# 3. Monitor logs
+sudo journalctl -u modular-dash -f
+```
+
+After deployment:
+- Access your application at: http://your-server-ip:5000
+- Monitor application health at: http://your-server-ip:5000/api/health
+- View metrics dashboard at: http://your-server-ip:9090 (Docker deployment only)
+
+For detailed instructions and configurations, see below.
+
+# Deployment Guide
+
 This guide explains how to deploy the Modular Dashboard application using either traditional deployment or Docker-based deployment.
 
 ## Prerequisites
