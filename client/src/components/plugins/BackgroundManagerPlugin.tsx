@@ -21,9 +21,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    if (!isAutoRotate || images.length <= 1) {
-      return;
-    }
+    let timerId: NodeJS.Timeout;
 
     const rotateImage = () => {
       setCurrentImage((prev) => (prev + 1) % images.length);
@@ -34,12 +32,20 @@ export const BackgroundManagerPlugin: React.FC = () => {
       });
     };
 
-    const timer = setInterval(rotateImage, interval);
-    console.log('Background rotation started');
+    if (isAutoRotate && images.length > 1) {
+      // Initial rotation
+      rotateImage();
+      
+      // Set up interval for subsequent rotations
+      timerId = setInterval(rotateImage, interval);
+      console.log('Background rotation started');
+    }
 
     return () => {
-      clearInterval(timer);
-      console.log('Background rotation stopped');
+      if (timerId) {
+        clearInterval(timerId);
+        console.log('Background rotation stopped');
+      }
     };
   }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
 
