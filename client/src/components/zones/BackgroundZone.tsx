@@ -13,7 +13,7 @@ export default function BackgroundZone({ children }: BackgroundZoneProps) {
     <div className="fixed inset-0 pointer-events-none z-0">
       <div 
         key={currentImageIndex}
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 ease-in-out"
         style={{ 
           backgroundImage: currentBackground ? `url(${currentBackground})` : 'none',
           opacity: currentBackground ? 1 : 0,

@@ -21,24 +21,16 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let timerId: ReturnType<typeof setInterval>;
+    let timerId: NodeJS.Timer | null = null;
 
     const rotateImage = () => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-      console.log('Rotating image:', {
-        currentIndex: currentImageIndex,
-        totalImages: images.length,
-        interval
-      });
     };
 
     if (isAutoRotate && images.length > 1) {
-      // Initial rotation
-      rotateImage();
-      
-      // Set up interval for subsequent rotations
-      timerId = setInterval(() => rotateImage(), interval);
-      console.log('Background rotation started');
+      // Set up interval for rotations
+      timerId = setInterval(rotateImage, interval);
+      console.log('Background rotation started:', { interval, totalImages: images.length });
     }
 
     return () => {
@@ -47,7 +39,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
         console.log('Background rotation stopped');
       }
     };
-  }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
+  }, [isAutoRotate, interval, images.length, setCurrentImage]); // Removed currentImageIndex from deps
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
