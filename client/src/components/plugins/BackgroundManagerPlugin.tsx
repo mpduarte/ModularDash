@@ -119,10 +119,23 @@ export const BackgroundManagerPlugin: React.FC = () => {
 };
 
 const defaultConfig = {
-  images: [] as BackgroundImage[],
+  images: [
+    {
+      url: 'https://source.unsplash.com/random/1920x1080?nature',
+      id: 'default-1'
+    },
+    {
+      url: 'https://source.unsplash.com/random/1920x1080?landscape',
+      id: 'default-2'
+    },
+    {
+      url: 'https://source.unsplash.com/random/1920x1080?city',
+      id: 'default-3'
+    }
+  ] as BackgroundImage[],
   currentImageIndex: 0,
   interval: 5000,
-  isAutoRotate: false,
+  isAutoRotate: true,
   transition: 'fade',
 } as const;
 
