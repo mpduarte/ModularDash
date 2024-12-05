@@ -25,28 +25,44 @@ export const BackgroundManagerPlugin: React.FC = () => {
 
     const rotateImage = () => {
       if (images.length > 1) {
-        setCurrentImage((prev) => (prev + 1) % images.length);
+        setCurrentImage((prev) => {
+          const nextIndex = (prev + 1) % images.length;
+          console.log('Rotating image:', { 
+            previousIndex: prev, 
+            nextIndex, 
+            totalImages: images.length,
+            currentImageUrl: images[prev]?.url,
+            nextImageUrl: images[nextIndex]?.url 
+          });
+          return nextIndex;
+        });
       }
     };
 
+    console.log('Effect running with:', { 
+      isAutoRotate, 
+      interval, 
+      imagesCount: images.length,
+      currentIndex: currentImageIndex,
+      currentImageUrl: images[currentImageIndex]?.url
+    });
+
     if (isAutoRotate && images.length > 1) {
-      // Initial rotation after a short delay
-      const initialDelay = setTimeout(() => {
-        rotateImage();
-        // Start the interval after the initial rotation
-        timerId = window.setInterval(rotateImage, interval);
-        console.log('Background rotation started:', { interval, totalImages: images.length });
-      }, 1000);
+      // Start rotation immediately
+      rotateImage();
+      
+      // Set up interval for subsequent rotations
+      timerId = window.setInterval(rotateImage, interval);
+      console.log('Background rotation started:', { interval, totalImages: images.length });
 
       return () => {
-        clearTimeout(initialDelay);
         if (timerId) {
           window.clearInterval(timerId);
           console.log('Background rotation stopped');
         }
       };
     }
-  }, [isAutoRotate, interval, images.length]);
+  }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
