@@ -17,13 +17,16 @@ export default function Dashboard() {
       <BackgroundZone>
         <div className="p-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setShowConfig(true)}
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center justify-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="flex items-center justify-center w-10 h-10"
+              onClick={() => setShowConfig(true)}
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </BackgroundZone>
 
