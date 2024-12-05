@@ -15,14 +15,15 @@ interface WidgetConfigProps {
   onClose: () => void;
   onAdd: () => void;
   onRemove: (id: string) => void;
+  open: boolean;
 }
 
-export default function WidgetConfig({ widgets, onClose, onAdd, onRemove }: WidgetConfigProps) {
+export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }: WidgetConfigProps) {
   const { plugins, updatePlugin, isLoading, isError, error } = usePlugins();
   const [activeTab, setActiveTab] = useState("widgets");
 
   return (
-    <Dialog open onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Dashboard Configuration</DialogTitle>

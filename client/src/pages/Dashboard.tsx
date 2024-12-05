@@ -35,14 +35,13 @@ export default function Dashboard() {
         />
       </main>
 
-      {showConfig && (
-        <WidgetConfig
-          widgets={widgets}
-          onClose={() => setShowConfig(false)}
-          onAdd={addWidget}
-          onRemove={removeWidget}
-        />
-      )}
+      <WidgetConfig
+        widgets={widgets}
+        onClose={() => setShowConfig(false)}
+        onAdd={addWidget}
+        onRemove={removeWidget}
+        open={showConfig}
+      />
 
       <OverlayZone 
         show={showOverlay}
