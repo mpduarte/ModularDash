@@ -21,15 +21,15 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: number;
     if (isAutoRotate && images.length > 1) {
-      timer = setInterval(() => {
+      timer = window.setInterval(() => {
         setCurrentImage((currentImageIndex + 1) % images.length);
       }, interval);
     }
     return () => {
       if (timer) {
-        clearInterval(timer);
+        window.clearInterval(timer);
       }
     };
   }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
