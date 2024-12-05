@@ -3,8 +3,11 @@
 # Exit on error
 set -e
 
-# Default deployment method
+# Default values
 DEPLOY_METHOD="traditional"
+DEBIAN_VERSION="bookworm"
+LOG_DIR="/var/log/modular-dash"
+BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -13,159 +16,181 @@ while [[ $# -gt 0 ]]; do
       DEPLOY_METHOD="docker"
       shift
       ;;
+    --debian-version)
+      DEBIAN_VERSION="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: ./deploy.sh [--docker]"
+      echo "Usage: ./deploy.sh [--docker] [--debian-version VERSION]"
       exit 1
       ;;
   esac
 done
 
-echo "Starting Modular Dashboard deployment using $DEPLOY_METHOD method..."
+# Function to log messages
+log() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
 
-if [ "$DEPLOY_METHOD" = "docker" ]; then
-    # Docker-based deployment
-    echo "Performing Docker-based deployment..."
-
-    # Check if Docker is installed
+# Function to check system requirements
+check_requirements() {
+  log "Checking system requirements..."
+  
+  if [ "$DEPLOY_METHOD" = "docker" ]; then
     if ! command -v docker &> /dev/null; then
-        echo "Installing Docker..."
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh get-docker.sh
-        sudo usermod -aG docker $USER
+      log "Docker not found. Installing Docker..."
+      curl -fsSL https://get.docker.com -o get-docker.sh
+      sudo sh get-docker.sh
+      sudo usermod -aG docker $USER
     fi
-
-    # Check if Docker Compose is installed
+    
     if ! command -v docker-compose &> /dev/null; then
-        echo "Installing Docker Compose..."
-        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
+      log "Docker Compose not found. Installing Docker Compose..."
+      sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
     fi
-
-    # Create backup directory
-    BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
-    mkdir -p "$BACKUP_DIR"
-
-    # Backup existing data if containers are running
-    if docker-compose -f deployment/docker-compose.yml ps | grep -q "Up"; then
-        echo "Creating backup of existing data..."
-        docker-compose -f deployment/docker-compose.yml exec -T db pg_dumpall -c -U "$PGUSER" > "$BACKUP_DIR/database_backup.sql"
-        echo "Backup created in $BACKUP_DIR"
-    fi
-
-    # Stop existing containers
-    echo "Stopping existing containers..."
-    docker-compose -f deployment/docker-compose.yml down || true
-
-    # Prune unused images to free up space
-    echo "Cleaning up unused Docker resources..."
-    docker image prune -f
-
-    # Build and start containers
-    echo "Building and starting Docker containers..."
-    if ! docker-compose -f deployment/docker-compose.yml up --build -d; then
-        echo "Error: Failed to start containers"
-        echo "Rolling back to previous version..."
-        if [ -f "$BACKUP_DIR/database_backup.sql" ]; then
-            docker-compose -f deployment/docker-compose.yml up -d db
-            sleep 5
-            docker-compose -f deployment/docker-compose.yml exec -T db psql -U "$PGUSER" < "$BACKUP_DIR/database_backup.sql"
-        fi
-        exit 1
-    fi
-
-    # Wait for health checks and monitoring services
-    echo "Waiting for services to be healthy..."
-    timeout 90 bash -c '
-        until docker-compose -f deployment/docker-compose.yml ps | grep -q "healthy"; do 
-            echo "Waiting for core services..."
-            sleep 1
-        done
-        until curl -s http://localhost:9090/-/healthy > /dev/null; do
-            echo "Waiting for Prometheus..."
-            sleep 1
-        done
-    ' || {
-        echo "Error: Services failed to become healthy within timeout"
-        exit 1
+  else
+    # Run Debian setup script for traditional deployment
+    log "Running Debian setup script..."
+    chmod +x deployment/debian-setup.sh
+    ./deployment/debian-setup.sh || {
+      log "Error: Failed to run Debian setup script"
+      exit 1
     }
+  fi
+}
 
-    # Verify deployment
-    if curl -s http://localhost:5000/api/health | grep -q "ok"; then
-        echo "Docker deployment completed successfully!"
-        echo "The application is running at http://localhost:5000"
-        echo "Monitor logs with: docker-compose -f deployment/docker-compose.yml logs -f"
-    else
-        echo "Error: Application health check failed"
-        echo "Check logs with: docker-compose -f deployment/docker-compose.yml logs -f"
-        exit 1
+# Function to create backup
+create_backup() {
+  log "Creating backup..."
+  mkdir -p "$BACKUP_DIR"
+  
+  if [ "$DEPLOY_METHOD" = "docker" ]; then
+    if docker-compose -f deployment/docker-compose.yml ps | grep -q "Up"; then
+      docker-compose -f deployment/docker-compose.yml exec -T db pg_dumpall -c -U "$PGUSER" > "$BACKUP_DIR/database_backup.sql"
     fi
-
-else
-    # Traditional deployment
-    echo "Performing traditional deployment..."
-
-    # Install system dependencies
-    echo "Installing system dependencies..."
-    apt-get update
-    apt-get install -y nodejs npm nginx postgresql
-
-    # Create application user
-    echo "Creating application user..."
-    useradd -r -s /bin/false modular-dash || true
-
-    # Create application directory
-    echo "Setting up application directory..."
-    mkdir -p /opt/modular-dash
-    chown modular-dash:modular-dash /opt/modular-dash
-
-    # Copy application files
-    echo "Copying application files..."
-    cp -r . /opt/modular-dash/
-    cd /opt/modular-dash
-
-    # Install dependencies
-    echo "Installing Node.js dependencies..."
-    npm ci --production
-
-    # Build the application
-    echo "Building the application..."
-    npm run build
-
-    # Setup environment file
-    echo "Setting up environment file..."
-    if [ ! -f .env ]; then
-        cat > .env << EOL
-NODE_ENV=production
-PORT=5000
-DATABASE_URL=postgresql://user:password@localhost:5432/modular_dash
-EOL
+  else
+    if systemctl is-active --quiet postgresql; then
+      pg_dumpall -U "$PGUSER" > "$BACKUP_DIR/database_backup.sql"
     fi
+  fi
+  
+  # Backup configuration files
+  if [ -d "/opt/modular-dash" ]; then
+    cp -r /opt/modular-dash/config "$BACKUP_DIR/" 2>/dev/null || true
+  fi
+}
 
-    # Set proper permissions
-    echo "Setting file permissions..."
-    chown -R modular-dash:modular-dash /opt/modular-dash
-    chmod 640 /opt/modular-dash/.env
+# Function to deploy application
+deploy_application() {
+  if [ "$DEPLOY_METHOD" = "docker" ]; then
+    log "Performing Docker-based deployment..."
+    
+    # Stop existing containers
+    docker-compose -f deployment/docker-compose.yml down || true
+    
+    # Clean up unused resources
+    docker image prune -f
+    
+    # Build and start containers
+    if ! docker-compose -f deployment/docker-compose.yml up --build -d; then
+      log "Error: Failed to start containers"
+      restore_backup
+      exit 1
+    fi
+    
+    # Wait for services to be healthy
+    timeout 90 bash -c '
+      until docker-compose -f deployment/docker-compose.yml ps | grep -q "healthy"; do 
+        echo "Waiting for services..."
+        sleep 1
+      done
+    ' || {
+      log "Error: Services failed to become healthy"
+      restore_backup
+      exit 1
+    }
+  else
+    log "Performing traditional deployment..."
+    
+    # Run Debian-specific deployment script
+    chmod +x deployment/debian-deployment.sh
+    if ! ./deployment/debian-deployment.sh; then
+      log "Error: Traditional deployment failed"
+      restore_backup
+      exit 1
+    fi
+  fi
+}
 
-    # Setup systemd service
-    echo "Setting up systemd service..."
-    cp deployment/modular-dash.service /etc/systemd/system/
-    systemctl daemon-reload
-    systemctl enable modular-dash
-    systemctl start modular-dash
+# Function to restore backup
+restore_backup() {
+  if [ -d "$BACKUP_DIR" ]; then
+    log "Restoring from backup..."
+    
+    if [ -f "$BACKUP_DIR/database_backup.sql" ]; then
+      if [ "$DEPLOY_METHOD" = "docker" ]; then
+        docker-compose -f deployment/docker-compose.yml up -d db
+        sleep 5
+        docker-compose -f deployment/docker-compose.yml exec -T db psql -U "$PGUSER" < "$BACKUP_DIR/database_backup.sql"
+      else
+        psql -U "$PGUSER" < "$BACKUP_DIR/database_backup.sql"
+      fi
+    fi
+    
+    if [ -d "$BACKUP_DIR/config" ]; then
+      cp -r "$BACKUP_DIR/config" /opt/modular-dash/
+    fi
+  fi
+}
 
-    # Setup nginx
-    echo "Setting up nginx..."
-    cp deployment/nginx.conf /etc/nginx/sites-available/modular-dash
-    ln -sf /etc/nginx/sites-available/modular-dash /etc/nginx/sites-enabled/
-    nginx -t && systemctl restart nginx
+# Function to verify deployment
+verify_deployment() {
+  log "Verifying deployment..."
+  
+  local max_retries=5
+  local retry_count=0
+  local endpoint="http://localhost:5000/api/health"
+  
+  while [ $retry_count -lt $max_retries ]; do
+    if curl -s "$endpoint" | grep -q "ok"; then
+      log "Deployment verified successfully!"
+      return 0
+    fi
+    
+    retry_count=$((retry_count + 1))
+    sleep 5
+  done
+  
+  log "Error: Deployment verification failed"
+  return 1
+}
 
-    echo "Traditional deployment completed successfully!"
-    echo "Please update the .env file with your database credentials and nginx configuration with your domain name."
-fi
+# Main deployment process
+main() {
+  log "Starting deployment process..."
+  
+  check_requirements
+  create_backup
+  
+  if ! deploy_application; then
+    log "Deployment failed, rolling back..."
+    restore_backup
+    exit 1
+  fi
+  
+  if ! verify_deployment; then
+    log "Verification failed, rolling back..."
+    restore_backup
+    exit 1
+  fi
+  
+  log "Deployment completed successfully!"
+  
+  # Print final instructions
+  cat << EOF
 
-# Final instructions
-echo "
 Deployment completed! Next steps:
 1. If using traditional deployment:
    - Update /opt/modular-dash/.env with your database credentials
@@ -173,7 +198,13 @@ Deployment completed! Next steps:
    - Run: systemctl restart modular-dash
 
 2. If using Docker deployment:
-   - Update the environment variables in docker-compose.yml
-   - Run: docker-compose -f deployment/docker-compose.yml restart
+   - Monitor logs with: docker-compose -f deployment/docker-compose.yml logs -f
+   - Access metrics at: http://localhost:9090 (Prometheus)
+   - Access application at: http://localhost:5000
 
-For more information, see deployment/README.md"
+For more information, see deployment/README.md
+EOF
+}
+
+# Run main function
+main

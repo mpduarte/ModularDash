@@ -1,17 +1,33 @@
 [Unit]
 Description=Modular Dashboard Application
 After=network.target postgresql.service
+Wants=postgresql.service
 
 [Service]
 Type=simple
 User=modular-dash
+Group=modular-dash
 WorkingDirectory=/opt/modular-dash
 Environment=NODE_ENV=production
 Environment=PORT=5000
 EnvironmentFile=/opt/modular-dash/.env
+
+# Security enhancements
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+RestrictSUIDSGID=true
+
+# Execution
 ExecStart=/usr/bin/npm run start
 Restart=always
 RestartSec=10
+
+# Resource limits
+LimitNOFILE=65535
+CPUQuota=80%
+MemoryMax=1G
 
 [Install]
 WantedBy=multi-user.target
