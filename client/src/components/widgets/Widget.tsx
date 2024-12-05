@@ -69,14 +69,24 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
             <Button
               variant="ghost"
               size="icon"
-              onClick={onShowOverlay}
+              onClick={(e) => {
+                e.stopPropagation();
+                onShowOverlay();
+              }}
+              className="no-drag"
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <Maximize2 className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onUpdate({ visible: false })}
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ visible: false });
+              }}
+              className="no-drag"
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <X className="h-4 w-4" />
             </Button>
