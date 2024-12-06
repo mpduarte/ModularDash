@@ -48,28 +48,43 @@ registerPlugin('html-widget', ({ config }) => (
 
 // Register background manager plugin
 console.log('Registering background manager plugin:', backgroundManagerPluginConfig);
+
+// Initialize the plugin in the registry
 registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
   backgroundManagerPluginConfig.defaultConfig
 );
 
-// Insert background manager into database if not exists
-fetch('/api/plugins', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    id: backgroundManagerPluginConfig.id,
-    name: backgroundManagerPluginConfig.name,
-    description: backgroundManagerPluginConfig.description,
-    version: backgroundManagerPluginConfig.version,
-    enabled: true,
-    config: backgroundManagerPluginConfig.defaultConfig,
-    component: 'BackgroundManagerPlugin',
-    category: backgroundManagerPluginConfig.category,
-  }),
-}).catch(console.error);
+// Ensure the plugin is registered in the database
+async function initializeBackgroundManager() {
+  try {
+    const response = await fetch('/api/plugins', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: backgroundManagerPluginConfig.id,
+        name: backgroundManagerPluginConfig.name,
+        description: backgroundManagerPluginConfig.description,
+        version: backgroundManagerPluginConfig.version,
+        enabled: true,
+        config: backgroundManagerPluginConfig.defaultConfig,
+        component: 'BackgroundManagerPlugin',
+        category: backgroundManagerPluginConfig.category,
+      }),
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to register background manager plugin:', await response.text());
+    }
+  } catch (error) {
+    console.error('Error registering background manager plugin:', error);
+  }
+}
+
+// Initialize the background manager plugin
+initializeBackgroundManager();
 
 export default registry;

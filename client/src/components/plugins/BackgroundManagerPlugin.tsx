@@ -128,17 +128,20 @@ const defaultConfig = {
     }
   ] as BackgroundImage[],
   currentImageIndex: 0,
-  interval: 8000, // Increased to 8 seconds for smoother transitions
-  isAutoRotate: false, // Default to false, let user enable it
+  interval: 8000,
+  isAutoRotate: false,
   transition: 'fade',
 } as const;
 
 export const backgroundManagerPluginConfig = {
   id: 'background-manager',
   name: 'Background Manager',
-  description: 'Manage dashboard background images with auto-rotation',
+  description: 'Manage dashboard background images and rotation settings',
   version: '1.0.0',
   component: BackgroundManagerPlugin,
   category: 'appearance',
-  defaultConfig: defaultConfig,
+  defaultConfig,
+  enabled: true,
 };
+
+export default BackgroundManagerPlugin;
