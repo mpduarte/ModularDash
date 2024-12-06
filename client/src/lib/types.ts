@@ -47,10 +47,12 @@ export interface WidgetConfig {
   settings: Record<string, any>;
 }
 
-export type PluginComponent = React.ComponentType<{
+export interface PluginProps {
   config: Record<string, any>;
   onConfigChange: (newConfig: Record<string, any>) => void;
-}>;
+}
+
+export type PluginComponent = React.FC<PluginProps>;
 
 export interface PluginRegistry {
   [key: string]: {

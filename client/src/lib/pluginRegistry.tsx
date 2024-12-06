@@ -21,21 +21,25 @@ export function getPlugin(id: string) {
 }
 
 // Register text widget plugin
-registerPlugin('text-widget', ({ config }) => (
+const TextWidget: PluginComponent = ({ config }) => (
   <div className="p-4">
     <div className="text-lg">{config.content || 'Empty text widget'}</div>
   </div>
-) as PluginComponent, {
+);
+
+registerPlugin('text-widget', TextWidget, {
   content: ''
 });
 
 // Register HTML widget plugin
-registerPlugin('html-widget', ({ config }) => (
+const HtmlWidget: PluginComponent = ({ config }) => (
   <div 
     className="p-4"
     dangerouslySetInnerHTML={{ __html: config.content || 'Empty HTML widget' }}
   />
-), {
+);
+
+registerPlugin('html-widget', HtmlWidget, {
   content: ''
 });
 

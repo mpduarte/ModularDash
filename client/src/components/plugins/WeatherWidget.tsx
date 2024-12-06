@@ -19,7 +19,7 @@ interface WeatherData {
 
 import { type PluginComponent } from '../../lib/types';
 
-const WeatherWidgetComponent: PluginComponent = ({ config, onConfigChange }) => {
+const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
