@@ -47,17 +47,23 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
           <TabsContent value="widgets" className="py-4">
             <div className="space-y-4">
               {plugins
-                .filter(plugin => plugin.category === 'widgets' || plugin.category === 'content')
-                .map(plugin => (
-                  <Button
-                    key={plugin.id}
-                    onClick={() => onAdd(plugin.id)}
-                    className="w-full"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add {plugin.name}
-                  </Button>
-                ))}
+                .filter(plugin => plugin.enabled && (plugin.category === 'widgets' || plugin.category === 'content'))
+                .map(plugin => {
+                  console.log('Rendering plugin button:', plugin);
+                  return (
+                    <Button
+                      key={plugin.id}
+                      onClick={() => {
+                        console.log('Adding widget for plugin:', plugin);
+                        onAdd(plugin.id);
+                      }}
+                      className="w-full"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add {plugin.name}
+                    </Button>
+                  );
+                })}
             </div>
             
             <ScrollArea className="h-[300px]">
