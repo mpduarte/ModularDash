@@ -17,7 +17,7 @@ interface WeatherData {
   name: string;
 }
 
-import { type PluginComponent, type PluginProps } from '../../lib/types';
+import { type PluginComponent } from '../../lib/types';
 
 const WeatherWidgetComponent: PluginComponent = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -141,16 +141,16 @@ const WeatherWidgetComponent: PluginComponent = ({ config, onConfigChange }) => 
   );
 };
 
-const WeatherWidget: PluginComponent = WeatherWidgetComponent;
+// Export the component directly
+export const WeatherWidget: PluginComponent = WeatherWidgetComponent;
 
-export { WeatherWidget };
-
+// Export the configuration
 export const weatherWidgetConfig = {
   id: 'weather-widget',
   name: 'Weather Widget',
   description: 'Displays current weather conditions and forecast',
   version: '1.0.0',
-  component: WeatherWidget,
+  component: WeatherWidgetComponent,
   category: 'widgets',
   defaultConfig: {
     city: 'San Francisco',
