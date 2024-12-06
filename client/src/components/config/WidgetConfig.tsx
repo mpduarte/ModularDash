@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { BackgroundManagerPlugin } from "../plugins/BackgroundManagerPlugin";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Widget, Plugin } from "../../lib/types";
+import type { Widget, Plugin } from "../../lib/types";
 import { Plus, Trash2, Power } from "lucide-react";
 import { usePlugins } from "../../hooks/usePlugins";
 import { useState } from "react";
@@ -33,9 +34,10 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="widgets">Widgets</TabsTrigger>
             <TabsTrigger value="plugins">Plugins</TabsTrigger>
+            <TabsTrigger value="background">Background</TabsTrigger>
           </TabsList>
 
           <TabsContent value="widgets" className="py-4">
@@ -104,6 +106,11 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                   </CardContent>
                 </Card>
               ))}
+            </ScrollArea>
+          </TabsContent>
+        <TabsContent value="background" className="py-4">
+            <ScrollArea className="h-[400px]">
+              <BackgroundManagerPlugin />
             </ScrollArea>
           </TabsContent>
         </Tabs>
