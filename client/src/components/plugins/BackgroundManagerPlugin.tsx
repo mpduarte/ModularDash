@@ -20,52 +20,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
     setAutoRotate,
   } = useBackgroundManager();
 
-  // Memoize the rotation function to prevent unnecessary recreations
-  const rotateImage = useCallback(() => {
-    if (images.length > 1) {
-      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
-    }
-  }, [images.length, setCurrentImage]);
-
-  useEffect(() => {
-    let timerId: number | undefined;
-
-    const startRotation = () => {
-      if (timerId) {
-        window.clearInterval(timerId);
-      }
-
-      timerId = window.setInterval(() => {
-        console.log('Rotating image:', {
-          current: currentImageIndex,
-          next: (currentImageIndex + 1) % images.length,
-          total: images.length
-        });
-        rotateImage();
-      }, interval);
-
-      console.log('Background rotation started', {
-        interval,
-        imagesCount: images.length,
-        currentIndex: currentImageIndex,
-        isAutoRotate
-      });
-    };
-
-    if (isAutoRotate && images.length > 1) {
-      startRotation();
-    }
-
-    return () => {
-      if (timerId) {
-        window.clearInterval(timerId);
-        console.log('Background rotation stopped', {
-          reason: !isAutoRotate ? 'auto-rotate disabled' : 'component cleanup',
-          lastIndex: currentImageIndex
-        });
-      }
-    };
-  }, [isAutoRotate, interval, rotateImage, images.length, currentImageIndex]);
+  // Removed rotation logic as it's now handled by BackgroundZone
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;

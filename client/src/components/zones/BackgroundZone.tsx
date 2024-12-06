@@ -11,6 +11,39 @@ export default function BackgroundZone({ children }: BackgroundZoneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Debug logging
+  // Handle background rotation
+  useEffect(() => {
+    const { isAutoRotate, interval } = useBackgroundManager.getState();
+    let rotationTimer: number | undefined;
+
+    if (isAutoRotate && images.length > 1) {
+      rotationTimer = window.setInterval(() => {
+        const nextIndex = (currentImageIndex + 1) % images.length;
+        console.log('Rotating background:', {
+          from: currentImageIndex,
+          to: nextIndex,
+          totalImages: images.length,
+          interval
+        });
+        useBackgroundManager.getState().setCurrentImage(nextIndex);
+      }, interval);
+
+      console.log('Background rotation started', {
+        interval,
+        totalImages: images.length,
+        currentIndex: currentImageIndex
+      });
+    }
+
+    return () => {
+      if (rotationTimer) {
+        window.clearInterval(rotationTimer);
+        console.log('Background rotation stopped');
+      }
+    };
+  }, [images.length, currentImageIndex]);
+
+  // Debug logging
   useEffect(() => {
     console.log('BackgroundZone state:', {
       totalImages: images.length,
