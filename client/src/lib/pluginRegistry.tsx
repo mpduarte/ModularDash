@@ -10,6 +10,7 @@ export function registerPlugin(
   component: PluginComponent,
   defaultConfig: Record<string, any> = {}
 ) {
+  console.log(`Registering plugin: ${id}`, { component, defaultConfig });
   registry[id] = {
     component,
     defaultConfig,
@@ -17,7 +18,12 @@ export function registerPlugin(
 }
 
 export function getPlugin(id: string) {
-  return registry[id];
+  console.log(`Getting plugin: ${id}`, { exists: !!registry[id] });
+  const plugin = registry[id];
+  if (!plugin) {
+    console.warn(`Plugin ${id} not found in registry`);
+  }
+  return plugin;
 }
 
 // Register text widget plugin

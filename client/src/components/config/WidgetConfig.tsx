@@ -50,6 +50,11 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                 .filter(plugin => plugin.enabled && (plugin.category === 'widgets' || plugin.category === 'content'))
                 .map(plugin => {
                   console.log('Rendering plugin button:', plugin);
+                  const registeredPlugin = getPlugin(plugin.id);
+                  if (!registeredPlugin) {
+                    console.warn(`Plugin ${plugin.id} not found in registry`);
+                    return null;
+                  }
                   return (
                     <Button
                       key={plugin.id}
@@ -63,7 +68,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                       Add {plugin.name}
                     </Button>
                   );
-                })}
+                }).filter(Boolean)}
             </div>
             
             <ScrollArea className="h-[300px]">
