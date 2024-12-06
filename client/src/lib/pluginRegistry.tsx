@@ -25,7 +25,7 @@ registerPlugin('text-widget', ({ config }) => (
   <div className="p-4">
     <div className="text-lg">{config.content || 'Empty text widget'}</div>
   </div>
-), {
+) as PluginComponent, {
   content: ''
 });
 
@@ -50,7 +50,11 @@ registerPlugin(
 registerPlugin(
   'weather-widget',
   WeatherWidget,
-  weatherWidgetConfig.defaultConfig
+  {
+    city: 'San Francisco',
+    units: 'imperial',
+    refreshInterval: 300000
+  }
 );
 
 export default registry;
