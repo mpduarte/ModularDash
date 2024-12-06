@@ -141,14 +141,16 @@ const WeatherWidgetComponent: PluginComponent = ({ config, onConfigChange }) => 
   );
 };
 
-export const WeatherWidget = WeatherWidgetComponent;
+const WeatherWidget: PluginComponent = WeatherWidgetComponent;
+
+export { WeatherWidget };
 
 export const weatherWidgetConfig = {
   id: 'weather-widget',
   name: 'Weather Widget',
   description: 'Displays current weather conditions and forecast',
   version: '1.0.0',
-  component: WeatherWidgetComponent,
+  component: WeatherWidget,
   category: 'widgets',
   defaultConfig: {
     city: 'San Francisco',
@@ -157,5 +159,3 @@ export const weatherWidgetConfig = {
   },
   enabled: true
 };
-
-export default WeatherWidgetComponent;
