@@ -30,26 +30,39 @@ export const BackgroundManagerPlugin: React.FC = () => {
   useEffect(() => {
     let timerId: number | undefined;
 
-    if (isAutoRotate && images.length > 1) {
-      // Clear any existing timer
+    const startRotation = () => {
       if (timerId) {
         window.clearInterval(timerId);
       }
 
-      // Start the rotation timer
-      timerId = window.setInterval(rotateImage, interval);
+      timerId = window.setInterval(() => {
+        console.log('Rotating image:', {
+          current: currentImageIndex,
+          next: (currentImageIndex + 1) % images.length,
+          total: images.length
+        });
+        rotateImage();
+      }, interval);
+
       console.log('Background rotation started', {
         interval,
         imagesCount: images.length,
-        currentIndex: currentImageIndex
+        currentIndex: currentImageIndex,
+        isAutoRotate
       });
+    };
+
+    if (isAutoRotate && images.length > 1) {
+      startRotation();
     }
 
-    // Cleanup function
     return () => {
       if (timerId) {
         window.clearInterval(timerId);
-        console.log('Background rotation stopped');
+        console.log('Background rotation stopped', {
+          reason: !isAutoRotate ? 'auto-rotate disabled' : 'component cleanup',
+          lastIndex: currentImageIndex
+        });
       }
     };
   }, [isAutoRotate, interval, rotateImage, images.length, currentImageIndex]);
@@ -160,8 +173,8 @@ const defaultConfig = {
     }
   ] as BackgroundImage[],
   currentImageIndex: 0,
-  interval: 5000,
-  isAutoRotate: true,
+  interval: 8000, // Increased to 8 seconds for smoother transitions
+  isAutoRotate: false, // Default to false, let user enable it
   transition: 'fade',
 } as const;
 
