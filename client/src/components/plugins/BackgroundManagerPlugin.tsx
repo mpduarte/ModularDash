@@ -21,16 +21,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
   } = useBackgroundManager();
 
   useEffect(() => {
-    let rotationTimer: ReturnType<typeof setTimeout>;
-    let imageLoadTimer: ReturnType<typeof setTimeout>;
-
-    // Preload images to ensure they're in browser cache
-    const preloadImages = () => {
-      images.forEach(image => {
-        const img = new Image();
-        img.src = image.url;
-      });
-    };
+    let rotationTimer: NodeJS.Timeout | undefined;
 
     const rotateImage = () => {
       if (images.length > 1) {
@@ -39,36 +30,44 @@ export const BackgroundManagerPlugin: React.FC = () => {
           console.log('Image rotation:', {
             from: prev,
             to: nextIndex,
-            totalImages: images.length
+            totalImages: images.length,
+            currentUrl: images[prev].url,
+            nextUrl: images[nextIndex].url
           });
           return nextIndex;
         });
       }
     };
 
-    if (isAutoRotate && images.length > 1) {
-      // Preload images first
-      preloadImages();
+    console.log('Effect setup:', { 
+      isAutoRotate, 
+      interval, 
+      imagesCount: images.length,
+      currentImageUrl: images[currentImageIndex]?.url 
+    });
 
-      // Start the rotation after a short delay to ensure images are loaded
-      imageLoadTimer = setTimeout(() => {
-        console.log('Starting background rotation');
-        rotateImage(); // Initial rotation
-        rotationTimer = setInterval(rotateImage, interval);
-      }, 1000);
+    if (isAutoRotate && images.length > 1) {
+      // Start immediate rotation
+      rotateImage();
+      
+      // Set up interval for subsequent rotations
+      rotationTimer = setInterval(rotateImage, interval);
+      console.log('Background rotation started');
 
       return () => {
-        clearTimeout(imageLoadTimer);
-        clearInterval(rotationTimer);
-        console.log('Background rotation cleanup');
+        if (rotationTimer) {
+          clearInterval(rotationTimer);
+          console.log('Background rotation stopped');
+        }
       };
     }
 
     return () => {
-      clearTimeout(imageLoadTimer);
-      clearInterval(rotationTimer);
+      if (rotationTimer) {
+        clearInterval(rotationTimer);
+      }
     };
-  }, [isAutoRotate, interval, images, setCurrentImage]);
+  }, [isAutoRotate, interval, images, currentImageIndex, setCurrentImage]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
