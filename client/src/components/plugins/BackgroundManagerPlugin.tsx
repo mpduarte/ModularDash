@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -20,43 +20,39 @@ export const BackgroundManagerPlugin: React.FC = () => {
     setAutoRotate,
   } = useBackgroundManager();
 
+  // Memoize the rotation function to prevent unnecessary recreations
+  const rotateImage = useCallback(() => {
+    if (images.length > 1) {
+      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
+    }
+  }, [images.length, setCurrentImage]);
+
   useEffect(() => {
-    let rotationTimer: number | undefined;
+    let timerId: number;
 
     if (isAutoRotate && images.length > 1) {
-      const rotateImage = () => {
-        const nextIndex = (currentImageIndex + 1) % images.length;
-        setCurrentImage(nextIndex);
-      };
-
-      // Clear any existing timer
-      if (rotationTimer) {
-        window.clearInterval(rotationTimer);
-      }
-
-      // Set up new rotation timer
-      rotationTimer = window.setInterval(rotateImage, interval);
-      console.log('Background rotation started:', {
+      // Start the rotation timer
+      timerId = window.setInterval(rotateImage, interval);
+      console.log('Background rotation started', {
         interval,
-        totalImages: images.length,
+        imagesCount: images.length,
         currentIndex: currentImageIndex
       });
 
       // Cleanup function
       return () => {
-        if (rotationTimer) {
-          window.clearInterval(rotationTimer);
-          console.log('Background rotation stopped');
-        }
+        window.clearInterval(timerId);
+        console.log('Background rotation stopped');
       };
     }
 
+    // Cleanup when not auto-rotating
     return () => {
-      if (rotationTimer) {
-        window.clearInterval(rotationTimer);
+      if (timerId) {
+        window.clearInterval(timerId);
       }
     };
-  }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
+  }, [isAutoRotate, interval, rotateImage]); // Simplified dependencies
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
@@ -71,11 +67,12 @@ export const BackgroundManagerPlugin: React.FC = () => {
   };
 
   const removeImage = (id: string) => {
-    setImages(images.filter((img: BackgroundImage) => img.id !== id));
-    setCurrentImage(0);
+    setImages(images.filter(img => img.id !== id));
+    // Reset to first image if we remove the current one
+    if (images[currentImageIndex].id === id) {
+      setCurrentImage(0);
+    }
   };
-
-  const currentImage = images[currentImageIndex];
 
   return (
     <Card className="p-4">
@@ -120,16 +117,21 @@ export const BackgroundManagerPlugin: React.FC = () => {
 
         <div className="grid grid-cols-3 gap-2">
           {images.map((image, index) => (
-            <div key={image.id} className="relative group">
+            <div 
+              key={image.id} 
+              className={`relative group rounded overflow-hidden border-2 ${
+                index === currentImageIndex ? 'border-primary' : 'border-transparent'
+              }`}
+            >
               <img
                 src={image.url}
                 alt={`Background ${index + 1}`}
-                className="w-full h-24 object-cover rounded"
+                className="w-full h-24 object-cover"
               />
               <Button
                 variant="destructive"
                 size="sm"
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100"
+                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => removeImage(image.id)}
               >
                 Remove
