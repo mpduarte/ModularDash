@@ -23,37 +23,26 @@ export const BackgroundManagerPlugin: React.FC = () => {
   useEffect(() => {
     let rotationTimer: number | undefined;
 
-    const rotateImage = () => {
-      if (images.length > 1) {
-        setCurrentImage(prev => {
-          const nextIndex = (prev + 1) % images.length;
-          console.log('Image rotation:', {
-            from: prev,
-            to: nextIndex,
-            totalImages: images.length,
-            currentUrl: images[prev].url,
-            nextUrl: images[nextIndex].url
-          });
-          return nextIndex;
-        });
-      }
-    };
-
-    console.log('Effect setup:', { 
-      isAutoRotate, 
-      interval, 
-      imagesCount: images.length,
-      currentImageUrl: images[currentImageIndex]?.url 
-    });
-
     if (isAutoRotate && images.length > 1) {
-      // Start immediate rotation
-      rotateImage();
-      
-      // Set up interval for subsequent rotations
-      rotationTimer = window.setInterval(rotateImage, interval);
-      console.log('Background rotation started');
+      const rotateImage = () => {
+        const nextIndex = (currentImageIndex + 1) % images.length;
+        setCurrentImage(nextIndex);
+      };
 
+      // Clear any existing timer
+      if (rotationTimer) {
+        window.clearInterval(rotationTimer);
+      }
+
+      // Set up new rotation timer
+      rotationTimer = window.setInterval(rotateImage, interval);
+      console.log('Background rotation started:', {
+        interval,
+        totalImages: images.length,
+        currentIndex: currentImageIndex
+      });
+
+      // Cleanup function
       return () => {
         if (rotationTimer) {
           window.clearInterval(rotationTimer);
@@ -67,7 +56,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
         window.clearInterval(rotationTimer);
       }
     };
-  }, [isAutoRotate, interval, images, currentImageIndex, setCurrentImage]);
+  }, [isAutoRotate, interval, images.length, currentImageIndex, setCurrentImage]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;

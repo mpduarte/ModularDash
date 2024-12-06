@@ -34,7 +34,7 @@ export const useBackgroundManager = create<BackgroundState>((set) => ({
     }
   ] as BackgroundImage[],
   currentImageIndex: 0,
-  interval: 5000,
+  interval: 3000, // Reduced interval for more noticeable rotation
   isAutoRotate: true,
   transition: 'fade',
   setImages: (images: BackgroundImage[]) => set({ images }),
