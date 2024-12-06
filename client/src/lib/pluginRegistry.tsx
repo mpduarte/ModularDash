@@ -44,6 +44,8 @@ registerPlugin('html-widget', ({ config }) => (
   <div className="p-4" dangerouslySetInnerHTML={{ __html: config.html || '' }} />
 ), { html: '' });
 
+// Register background manager plugin
+console.log('Registering background manager plugin with config:', backgroundManagerPluginConfig);
 registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
