@@ -33,6 +33,7 @@ export function getAllPlugins() {
 
 // Register built-in plugins here
 import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
+import { weatherWidgetConfig } from '../components/plugins/WeatherWidget';
 
 // Register text widget plugin
 registerPlugin('text-widget', ({ config }) => (
@@ -54,6 +55,13 @@ registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
   backgroundManagerPluginConfig.defaultConfig
+// Register weather widget plugin
+registerPlugin(
+  weatherWidgetConfig.id,
+  weatherWidgetConfig.component,
+  weatherWidgetConfig.defaultConfig
+);
+
 );
 
 // Ensure the plugin is registered in the database

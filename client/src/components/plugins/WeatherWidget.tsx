@@ -17,7 +17,7 @@ interface WeatherWidgetProps {
   };
 }
 
-export const WeatherWidget = ({ config }: WeatherWidgetProps) => {
+const WeatherWidget = ({ config }: WeatherWidgetProps) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +97,27 @@ export const WeatherWidget = ({ config }: WeatherWidgetProps) => {
     </Card>
   );
 };
+export const weatherWidgetConfig = {
+  id: 'weather-widget',
+  name: 'Weather Widget',
+  description: 'Displays current weather conditions',
+  component: WeatherWidget,
+  defaultConfig: {
+    city: 'San Francisco',
+  },
+  configSchema: {
+    type: 'object',
+    properties: {
+      city: {
+        type: 'string',
+        title: 'City',
+        default: 'San Francisco',
+      },
+    },
+  },
+};
+
+export default WeatherWidget;
 
 export const weatherWidgetConfig = {
   id: 'weather-widget',
