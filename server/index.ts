@@ -86,6 +86,22 @@ async function seedDefaultPlugins() {
       component: 'HtmlWidget',
       category: 'content',
       config: {}
+    },
+    {
+      id: 'background-manager',
+      name: 'Background Manager',
+      description: 'Manage dashboard background images and rotation settings',
+      version: '1.0.0',
+      enabled: true,
+      component: 'BackgroundManagerPlugin',
+      category: 'appearance',
+      config: {
+        images: [],
+        currentImageIndex: 0,
+        interval: 8000,
+        isAutoRotate: false,
+        transition: 'fade'
+      }
     }
   ];
 
