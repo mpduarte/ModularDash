@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { BackgroundManagerPlugin } from "../plugins/BackgroundManagerPlugin";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -34,10 +33,9 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="widgets">Widgets</TabsTrigger>
             <TabsTrigger value="plugins">Plugins</TabsTrigger>
-            <TabsTrigger value="background">Background</TabsTrigger>
           </TabsList>
 
           <TabsContent value="widgets" className="py-4">
@@ -108,11 +106,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
               ))}
             </ScrollArea>
           </TabsContent>
-        <TabsContent value="background" className="py-4">
-            <ScrollArea className="h-[400px]">
-              <BackgroundManagerPlugin />
-            </ScrollArea>
-          </TabsContent>
+        
         </Tabs>
       </DialogContent>
     </Dialog>

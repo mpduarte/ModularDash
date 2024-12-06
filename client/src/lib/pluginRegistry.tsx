@@ -34,22 +34,42 @@ export function getAllPlugins() {
 // Register built-in plugins here
 import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
 
+// Register text widget plugin
 registerPlugin('text-widget', ({ config }) => (
   <div className="p-4">
     <p>{config.text || 'Empty text widget'}</p>
   </div>
 ), { text: '' });
 
+// Register HTML widget plugin
 registerPlugin('html-widget', ({ config }) => (
   <div className="p-4" dangerouslySetInnerHTML={{ __html: config.html || '' }} />
 ), { html: '' });
 
 // Register background manager plugin
-console.log('Registering background manager plugin with config:', backgroundManagerPluginConfig);
+console.log('Registering background manager plugin:', backgroundManagerPluginConfig);
 registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
   backgroundManagerPluginConfig.defaultConfig
 );
+
+// Insert background manager into database if not exists
+fetch('/api/plugins', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    id: backgroundManagerPluginConfig.id,
+    name: backgroundManagerPluginConfig.name,
+    description: backgroundManagerPluginConfig.description,
+    version: backgroundManagerPluginConfig.version,
+    enabled: true,
+    config: backgroundManagerPluginConfig.defaultConfig,
+    component: 'BackgroundManagerPlugin',
+    category: backgroundManagerPluginConfig.category,
+  }),
+}).catch(console.error);
 
 export default registry;
