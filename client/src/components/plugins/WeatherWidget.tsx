@@ -116,7 +116,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config, onConfigChange })
             <>
               <div className="flex items-center gap-4">
                 <img
-                  src={`http://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
+                  src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
                   alt={weather.weather[0].description}
                   className="w-16 h-16"
                 />
@@ -152,10 +152,13 @@ export const weatherWidgetConfig = {
   description: 'Displays current weather conditions and forecast',
   version: '1.0.0',
   component: WeatherWidget,
-  category: 'content',
+  category: 'widgets',
   defaultConfig: {
     city: 'San Francisco',
+    units: 'imperial',
+    refreshInterval: 300000
   },
+  enabled: true
 };
 
 export default WeatherWidget;

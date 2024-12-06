@@ -1,5 +1,7 @@
 import React from 'react';
 import { PluginRegistry, PluginComponent } from './types';
+import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
+import { weatherWidgetConfig } from '../components/plugins/WeatherWidget';
 
 const registry: PluginRegistry = {};
 
@@ -17,10 +19,6 @@ export function registerPlugin(
 export function getPlugin(id: string) {
   return registry[id];
 }
-
-// Register built-in plugins here
-import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
-import { weatherWidgetConfig } from '../components/plugins/WeatherWidget';
 
 // Register text widget plugin
 registerPlugin('text-widget', ({ config }) => (
