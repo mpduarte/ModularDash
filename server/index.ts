@@ -88,6 +88,18 @@ async function seedDefaultPlugins() {
       config: {}
     },
     {
+      id: 'weather-widget',
+      name: 'Weather Widget',
+      description: 'Displays current weather conditions and forecast',
+      version: '1.0.0',
+      enabled: true,
+      component: 'WeatherWidget',
+      category: 'content',
+      config: {
+        city: 'San Francisco'
+      }
+    },
+    {
       id: 'background-manager',
       name: 'Background Manager',
       description: 'Manage dashboard background images and rotation settings',
