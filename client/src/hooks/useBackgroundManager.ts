@@ -18,18 +18,18 @@ interface BackgroundState {
   setTransition: (transition: string) => void;
 }
 
-export const useBackgroundManager = create<BackgroundState>((set: any) => ({
+export const useBackgroundManager = create<BackgroundState>((set) => ({
   images: [
     {
-      url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+      url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80&blur=0',
       id: 'default-1'
     },
     {
-      url: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1920&q=80',
+      url: 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1920&q=80&blur=0',
       id: 'default-2'
     },
     {
-      url: 'https://images.unsplash.com/photo-1505144808419-1957a94ca61e?auto=format&fit=crop&w=1920&q=80',
+      url: 'https://images.unsplash.com/photo-1505144808419-1957a94ca61e?auto=format&fit=crop&w=1920&q=80&blur=0',
       id: 'default-3'
     }
   ] as BackgroundImage[],

@@ -7,24 +7,28 @@ interface BackgroundZoneProps {
 
 export default function BackgroundZone({ children }: BackgroundZoneProps) {
   const { images, currentImageIndex } = useBackgroundManager();
-  const currentBackground = images[currentImageIndex]?.url || null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0">
-      {images.map((image, index) => (
-        <div
-          key={image.id}
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
-          style={{
-            backgroundImage: `url(${image.url})`,
-            opacity: index === currentImageIndex ? 1 : 0,
-            zIndex: index === currentImageIndex ? 1 : 0,
-          }}
+      <div className="relative w-full h-full">
+        {images.map((image, index) => (
+          <div
+            key={image.id}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out"
+            style={{
+              backgroundImage: `url(${image.url})`,
+              opacity: index === currentImageIndex ? 1 : 0,
+              zIndex: 1,
+            }}
+          />
+        ))}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10"
+          style={{ zIndex: 2 }}
         />
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10" style={{ zIndex: 2 }} />
-      <div className="relative pointer-events-auto">
-        {children}
+        <div className="relative z-10 pointer-events-auto">
+          {children}
+        </div>
       </div>
     </div>
   );
