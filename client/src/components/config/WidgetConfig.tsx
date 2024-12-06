@@ -46,14 +46,18 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
 
           <TabsContent value="widgets" className="py-4">
             <div className="space-y-4">
-              <Button onClick={() => onAdd('text-widget')} className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Text Widget
-              </Button>
-              <Button onClick={() => onAdd('weather-widget')} className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Weather Widget
-              </Button>
+              {plugins
+                .filter(plugin => plugin.category === 'widgets' || plugin.category === 'content')
+                .map(plugin => (
+                  <Button
+                    key={plugin.id}
+                    onClick={() => onAdd(plugin.id)}
+                    className="w-full"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add {plugin.name}
+                  </Button>
+                ))}
             </div>
             
             <ScrollArea className="h-[300px]">

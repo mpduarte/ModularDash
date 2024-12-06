@@ -18,15 +18,9 @@ export function usePlugins() {
         if (!response.ok) {
           throw new Error(`Failed to fetch plugins: ${response.statusText}`);
         }
-        const text = await response.text();
-        try {
-          const data = JSON.parse(text);
-          console.log('Plugins fetched successfully:', data);
-          return data;
-        } catch (e) {
-          console.error('Failed to parse plugins response:', text);
-          throw new Error('Invalid JSON response from server');
-        }
+        const data = await response.json();
+        console.log('Plugins fetched successfully:', data);
+        return data.filter((plugin: Plugin) => plugin.enabled);
       } catch (error) {
         console.error('Error fetching plugins:', error);
         throw error;
