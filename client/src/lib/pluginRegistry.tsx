@@ -55,13 +55,13 @@ registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
   backgroundManagerPluginConfig.defaultConfig
+);
+
 // Register weather widget plugin
 registerPlugin(
   weatherWidgetConfig.id,
   weatherWidgetConfig.component,
   weatherWidgetConfig.defaultConfig
-);
-
 );
 
 // Ensure the plugin is registered in the database
