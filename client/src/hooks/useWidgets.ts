@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Widget } from '../lib/types';
+import { getPlugin } from '../lib/pluginRegistry';
 
 export function useWidgets() {
   const queryClient = useQueryClient();
@@ -53,19 +54,23 @@ export function useWidgets() {
   });
 
   const addWidget = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (pluginId: string) => {
+      // Get the plugin's default configuration
+      const plugin = getPlugin(pluginId);
+      const defaultConfig = plugin?.defaultConfig || {};
+
       const response = await fetch('/api/widgets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: 'New Widget',
-          content: 'Empty widget',
+          content: '',
           x: 0,
           y: 0,
           w: 1,
           h: 1,
-          pluginId: 'text-widget', // Add default plugin
-          config: {} // Add empty config
+          pluginId,
+          config: defaultConfig
         })
       });
       return response.json();
@@ -95,7 +100,7 @@ export function useWidgets() {
         updateWidget.mutate({ id, updates });
       }
     },
-    addWidget: () => addWidget.mutate(),
+    addWidget: (pluginId: string) => addWidget.mutate(pluginId),
     removeWidget: (id: string) => removeWidget.mutate(id)
   };
 }
