@@ -19,7 +19,7 @@ interface WeatherData {
 
 import { type PluginComponent } from '../../lib/types';
 
-export const WeatherWidget: PluginComponent = ({ config, onConfigChange }) => {
+const WeatherWidgetComponent: PluginComponent = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,12 +141,14 @@ export const WeatherWidget: PluginComponent = ({ config, onConfigChange }) => {
   );
 };
 
+export const WeatherWidget = WeatherWidgetComponent;
+
 export const weatherWidgetConfig = {
   id: 'weather-widget',
   name: 'Weather Widget',
   description: 'Displays current weather conditions and forecast',
   version: '1.0.0',
-  component: WeatherWidget,
+  component: WeatherWidgetComponent,
   category: 'widgets',
   defaultConfig: {
     city: 'San Francisco',
@@ -156,4 +158,4 @@ export const weatherWidgetConfig = {
   enabled: true
 };
 
-export default WeatherWidget;
+export default WeatherWidgetComponent;

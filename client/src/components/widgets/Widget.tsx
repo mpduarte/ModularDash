@@ -94,10 +94,12 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
         </CardHeader>
         <CardContent className="p-4">
           {PluginComponent ? (
-            <PluginComponent 
-              config={widget.config || {}}
-              onConfigChange={handleConfigChange}
-            />
+            <div className="w-full h-full">
+              <PluginComponent 
+                config={widget.config || {}}
+                onConfigChange={handleConfigChange}
+              />
+            </div>
           ) : (
             <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
           )}
