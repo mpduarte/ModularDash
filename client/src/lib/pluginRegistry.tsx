@@ -1,7 +1,7 @@
 import React from 'react';
 import { PluginRegistry, PluginComponent } from './types';
 import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
-import { weatherWidgetConfig } from '../components/plugins/WeatherWidget';
+import { WeatherWidget, weatherWidgetConfig } from '../components/plugins/WeatherWidget';
 
 const registry: PluginRegistry = {};
 
@@ -48,8 +48,8 @@ registerPlugin(
 
 // Register weather widget plugin
 registerPlugin(
-  weatherWidgetConfig.id,
-  weatherWidgetConfig.component,
+  'weather-widget',
+  WeatherWidget,
   weatherWidgetConfig.defaultConfig
 );
 

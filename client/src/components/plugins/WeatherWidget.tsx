@@ -17,9 +17,9 @@ interface WeatherData {
   name: string;
 }
 
-import { PluginComponent } from '../../lib/types';
+import { type PluginComponent } from '../../lib/types';
 
-const WeatherWidget: PluginComponent = ({ config, onConfigChange }) => {
+export const WeatherWidget: PluginComponent = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
