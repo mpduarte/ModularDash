@@ -94,9 +94,11 @@ async function seedDefaultPlugins() {
       version: '1.0.0',
       enabled: true,
       component: 'WeatherWidget',
-      category: 'content',
+      category: 'widgets',
       config: {
-        city: 'San Francisco'
+        city: 'San Francisco',
+        units: 'imperial',
+        refreshInterval: 300000
       }
     },
     {
