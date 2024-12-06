@@ -8,6 +8,34 @@ export function registerRoutes(app: express.Express) {
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+  // Weather API endpoint
+  app.get("/api/weather", async (req, res) => {
+    try {
+      const city = req.query.city as string || 'San Francisco';
+      const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+      
+      if (!API_KEY) {
+        return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
+      }
+
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=imperial`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Weather API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      res.status(500).json({
+        error: 'Failed to fetch weather data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Plugin routes
   app.get("/api/plugins", async (_req, res) => {
@@ -119,35 +147,6 @@ export function registerRoutes(app: express.Express) {
   });
 
   app.delete("/api/widgets/:id", async (req, res) => {
-  // Weather API endpoint
-  app.get("/api/weather", async (req, res) => {
-    try {
-      const city = req.query.city as string || 'San Francisco';
-      const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-      
-      if (!API_KEY) {
-        return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
-      }
-
-      const response = await fetch(
-        `http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=imperial`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Weather API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
-      res.status(500).json({
-        error: 'Failed to fetch weather data',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
     try {
       await db.delete(widgets).where(eq(widgets.id, parseInt(req.params.id)));
       res.status(204).end();
