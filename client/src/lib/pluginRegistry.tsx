@@ -47,10 +47,10 @@ registerPlugin(
 );
 
 // Register weather widget plugin
-registerPlugin('weather-widget', weatherWidgetConfig.component, {
-  city: 'San Francisco',
-  units: 'imperial',
-  refreshInterval: 300000
-});
+registerPlugin(
+  weatherWidgetConfig.id,
+  weatherWidgetConfig.component,
+  weatherWidgetConfig.defaultConfig
+);
 
 export default registry;

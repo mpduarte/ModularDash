@@ -19,7 +19,7 @@ import {
 interface WidgetConfigProps {
   widgets: Widget[];
   onClose: () => void;
-  onAdd: () => void;
+  onAdd: (pluginId: string) => void;
   onRemove: (id: string) => void;
   open: boolean;
 }

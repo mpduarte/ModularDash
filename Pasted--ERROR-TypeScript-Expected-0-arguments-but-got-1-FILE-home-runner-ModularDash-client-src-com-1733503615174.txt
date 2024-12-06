@@ -1,0 +1,33 @@
+
+ ERROR(TypeScript)  Expected 0 arguments, but got 1.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfig.tsx:54:42
+
+    52 |                   <Button
+    53 |                     key={plugin.id}
+  > 54 |                     onClick={() => onAdd(plugin.id)}
+       |                                          ^^^^^^^^^
+    55 |                     className="w-full"
+    56 |                   >
+    57 |                     <Plus className="mr-2 h-4 w-4" />
+
+ ERROR(TypeScript)  Argument of type 'FC<WeatherWidgetProps>' is not assignable to parameter of type 'PluginComponent'.
+  Type 'FunctionComponent<WeatherWidgetProps>' is not assignable to type 'FunctionComponent<{ config: Record<string, any>; onConfigChange: (newConfig: Record<string, any>) => void; }>'.
+    Types of property 'propTypes' are incompatible.
+      Type 'WeakValidationMap<WeatherWidgetProps> | undefined' is not assignable to type 'WeakValidationMap<{ config: Record<string, any>; onConfigChange: (newConfig: Record<string, any>) => void; }> | undefined'.
+        Type 'WeakValidationMap<WeatherWidgetProps>' is not assignable to type 'WeakValidationMap<{ config: Record<string, any>; onConfigChange: (newConfig: Record<string, any>) => void; }>'.
+          Types of property 'onConfigChange' are incompatible.
+            Type 'Validator<((newConfig: Record<string, any>) => void) | null | undefined> | undefined' is not assignable to type 'Validator<(newConfig: Record<string, any>) => void> | undefined'.
+              Type 'Validator<((newConfig: Record<string, any>) => void) | null | undefined>' is not assignable to type 'Validator<(newConfig: Record<string, any>) => void>'.
+                Type '((newConfig: Record<string, any>) => void) | null | undefined' is not assignable to type '(newConfig: Record<string, any>) => void'.
+                  Type 'undefined' is not assignable to type '(newConfig: Record<string, any>) => void'.
+ FILE  /home/runner/ModularDash/client/src/lib/pluginRegistry.tsx:50:34
+
+    48 |
+    49 | // Register weather widget plugin
+  > 50 | registerPlugin('weather-widget', weatherWidgetConfig.component, {
+       |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    51 |   city: 'San Francisco',
+    52 |   units: 'imperial',
+    53 |   refreshInterval: 300000
+
+[TypeScript] Found 2 errors. Watching for file changes.

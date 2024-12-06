@@ -17,14 +17,9 @@ interface WeatherData {
   name: string;
 }
 
-interface WeatherWidgetProps {
-  config: {
-    city: string;
-  };
-  onConfigChange?: (newConfig: Record<string, any>) => void;
-}
+import { PluginComponent } from '../../lib/types';
 
-const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config, onConfigChange }) => {
+const WeatherWidget: PluginComponent = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
