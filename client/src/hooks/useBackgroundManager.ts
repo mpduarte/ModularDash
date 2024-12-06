@@ -18,7 +18,7 @@ interface BackgroundState {
   setTransition: (transition: string) => void;
 }
 
-export const useBackgroundManager = create<BackgroundState>((set) => ({
+export const useBackgroundManager = create<BackgroundState>((set, get) => ({
   images: [
     {
       url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80&blur=0',
@@ -34,18 +34,31 @@ export const useBackgroundManager = create<BackgroundState>((set) => ({
     }
   ] as BackgroundImage[],
   currentImageIndex: 0,
-  interval: 3000, // Reduced interval for more noticeable rotation
+  interval: 3000,
   isAutoRotate: true,
   transition: 'fade',
-  setImages: (images: BackgroundImage[]) => set({ images }),
+  setImages: (images: BackgroundImage[]) => {
+    console.log('Setting new images:', images);
+    set({ images });
+  },
   setCurrentImage: (indexOrUpdater: number | ((prev: number) => number)) => {
-    if (typeof indexOrUpdater === 'function') {
-      set((state: BackgroundState) => ({ currentImageIndex: indexOrUpdater(state.currentImageIndex) }));
-    } else {
-      set({ currentImageIndex: indexOrUpdater });
-    }
+    const state = get();
+    const newIndex = typeof indexOrUpdater === 'function' 
+      ? indexOrUpdater(state.currentImageIndex)
+      : indexOrUpdater;
+    
+    console.log('Changing image:', {
+      from: state.currentImageIndex,
+      to: newIndex,
+      totalImages: state.images.length
+    });
+    
+    set({ currentImageIndex: newIndex });
   },
   setInterval: (interval: number) => set({ interval }),
-  setAutoRotate: (isAutoRotate: boolean) => set({ isAutoRotate }),
+  setAutoRotate: (isAutoRotate: boolean) => {
+    console.log('Auto-rotate changed:', { isAutoRotate });
+    set({ isAutoRotate });
+  },
   setTransition: (transition: string) => set({ transition }),
 }));
