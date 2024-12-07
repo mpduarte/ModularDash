@@ -20,7 +20,9 @@ interface WidgetConfigDialogProps {
 }
 
 export default function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDialogProps) {
+  console.log('WidgetConfigDialog mounted with props:', { widget, pluginId: widget.pluginId });
   const plugin = getPlugin(widget.pluginId);
+  console.log('Plugin found:', plugin);
   const [activeTab, setActiveTab] = useState("basic");
   
   type WeatherWidgetConfig = {

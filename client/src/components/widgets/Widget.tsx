@@ -45,6 +45,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
   const handleConfigClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Opening config dialog for widget:', widget);
     setShowConfig(true);
   };
 
@@ -126,13 +127,20 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
         </CardContent>
       </Card>
 
-      {showConfig && (
+      {showConfig ? (
         <WidgetConfigDialog
           widget={widget}
-          onClose={() => setShowConfig(false)}
-          onUpdate={onUpdate}
+          onClose={() => {
+            console.log('Closing config dialog');
+            setShowConfig(false);
+          }}
+          onUpdate={(updates) => {
+            console.log('Updating widget with:', updates);
+            onUpdate(updates);
+            setShowConfig(false);
+          }}
         />
-      )}
+      ) : null}
     </>
   );
 }
