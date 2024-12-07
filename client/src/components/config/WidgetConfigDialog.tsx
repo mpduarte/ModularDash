@@ -24,31 +24,34 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
   const [activeTab, setActiveTab] = useState("basic");
   
   type WeatherWidgetConfig = {
-  city: string;
-  units: 'imperial' | 'metric';
-  title: string;
-  autoRefresh: boolean;
-  refreshInterval: number;
-  theme: string;
-  layout: string;
-  visualMode: string;
-  background: string;
-  animations: boolean;
-  dataSource: string;
-  customStyles: string;
-  borderRadius: string;
-  padding: string;
-  enableAlerts: boolean;
-  alertThreshold: number;
-  alertType: string;
-  weatherCondition: string;
-};
+    title: string;
+    city?: string;
+    units?: 'imperial' | 'metric';
+    autoRefresh: boolean;
+    refreshInterval: number;
+    theme: string;
+    layout: string;
+    visualMode: string;
+    background: string;
+    animations: boolean;
+    dataSource: string;
+    customStyles: string;
+    borderRadius: string;
+    padding: string;
+    enableAlerts: boolean;
+    alertThreshold: number;
+    alertType: string;
+    weatherCondition: string;
+    [key: string]: any; // Allow for dynamic properties
+  };
 
 const form = useForm<WeatherWidgetConfig>({
     defaultValues: {
       title: widget.title,
-      city: widget.config.city || "San Francisco, CA, USA",
-      units: (widget.config.units as 'imperial' | 'metric') || "imperial",
+      ...(widget.pluginId === 'weather-widget' ? {
+        city: widget.config.city || "San Francisco, CA, USA",
+        units: (widget.config.units as 'imperial' | 'metric') || "imperial",
+      } : {}),
       autoRefresh: widget.config.autoRefresh || false,
       refreshInterval: widget.config.refreshInterval || 30,
       theme: widget.config.theme || "default",
@@ -64,7 +67,7 @@ const form = useForm<WeatherWidgetConfig>({
       alertThreshold: widget.config.alertThreshold || 80,
       alertType: widget.config.alertType || "visual",
       weatherCondition: widget.config.weatherCondition || "rain",
-    },
+    } as WeatherWidgetConfig,
   });
 
   const onSubmit = (data: WeatherWidgetConfig) => {
