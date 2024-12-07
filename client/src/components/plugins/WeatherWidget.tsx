@@ -37,7 +37,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const [editingCity, setEditingCity] = useState(false);
   const [tempCity, setTempCity] = useState(config.city);
   const units = config.units || 'imperial';
-  const unitSymbol = units === 'imperial' ? '°F' : '°C';
+  const unitSymbol = units === 'metric' ? '°C' : '°F';
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
@@ -222,7 +222,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                       variant="outline"
                       size="sm"
                       onClick={async () => {
-                        const newUnits = units === 'imperial' ? 'metric' : 'imperial';
+                        const newUnits = units === 'metric' ? 'imperial' : 'metric';
                         // Update local config first
                         await onConfigChange({ ...config, units: newUnits });
                         // Wait a brief moment for the config update to propagate
@@ -232,7 +232,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                         }, 100);
                       }}
                     >
-                      Switch to {units === 'imperial' ? '°F' : '°C'}
+                      Switch to {units === 'metric' ? '°F' : '°C'}
                     </Button>
                   </div>
                 </div>
