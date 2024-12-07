@@ -25,9 +25,13 @@ interface WeatherData {
     lon: number;
   };
   provider?: string;
-  sys?: {
-    state?: string;
+  sys: {
+    type?: number;
+    id?: number;
     country?: string;
+    sunrise?: number;
+    sunset?: number;
+    state?: string;
   };
 }
 

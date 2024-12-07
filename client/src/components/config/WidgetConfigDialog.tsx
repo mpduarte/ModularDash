@@ -74,9 +74,8 @@ const form = useForm<WeatherWidgetConfig>({
 
   const onSubmit = (data: WeatherWidgetConfig) => {
     if (widget.pluginId === 'weather-widget') {
-      const { title, city, units, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
+      const { city, units, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
       onUpdate({
-        title,
         config: {
           city,
           units,
