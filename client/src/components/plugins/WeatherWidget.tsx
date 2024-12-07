@@ -83,10 +83,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  
   const checkAlerts = (weatherData: WeatherData) => {
-    if (!config.enableAlerts || isInitialLoad) return;
+    if (!config.enableAlerts) return;
     
     const triggeredAlerts: string[] = [];
     
@@ -171,16 +169,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   useEffect(() => {
     const fetchData = async () => {
       await fetchWeather(config.city);
-      setIsInitialLoad(false); // Mark initial load as complete after first fetch
     };
 
     fetchData();
     const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
-    return () => {
-      clearInterval(interval);
-      setIsInitialLoad(true); // Reset on unmount
-    };
+    return () => clearInterval(interval);
   }, [config.city, config.refreshInterval, config.units]); // Added config.units as dependency
 
   const handleCityUpdate = () => {
@@ -295,11 +289,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                           const newUnits = units === 'metric' ? 'imperial' : 'metric';
                           console.log('Switching units:', { current: units, new: newUnits });
                           
-                          // First update the config with new units
-                          await onConfigChange({ ...config, units: newUnits });
-                          
-                          // Then fetch new data with updated units
+                          // First fetch new data with new units
                           await fetchWeather(config.city);
+                          
+                          // Then update the config
+                          await onConfigChange({ ...config, units: newUnits });
                           
                           console.log('Unit switch completed:', { newUnits });
                         } catch (error) {
