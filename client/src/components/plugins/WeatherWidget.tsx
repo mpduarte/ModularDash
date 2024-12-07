@@ -221,9 +221,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
+                      onClick={async () => {
                         const newUnits = units === 'imperial' ? 'metric' : 'imperial';
+                        // Update local config and trigger refetch
                         onConfigChange({ ...config, units: newUnits });
+                        // Refetch weather data with new units
+                        await fetchWeather(config.city);
                       }}
                     >
                       Switch to {units === 'imperial' ? '°C' : '°F'}
