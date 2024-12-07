@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -215,15 +214,13 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   if (loading && !weather) {
     return (
-      <Card>
-        <CardContent className="p-4">
-          <div className="animate-pulse flex flex-col gap-2">
-            <div className="h-4 bg-muted rounded w-1/2"></div>
-            <div className="h-8 bg-muted rounded w-3/4"></div>
-            <div className="h-4 bg-muted rounded w-1/4"></div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="p-4 bg-background rounded-lg border shadow-sm">
+        <div className="animate-pulse flex flex-col gap-2">
+          <div className="h-4 bg-muted rounded w-1/2" />
+          <div className="h-8 bg-muted rounded w-3/4" />
+          <div className="h-4 bg-muted rounded w-1/4" />
+        </div>
+      </div>
     );
   }
 
@@ -236,7 +233,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>,
         document.body
       )}
-      <Card className="p-4">
+      <div className="p-4 bg-background rounded-lg border shadow-sm">
         {/* Header Section */}
         <header className="flex justify-between items-center mb-4">
           {editingCity ? (
@@ -319,7 +316,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           </section>
         )}
-      </Card>
+      </div>
     </>
   );
 };
