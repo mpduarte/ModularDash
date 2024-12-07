@@ -83,8 +83,10 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
   const checkAlerts = (weatherData: WeatherData) => {
-    if (!config.enableAlerts) return;
+    if (!config.enableAlerts || isInitialLoad) return;
     
     const triggeredAlerts: string[] = [];
     
@@ -93,7 +95,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     const threshold = config.alertThreshold || 80;
     
     if (currentTemp >= threshold) {
-      triggeredAlerts.push(`Temperature Alert: Current temperature (${currentTemp}°F) exceeds threshold of ${threshold}°F`);
+      triggeredAlerts.push(`Temperature Alert: Current temperature (${currentTemp}${unitSymbol}) exceeds threshold of ${threshold}${unitSymbol}`);
       console.log('Temperature alert triggered:', { currentTemp, threshold });
     }
 
@@ -169,12 +171,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   useEffect(() => {
     const fetchData = async () => {
       await fetchWeather(config.city);
+      setIsInitialLoad(false); // Mark initial load as complete after first fetch
     };
 
     fetchData();
     const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setIsInitialLoad(true); // Reset on unmount
+    };
   }, [config.city, config.refreshInterval, config.units]); // Added config.units as dependency
 
   const handleCityUpdate = () => {
@@ -289,11 +295,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                           const newUnits = units === 'metric' ? 'imperial' : 'metric';
                           console.log('Switching units:', { current: units, new: newUnits });
                           
-                          // First fetch new data with new units
-                          await fetchWeather(config.city);
-                          
-                          // Then update the config
+                          // First update the config with new units
                           await onConfigChange({ ...config, units: newUnits });
+                          
+                          // Then fetch new data with updated units
+                          await fetchWeather(config.city);
                           
                           console.log('Unit switch completed:', { newUnits });
                         } catch (error) {
