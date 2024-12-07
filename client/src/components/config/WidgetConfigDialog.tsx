@@ -167,13 +167,15 @@ const form = useForm<WeatherWidgetConfig>({
               </TabsList>
 
               <TabsContent value="basic" className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Widget Title</Label>
-                  <Input
-                    id="title"
-                    {...form.register("title")}
-                  />
-                </div>
+                {widget.pluginId !== 'weather-widget' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Widget Title</Label>
+                    <Input
+                      id="title"
+                      {...form.register("title")}
+                    />
+                  </div>
+                )}
 
                 {plugin?.component && (
                   <div className="space-y-4 pt-4 border-t">

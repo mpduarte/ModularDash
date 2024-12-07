@@ -130,16 +130,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setError(null);
       let weatherData = null;
       
-      // Initial formatting of location title
-      const initialLocation = formatLocationTitle(city, '');
-      console.log('Initial formatted location:', initialLocation);
-      
-      // Update the title immediately with the user's input format
+      // Let's use only city for initial title until we get the actual data
       if (onConfigChange) {
         onConfigChange({
           ...config,
-          city: city,
-          title: initialLocation
+          city: city
         });
       }
       
@@ -229,6 +224,15 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           }]
         };
         setWeather(validatedWeatherData);
+        
+        // Generate and update the location-based title
+        const generatedTitle = formatLocationTitle(config.city, weatherData.name);
+        if (onConfigChange) {
+          onConfigChange({
+            ...config,
+            title: generatedTitle
+          });
+        }
         
         if (weatherData.coord) {
           console.log('Fetching air quality for coordinates:', weatherData.coord);
