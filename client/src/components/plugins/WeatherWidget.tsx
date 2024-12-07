@@ -131,9 +131,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     try {
       setLoading(true);
       setError(null);
-      const targetUnits = units === 'metric' ? 'metric' : 'imperial';
-      console.log('Fetching weather with units:', targetUnits);
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits}`);
+      console.log('Fetching weather with units:', units);
+      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${units}`);
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
@@ -168,6 +167,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   // Fetch weather data periodically
   useEffect(() => {
     const fetchData = async () => {
+      console.log('Fetching weather data with units:', units);
       await fetchWeather(config.city);
     };
 
@@ -175,7 +175,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
     return () => clearInterval(interval);
-  }, [config.city, config.refreshInterval, config.units]); // Added config.units as dependency
+  }, [config.city, config.refreshInterval, units]);
 
   const handleCityUpdate = () => {
     if (onConfigChange) {
@@ -284,22 +284,10 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={async () => {
-                        try {
-                          const newUnits = units === 'metric' ? 'imperial' : 'metric';
-                          console.log('Switching units:', { current: units, new: newUnits });
-                          
-                          // First fetch new data with new units
-                          await fetchWeather(config.city);
-                          
-                          // Then update the config
-                          await onConfigChange({ ...config, units: newUnits });
-                          
-                          console.log('Unit switch completed:', { newUnits });
-                        } catch (error) {
-                          console.error('Error switching units:', error);
-                          setError('Failed to switch temperature units');
-                        }
+                      onClick={() => {
+                        const newUnits = units === 'metric' ? 'imperial' : 'metric';
+                        console.log('Switching units:', { current: units, new: newUnits });
+                        onConfigChange({ ...config, units: newUnits });
                       }}
                     >
                       Switch to {units === 'metric' ? '°F' : '°C'}
