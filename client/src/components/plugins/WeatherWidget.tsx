@@ -218,10 +218,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         document.body
       )}
       
-      <header className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
-      </header>
-
       {error && (
         <p className="text-destructive text-sm" role="alert">{error}</p>
       )}
