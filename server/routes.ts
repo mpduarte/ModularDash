@@ -213,8 +213,16 @@ export function registerRoutes(app: express.Express) {
           console.error(`Error with ${provider}:`, error);
           updateProviderHealth(provider, false, responseTime);
           
-          // Log failure metrics
-          weatherProviderErrors.labels(provider, error.name === 'AbortError' ? 'timeout' : 'api').inc();
+          // Type guard for error object
+          const isErrorWithName = (err: unknown): err is { name: string } => {
+            return err !== null && typeof err === 'object' && 'name' in err;
+          };
+          
+          // Log failure metrics with type checking
+          weatherProviderErrors.labels(
+            provider, 
+            isErrorWithName(error) && error.name === 'AbortError' ? 'timeout' : 'api'
+          ).inc();
           weatherProviderRequests.labels(provider, 'error').inc();
           
           throw error;
@@ -247,7 +255,12 @@ export function registerRoutes(app: express.Express) {
           updateProviderHealth(backupProvider, false, responseTime);
           
           // Log failure metrics for backup provider
-          const errorType = backupError instanceof Error && backupError.name === 'AbortError' ? 'timeout' : 'api';
+          // Type guard for error object
+          const isErrorWithName = (err: unknown): err is { name: string } => {
+            return err !== null && typeof err === 'object' && 'name' in err;
+          };
+          
+          const errorType = isErrorWithName(backupError) && backupError.name === 'AbortError' ? 'timeout' : 'api';
           weatherProviderErrors.labels(backupProvider, errorType).inc();
           weatherProviderRequests.labels(backupProvider, 'error').inc();
           
