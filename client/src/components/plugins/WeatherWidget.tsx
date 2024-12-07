@@ -61,7 +61,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
-  // Get the base URL from the current window location
   const baseUrl = window.location.origin;
 
   const fetchAirQuality = async (lat: number, lon: number) => {
@@ -74,35 +73,27 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setAirQuality(data);
     } catch (error) {
       console.error('Error fetching air quality:', error);
-      // Don't set error state to avoid blocking weather display
     }
   };
 
   const checkAlerts = (weatherData: WeatherData) => {
     if (!config.enableAlerts) return;
-    
     const triggeredAlerts: string[] = [];
-    
-    // Check temperature threshold
     const currentTemp = Math.round(weatherData.main.temp);
     const threshold = config.alertThreshold || 80;
     
     if (currentTemp >= threshold) {
       triggeredAlerts.push(`Temperature Alert: Current temperature (${currentTemp}${unitSymbol}) exceeds threshold of ${threshold}${unitSymbol}`);
-      console.log('Temperature alert triggered:', { currentTemp, threshold });
     }
 
-    // Check weather condition
     if (config.weatherCondition) {
       const currentCondition = weatherData.weather[0].main.toLowerCase();
       if (currentCondition.includes(config.weatherCondition.toLowerCase())) {
         triggeredAlerts.push(`Weather Condition Alert: ${weatherData.weather[0].description}`);
-        console.log('Weather condition alert triggered:', { currentCondition, targetCondition: config.weatherCondition });
       }
     }
 
     if (triggeredAlerts.length > 0) {
-      console.log('Showing alerts:', triggeredAlerts);
       setNotificationMessage(triggeredAlerts.join('\n'));
       setShowNotification(true);
       
@@ -115,7 +106,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         }
       }
 
-      // Auto-hide notification after 5 seconds
       setTimeout(() => {
         setShowNotification(false);
       }, 5000);
@@ -140,42 +130,29 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       const data = await response.json();
       
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`City "${city}" not found. Please check the spelling and try again.`);
-        }
-        if (response.status === 429) {
-          throw new Error('Weather service is temporarily unavailable due to high demand. Please try again in a few minutes.');
-        }
         throw new Error(data.message || `Weather API error: ${response.statusText}`);
       }
 
       setWeather(data);
       checkAlerts(data);
       
-      // Add delay before fetching air quality to prevent rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Fetch air quality data using coordinates
       if (data.coord) {
         await fetchAirQuality(data.coord.lat, data.coord.lon);
       }
     } catch (error) {
       console.error('Error fetching weather:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch weather data';
-      setError(errorMessage);
+      setError(error instanceof Error ? error.message : 'Failed to fetch weather data');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch weather data periodically
   useEffect(() => {
     const fetchData = async () => {
       await fetchWeather(config.city);
     };
 
     fetchData();
-    // Increase default refresh interval to 10 minutes (600000ms) to avoid rate limits
     const refreshInterval = Math.max(600000, config.refreshInterval || 600000);
     const interval = setInterval(fetchData, refreshInterval);
 
@@ -195,27 +172,15 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   };
 
   const handleUnitToggle = async () => {
-    try {
-      const newUnits = units === 'metric' ? 'imperial' : 'metric';
-      console.log('Switching units:', { current: units, new: newUnits });
-      
-      // First update the config
-      await onConfigChange({ ...config, units: newUnits });
-      
-      // Then fetch new data with new units
-      await fetchWeather(config.city, newUnits);
-      
-      console.log('Unit switch completed:', { newUnits });
-    } catch (error) {
-      console.error('Error switching units:', error);
-      setError('Failed to switch temperature units. Please try again.');
-    }
+    const newUnits = units === 'metric' ? 'imperial' : 'metric';
+    await onConfigChange({ ...config, units: newUnits });
+    await fetchWeather(config.city, newUnits);
   };
 
   if (loading && !weather) {
     return (
       <div className="p-4 bg-background rounded-lg border shadow-sm">
-        <div className="animate-pulse flex flex-col gap-2">
+        <div className="animate-pulse space-y-4">
           <div className="h-4 bg-muted rounded w-1/2" />
           <div className="h-8 bg-muted rounded w-3/4" />
           <div className="h-4 bg-muted rounded w-1/4" />
@@ -233,11 +198,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>,
         document.body
       )}
-      <div className="p-4 bg-background rounded-lg border shadow-sm">
-        {/* Header Section */}
-        <header className="flex justify-between items-center mb-4">
+      <section className="p-4 bg-background rounded-lg border shadow-sm space-y-4">
+        <header className="flex justify-between items-center">
           {editingCity ? (
-            <form className="flex gap-2 items-center" onSubmit={(e) => { e.preventDefault(); handleCityUpdate(); }}>
+            <form 
+              className="flex gap-2 items-center" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCityUpdate();
+              }}
+            >
               <Input
                 value={tempCity}
                 onChange={(e) => setTempCity(e.target.value)}
@@ -255,56 +225,50 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           )}
         </header>
 
-        {/* Error Message */}
         {error && (
-          <p className="text-destructive text-sm mb-4" role="alert">{error}</p>
+          <p className="text-destructive text-sm" role="alert">{error}</p>
         )}
         
-        {/* Weather Content */}
         {weather && (
-          <section className="space-y-4">
-            {/* Current Weather */}
+          <>
             <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
               <img
                 src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
                 alt={weather.weather[0].description}
                 className="w-16 h-16"
               />
-              <div className="space-y-1">
+              <div>
                 <p className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</p>
                 <p className="text-muted-foreground capitalize">{weather.weather[0].description}</p>
               </div>
             </div>
             
-            {/* Weather Details */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="space-y-1">
+            <div className="grid grid-cols-2 gap-4 text-sm pt-4">
+              <div>
                 <Label>Feels Like</Label>
                 <p>{Math.round(weather.main.feels_like)}{unitSymbol}</p>
               </div>
-              <div className="space-y-1">
+              <div>
                 <Label>Humidity</Label>
                 <p>{weather.main.humidity}%</p>
               </div>
             </div>
 
-            {/* Air Quality */}
             {airQuality?.list?.[0] && (
-              <div className="border-t pt-4">
+              <div className="pt-4 border-t">
                 <Label className="block mb-2">Air Quality</Label>
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
                   <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
                 </div>
-                <div className="text-xs text-muted-foreground grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
                   <span>PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³</span>
                   <span>PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³</span>
                 </div>
               </div>
             )}
 
-            {/* Temperature Unit Toggle */}
-            <div className="border-t pt-4 flex justify-between items-center">
+            <div className="flex justify-between items-center pt-4 border-t">
               <Label>Temperature Unit</Label>
               <Button
                 variant="outline"
@@ -314,17 +278,15 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                 Switch to {units === 'metric' ? '°F' : '°C'}
               </Button>
             </div>
-          </section>
+          </>
         )}
-      </div>
+      </section>
     </>
   );
 };
 
-// Export the component directly
 export const WeatherWidget: PluginComponent = WeatherWidgetComponent;
 
-// Export the configuration
 export const weatherWidgetConfig = {
   id: 'weather-widget',
   name: 'Weather Widget',
