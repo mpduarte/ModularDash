@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type PluginComponent } from '../../lib/types';
+import { type PluginComponent, PluginProps } from '../../lib/types';
 import { createPortal } from 'react-dom';
 
 interface WeatherData {
