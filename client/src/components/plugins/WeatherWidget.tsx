@@ -40,6 +40,9 @@ interface WeatherAPIResponse {
     name: string;
     lat: number;
     lon: number;
+    country: string;
+    region: string;
+    localtime: string;
   };
   current: {
     temp_c: number;
