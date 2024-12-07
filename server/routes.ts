@@ -26,9 +26,26 @@ export function registerRoutes(app: express.Express) {
         `${city},US`;
 
       // Provider health tracking
-      const providerHealthStatus: Record<string, { lastError?: number; consecutiveErrors: number }> = {
-        openweathermap: { consecutiveErrors: 0 },
-        weatherapi: { consecutiveErrors: 0 }
+      const providerHealthStatus: Record<string, {
+        lastError?: number;
+        consecutiveErrors: number;
+        responseTimes: number[];
+        lastResponseTime?: number;
+        totalRequests: number;
+        successfulRequests: number;
+      }> = {
+        openweathermap: {
+          consecutiveErrors: 0,
+          responseTimes: [],
+          totalRequests: 0,
+          successfulRequests: 0
+        },
+        weatherapi: {
+          consecutiveErrors: 0,
+          responseTimes: [],
+          totalRequests: 0,
+          successfulRequests: 0
+        }
       };
 
       // Health check function that uses in-memory error tracking
@@ -36,24 +53,67 @@ export function registerRoutes(app: express.Express) {
         const status = providerHealthStatus[providerName];
         if (!status) return true;
 
-        // If provider has had 3 consecutive errors in the last minute, consider it unhealthy
-        if (status.consecutiveErrors >= 3 && status.lastError && Date.now() - status.lastError < 60000) {
+        // Calculate success rate
+        const successRate = status.totalRequests > 0
+          ? status.successfulRequests / status.totalRequests
+          : 1;
+
+        // Calculate average response time from last 5 requests
+        const recentResponseTimes = status.responseTimes.slice(-5);
+        const avgResponseTime = recentResponseTimes.length > 0
+          ? recentResponseTimes.reduce((a, b) => a + b, 0) / recentResponseTimes.length
+          : 0;
+
+        // Provider is unhealthy if:
+        // 1. Has 3+ consecutive errors in the last minute
+        // 2. Success rate below 70% in recent requests
+        // 3. Average response time above 2 seconds
+        if (
+          (status.consecutiveErrors >= 3 && status.lastError && Date.now() - status.lastError < 60000) ||
+          (status.totalRequests > 10 && successRate < 0.7) ||
+          (recentResponseTimes.length >= 5 && avgResponseTime > 2000)
+        ) {
+          console.log(`Provider ${providerName} health check failed:`, {
+            consecutiveErrors: status.consecutiveErrors,
+            successRate,
+            avgResponseTime
+          });
           return false;
         }
         return true;
       };
 
       // Update provider health status
-      const updateProviderHealth = (providerName: string, success: boolean) => {
+      const updateProviderHealth = (providerName: string, success: boolean, responseTime?: number) => {
         const status = providerHealthStatus[providerName];
         if (!status) return;
 
+        status.totalRequests++;
         if (success) {
           status.consecutiveErrors = 0;
           status.lastError = undefined;
+          status.successfulRequests++;
         } else {
           status.consecutiveErrors++;
           status.lastError = Date.now();
+        }
+
+        if (responseTime) {
+          status.responseTimes.push(responseTime);
+          status.lastResponseTime = responseTime;
+          // Keep only last 100 response times
+          if (status.responseTimes.length > 100) {
+            status.responseTimes.shift();
+          }
+        }
+
+        // Log provider health metrics
+        weatherProviderLatency.labels(providerName).observe(responseTime ? responseTime / 1000 : 0);
+        if (success) {
+          weatherProviderRequests.labels(providerName, 'success').inc();
+        } else {
+          weatherProviderErrors.labels(providerName, 'api').inc();
+          weatherProviderRequests.labels(providerName, 'error').inc();
         }
       };
 
@@ -117,7 +177,7 @@ export function registerRoutes(app: express.Express) {
           // Enhanced error logging
           console.error(`Failed to fetch weather data from ${providerName}:`, error instanceof Error ? error.message : 'Unknown error');
           
-          if (error.name === 'AbortError') {
+          if (error instanceof Error && error.name === 'AbortError') {
             throw new Error(`${providerName} request timed out`);
           }
           throw error;
