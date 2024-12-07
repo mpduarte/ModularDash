@@ -236,87 +236,89 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>,
         document.body
       )}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              {editingCity ? (
-                <div className="flex gap-2 items-center">
-                  <Input
-                    value={tempCity}
-                    onChange={(e) => setTempCity(e.target.value)}
-                    placeholder="Enter city name"
-                    className="w-40"
-                  />
-                  <Button onClick={handleCityUpdate} size="sm">Update</Button>
-                  <Button onClick={() => setEditingCity(false)} variant="outline" size="sm">Cancel</Button>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
-                  <Button onClick={() => setEditingCity(true)} variant="ghost" size="sm">Change City</Button>
-                </>
-              )}
+      <Card className="p-4">
+        {/* Header Section */}
+        <header className="flex justify-between items-center mb-4">
+          {editingCity ? (
+            <form className="flex gap-2 items-center" onSubmit={(e) => { e.preventDefault(); handleCityUpdate(); }}>
+              <Input
+                value={tempCity}
+                onChange={(e) => setTempCity(e.target.value)}
+                placeholder="Enter city name"
+                className="w-40"
+              />
+              <Button type="submit" size="sm">Update</Button>
+              <Button onClick={() => setEditingCity(false)} variant="outline" size="sm">Cancel</Button>
+            </form>
+          ) : (
+            <>
+              <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
+              <Button onClick={() => setEditingCity(true)} variant="ghost" size="sm">Change City</Button>
+            </>
+          )}
+        </header>
+
+        {/* Error Message */}
+        {error && (
+          <p className="text-destructive text-sm mb-4" role="alert">{error}</p>
+        )}
+        
+        {/* Weather Content */}
+        {weather && (
+          <section className="space-y-4">
+            {/* Current Weather */}
+            <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
+              <img
+                src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
+                alt={weather.weather[0].description}
+                className="w-16 h-16"
+              />
+              <div className="space-y-1">
+                <p className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</p>
+                <p className="text-muted-foreground capitalize">{weather.weather[0].description}</p>
+              </div>
+            </div>
+            
+            {/* Weather Details */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-1">
+                <Label>Feels Like</Label>
+                <p>{Math.round(weather.main.feels_like)}{unitSymbol}</p>
+              </div>
+              <div className="space-y-1">
+                <Label>Humidity</Label>
+                <p>{weather.main.humidity}%</p>
+              </div>
             </div>
 
-            {error && (
-              <div className="text-destructive text-sm">{error}</div>
-            )}
-            
-            {weather && (
-              <>
-                <div className="flex items-center gap-4">
-                  <img
-                    src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
-                    alt={weather.weather[0].description}
-                    className="w-16 h-16"
-                  />
-                  <div>
-                    <div className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</div>
-                    <div className="text-muted-foreground capitalize">
-                      {weather.weather[0].description}
-                    </div>
-                  </div>
+            {/* Air Quality */}
+            {airQuality?.list?.[0] && (
+              <div className="border-t pt-4">
+                <Label className="block mb-2">Air Quality</Label>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
+                  <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <Label>Feels Like</Label>
-                    <div>{Math.round(weather.main.feels_like)}{unitSymbol}</div>
-                  </div>
-                  <div>
-                    <Label>Humidity</Label>
-                    <div>{weather.main.humidity}%</div>
-                  </div>
-                  {airQuality?.list?.[0] && (
-                    <div className="col-span-2 border-t pt-2 mt-2">
-                      <Label>Air Quality</Label>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
-                        <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³
-                        <br />
-                        PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³
-                      </div>
-                    </div>
-                  )}
-                  <div className="col-span-2 mt-2 flex justify-between items-center">
-                    <Label>Temperature Unit</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleUnitToggle}
-                    >
-                      Switch to {units === 'metric' ? '°F' : '°C'}
-                    </Button>
-                  </div>
+                <div className="text-xs text-muted-foreground grid grid-cols-2 gap-1">
+                  <span>PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³</span>
+                  <span>PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³</span>
                 </div>
-              </>
+              </div>
             )}
-          </div>
-        </CardContent>
+
+            {/* Temperature Unit Toggle */}
+            <div className="border-t pt-4 flex justify-between items-center">
+              <Label>Temperature Unit</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUnitToggle}
+              >
+                Switch to {units === 'metric' ? '°F' : '°C'}
+              </Button>
+            </div>
+          </section>
+        )}
       </Card>
     </>
   );
