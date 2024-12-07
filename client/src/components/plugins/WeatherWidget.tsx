@@ -231,29 +231,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       )}
       
       <header className="flex justify-between items-center mb-4">
-        {editingCity ? (
-          <form 
-            className="flex gap-2 items-center" 
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleCityUpdate();
-            }}
-          >
-            <Input
-              value={tempCity}
-              onChange={(e) => setTempCity(e.target.value)}
-              placeholder="Enter city name"
-              className="w-40"
-            />
-            <Button type="submit" size="sm">Update</Button>
-            <Button onClick={() => setEditingCity(false)} variant="outline" size="sm">Cancel</Button>
-          </form>
-        ) : (
-          <>
-            <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
-            <Button onClick={() => setEditingCity(true)} variant="ghost" size="sm">Change City</Button>
-          </>
-        )}
+        <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
       </header>
 
       {error && (
@@ -301,18 +279,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           )}
 
-          <div className="border-t pt-4 mt-4">
-            <div className="flex justify-between items-center">
-              <Label>Temperature Unit</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleUnitToggle}
-              >
-                Switch to {units === 'metric' ? '°F' : '°C'}
-              </Button>
-            </div>
-          </div>
+          {/* Temperature unit controls moved to settings */}
         </>
       )}
     </>
