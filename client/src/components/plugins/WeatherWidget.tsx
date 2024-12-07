@@ -97,32 +97,30 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   const formatLocationTitle = (cityInput: string, weatherCityName: string) => {
     const inputParts = cityInput.split(',').map(part => part.trim());
-    let locationParts = [weatherCityName];
+    const cityName = inputParts[0] || weatherCityName;
     
-    // Check if it's a US location (looking for state code in second part)
+    // For US locations: City, State, USA format
     const isUS = inputParts.length > 1 && /^[A-Z]{2}$/i.test(inputParts[1]);
     
     if (isUS) {
-      // For US locations: City, State, USA
-      if (inputParts.length > 1) {
-        locationParts.push(inputParts[1].toUpperCase());
-        locationParts.push('USA');
-      }
-    } else {
-      // For non-US locations: City, State/Region (if provided), Country
-      if (inputParts.length > 2) {
-        // Add state/region if provided
-        locationParts.push(inputParts[1]);
-        // Add country
-        locationParts.push(inputParts[2]);
-      } else if (inputParts.length > 1) {
-        // Just add country if no state/region
-        locationParts.push(inputParts[inputParts.length - 1]);
-      }
+      const stateCode = inputParts[1].toUpperCase();
+      return `${cityName}, ${stateCode}, USA`;
+    } 
+    
+    // For international locations
+    if (inputParts.length > 2) {
+      // City, State/Region, Country
+      const region = inputParts[1];
+      const country = inputParts[2];
+      return `${cityName}, ${region}, ${country}`;
+    } else if (inputParts.length > 1) {
+      // City, Country
+      const country = inputParts[1];
+      return `${cityName}, ${country}`;
     }
     
-    // Filter out empty parts and join
-    return locationParts.filter(Boolean).join(', ');
+    // Fallback to just city name if no additional info
+    return cityName;
   };
 
   const fetchWeather = async (city: string, targetUnits?: string) => {
@@ -214,12 +212,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         
         // Update widget title with location info
         if (onConfigChange) {
+          // Use the original city input for formatting
           const completeLocation = formatLocationTitle(city, weatherData.name);
+          
           onConfigChange({
             ...config,
             city: city,
             title: completeLocation
           });
+          
+          console.log('Updated widget title:', completeLocation);
         }
         
         if (weatherData.coord) {
