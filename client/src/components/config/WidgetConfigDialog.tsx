@@ -23,9 +23,32 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
   const plugin = getPlugin(widget.pluginId);
   const [activeTab, setActiveTab] = useState("basic");
   
-  const form = useForm({
+  type WeatherWidgetConfig = {
+  city?: string;
+  units?: 'imperial' | 'metric';
+  title: string;
+  autoRefresh: boolean;
+  refreshInterval: number;
+  theme: string;
+  layout: string;
+  visualMode: string;
+  background: string;
+  animations: boolean;
+  dataSource: string;
+  customStyles: string;
+  borderRadius: string;
+  padding: string;
+  enableAlerts: boolean;
+  alertThreshold: number;
+  alertType: string;
+  weatherCondition: string;
+};
+
+const form = useForm<WeatherWidgetConfig>({
     defaultValues: {
       title: widget.title,
+      city: widget.config.city || "San Francisco, CA, USA",
+      units: (widget.config.units as 'imperial' | 'metric') || "imperial",
       autoRefresh: widget.config.autoRefresh || false,
       refreshInterval: widget.config.refreshInterval || 30,
       theme: widget.config.theme || "default",
@@ -41,20 +64,35 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       alertThreshold: widget.config.alertThreshold || 80,
       alertType: widget.config.alertType || "visual",
       weatherCondition: widget.config.weatherCondition || "rain",
-    } as const,
+    },
   });
 
-  const onSubmit = (data: any) => {
-    const { title, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
-    onUpdate({
-      title,
-      config: {
-        autoRefresh,
-        refreshInterval,
-        theme,
-        ...pluginConfig,
-      },
-    });
+  const onSubmit = (data: WeatherWidgetConfig) => {
+    if (widget.pluginId === 'weather-widget') {
+      const { title, city, units, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
+      onUpdate({
+        title,
+        config: {
+          city,
+          units,
+          autoRefresh,
+          refreshInterval,
+          theme,
+          ...pluginConfig,
+        },
+      });
+    } else {
+      const { title, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
+      onUpdate({
+        title,
+        config: {
+          autoRefresh,
+          refreshInterval,
+          theme,
+          ...pluginConfig,
+        },
+      });
+    }
     onClose();
   };
 
@@ -141,15 +179,15 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                           <Label htmlFor="city">City</Label>
                           <Input
                             id="city"
-                            {...form.register("city")}
+                            {...form.register("city", { required: false })}
                             placeholder="Enter city name"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="units">Temperature Units</Label>
                           <Select
-                            value={form.watch("units")}
-                            onValueChange={(value) => form.setValue("units", value)}
+                            value={form.watch("units") || "imperial"}
+                            onValueChange={(value: 'imperial' | 'metric') => form.setValue("units", value)}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select units" />
