@@ -219,7 +219,8 @@ export const weatherWidgetConfig = {
     units: 'imperial',
     refreshInterval: 300000,
     enableAlerts: false,
-    alerts: [],
+    alertThreshold: 80,
+    weatherCondition: 'rain',
     alertType: 'visual'
   }
 };

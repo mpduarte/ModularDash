@@ -319,10 +319,10 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                             </div>
                           </div>
 
-                          <div className="space-y-2 pt-4 border-t">
-                            <h4 className="font-medium">Alert Settings</h4>
+                          <div className="space-y-4 pt-4 border-t">
+                            <h4 className="font-medium">Weather Alert Settings</h4>
                             <div className="flex items-center justify-between">
-                              <Label htmlFor="enableAlerts">Enable Alerts</Label>
+                              <Label htmlFor="enableAlerts">Enable Weather Alerts</Label>
                               <Switch
                                 id="enableAlerts"
                                 checked={form.watch("enableAlerts")}
@@ -333,14 +333,36 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                             {form.watch("enableAlerts") && (
                               <>
                                 <div className="space-y-2">
-                                  <Label htmlFor="alertThreshold">Alert Threshold (%)</Label>
+                                  <Label htmlFor="alertThreshold">Temperature Threshold (°F)</Label>
                                   <Input
                                     id="alertThreshold"
                                     type="number"
                                     min="0"
-                                    max="100"
+                                    max="120"
                                     {...form.register("alertThreshold")}
                                   />
+                                  <p className="text-sm text-muted-foreground">
+                                    Alert when temperature exceeds this value
+                                  </p>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="weatherCondition">Weather Condition Alert</Label>
+                                  <Select
+                                    value={form.watch("weatherCondition")}
+                                    onValueChange={(value) => form.setValue("weatherCondition", value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select weather condition" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="rain">Rain</SelectItem>
+                                      <SelectItem value="snow">Snow</SelectItem>
+                                      <SelectItem value="storm">Storm</SelectItem>
+                                      <SelectItem value="clear">Clear Sky</SelectItem>
+                                      <SelectItem value="clouds">Cloudy</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
 
                                 <div className="space-y-2">
@@ -353,9 +375,9 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                                       <SelectValue placeholder="Select alert type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="visual">Visual</SelectItem>
-                                      <SelectItem value="sound">Sound</SelectItem>
-                                      <SelectItem value="both">Both</SelectItem>
+                                      <SelectItem value="visual">Visual Only</SelectItem>
+                                      <SelectItem value="sound">Sound Only</SelectItem>
+                                      <SelectItem value="both">Visual & Sound</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
