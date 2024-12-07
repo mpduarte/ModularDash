@@ -8,12 +8,16 @@ const registry: PluginRegistry = {};
 export function registerPlugin(
   id: string,
   component: PluginComponent,
-  defaultConfig: Record<string, any> = {}
+  defaultConfig: Record<string, any> = {},
+  name: string = id,
+  version: string = '1.0.0'
 ) {
-  console.log(`Registering plugin: ${id}`, { component, defaultConfig });
+  console.log(`Registering plugin: ${id}`, { component, defaultConfig, name, version });
   registry[id] = {
     component,
     defaultConfig,
+    name,
+    version
   };
 }
 
@@ -35,7 +39,7 @@ const TextWidget: PluginComponent = ({ config }) => (
 
 registerPlugin('text-widget', TextWidget, {
   content: ''
-});
+}, 'Text Widget', '1.0.0');
 
 // Register HTML widget plugin
 const HtmlWidget: PluginComponent = ({ config }) => (
@@ -47,7 +51,7 @@ const HtmlWidget: PluginComponent = ({ config }) => (
 
 registerPlugin('html-widget', HtmlWidget, {
   content: ''
-});
+}, 'HTML Widget', '1.0.0');
 
 // Register background manager plugin
 registerPlugin(
@@ -57,10 +61,12 @@ registerPlugin(
 );
 
 // Register weather widget plugin
-registerPlugin('weather-widget', weatherWidgetConfig.component, {
-  city: 'San Francisco',
-  units: 'imperial',
-  refreshInterval: 300000
-});
+registerPlugin(
+  'weather-widget',
+  weatherWidgetConfig.component,
+  weatherWidgetConfig.defaultConfig,
+  weatherWidgetConfig.name,
+  weatherWidgetConfig.version
+);
 
 export default registry;

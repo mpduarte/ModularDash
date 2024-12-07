@@ -54,9 +54,13 @@ export interface PluginProps {
 
 export type PluginComponent = React.FC<PluginProps>;
 
+export interface RegisteredPlugin {
+  component: PluginComponent;
+  defaultConfig: Record<string, any>;
+  name: string;
+  version: string;
+}
+
 export interface PluginRegistry {
-  [key: string]: {
-    component: PluginComponent;
-    defaultConfig: Record<string, any>;
-  };
+  [key: string]: RegisteredPlugin;
 }
