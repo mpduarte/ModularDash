@@ -76,42 +76,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
-  const checkAlerts = (weatherData: WeatherData) => {
-    if (!config.enableAlerts) return;
-    const triggeredAlerts: string[] = [];
-    const currentTemp = Math.round(weatherData.main.temp);
-    const threshold = config.alertThreshold || 80;
-    
-    if (currentTemp >= threshold) {
-      triggeredAlerts.push(`Temperature Alert: Current temperature (${currentTemp}${unitSymbol}) exceeds threshold of ${threshold}${unitSymbol}`);
-    }
-
-    if (config.weatherCondition) {
-      const currentCondition = weatherData.weather[0].main.toLowerCase();
-      if (currentCondition.includes(config.weatherCondition.toLowerCase())) {
-        triggeredAlerts.push(`Weather Condition Alert: ${weatherData.weather[0].description}`);
-      }
-    }
-
-    if (triggeredAlerts.length > 0) {
-      setNotificationMessage(triggeredAlerts.join('\n'));
-      setShowNotification(true);
-      
-      if (config.alertType === 'sound' || config.alertType === 'both') {
-        try {
-          const audio = new Audio('/alert.mp3');
-          audio.play().catch(error => console.error('Error playing alert sound:', error));
-        } catch (error) {
-          console.error('Error creating audio:', error);
-        }
-      }
-
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 5000);
-    }
-  };
-
   const fetchWeather = async (city: string, targetUnits?: string) => {
     try {
       setLoading(true);
@@ -134,8 +98,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       }
 
       setWeather(data);
-      checkAlerts(data);
-      
       if (data.coord) {
         await fetchAirQuality(data.coord.lat, data.coord.lon);
       }
@@ -179,20 +141,20 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   if (loading && !weather) {
     return (
-      <div className="p-4 bg-background rounded-lg border shadow-sm">
+      <section className="p-4 bg-background rounded-lg border shadow-sm">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-muted rounded w-1/2" />
           <div className="h-8 bg-muted rounded w-3/4" />
           <div className="h-4 bg-muted rounded w-1/4" />
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
     <>
       {showNotification && createPortal(
-        <div className="fixed top-4 right-4 z-[9999] bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 max-w-md border-2 border-destructive-foreground">
+        <div className="fixed top-4 right-4 z-[9999] bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2">
           <div className="font-semibold mb-2">Weather Alert</div>
           <pre className="whitespace-pre-wrap text-sm">{notificationMessage}</pre>
         </div>,
@@ -243,7 +205,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 text-sm pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <Label>Feels Like</Label>
                 <p>{Math.round(weather.main.feels_like)}{unitSymbol}</p>
@@ -255,7 +217,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
 
             {airQuality?.list?.[0] && (
-              <div className="pt-4 border-t">
+              <div className="border-t pt-4">
                 <Label className="block mb-2">Air Quality</Label>
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
