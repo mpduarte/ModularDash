@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type PluginComponent } from '../../lib/types';
+import { createPortal } from 'react-dom';
 
 interface WeatherData {
   main: {
@@ -158,11 +159,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   return (
     <>
-      {showNotification && (
-        <div className="fixed top-4 right-4 z-50 bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 max-w-md border-2 border-destructive-foreground">
+      {showNotification && createPortal(
+        <div className="fixed top-4 right-4 z-[9999] bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 max-w-md border-2 border-destructive-foreground" style={{ position: 'fixed', top: '1rem', right: '1rem' }}>
           <div className="font-semibold mb-2">Weather Alert</div>
           <pre className="whitespace-pre-wrap text-sm">{notificationMessage}</pre>
-        </div>
+        </div>,
+        document.body
       )}
       <Card>
         <CardContent className="p-4">
