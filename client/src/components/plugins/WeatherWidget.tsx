@@ -25,6 +25,10 @@ interface WeatherData {
     lon: number;
   };
   provider?: string;
+  sys?: {
+    state?: string;
+    country?: string;
+  };
 }
 
 interface WeatherAPIResponse {
@@ -201,6 +205,10 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           coord: {
             lat: weatherApiData.location.lat,
             lon: weatherApiData.location.lon,
+          },
+          sys: {
+            state: weatherApiData.location.region || undefined,
+            country: weatherApiData.location.country || undefined
           },
           provider: 'weatherapi'
         };

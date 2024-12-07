@@ -1,0 +1,45 @@
+ERROR(TypeScript)  Property 'sys' does not exist on type 'WeatherData'.
+ FILE  /home/runner/ModularDash/client/src/components/plugins/WeatherWidget.tsx:327:28
+
+    325 |                 <h3 className="text-sm font-medium text-muted-foreground mb-1">
+    326 |                   {weather.name}
+  > 327 |                   {weather.sys?.state && `, ${weather.sys.state}`}
+        |                            ^^^
+    328 |                   {weather.sys?.country && `, ${weather.sys.country}`}
+    329 |                 </h3>
+    330 |                 <p className="text-3xl font-bold">
+
+ ERROR(TypeScript)  Property 'sys' does not exist on type 'WeatherData'.
+ FILE  /home/runner/ModularDash/client/src/components/plugins/WeatherWidget.tsx:327:55
+
+    325 |                 <h3 className="text-sm font-medium text-muted-foreground mb-1">
+    326 |                   {weather.name}
+  > 327 |                   {weather.sys?.state && `, ${weather.sys.state}`}
+        |                                                       ^^^
+    328 |                   {weather.sys?.country && `, ${weather.sys.country}`}
+    329 |                 </h3>
+    330 |                 <p className="text-3xl font-bold">
+
+ ERROR(TypeScript)  Property 'sys' does not exist on type 'WeatherData'.
+ FILE  /home/runner/ModularDash/client/src/components/plugins/WeatherWidget.tsx:328:28
+
+    326 |                   {weather.name}
+    327 |                   {weather.sys?.state && `, ${weather.sys.state}`}
+  > 328 |                   {weather.sys?.country && `, ${weather.sys.country}`}
+        |                            ^^^
+    329 |                 </h3>
+    330 |                 <p className="text-3xl font-bold">
+    331 |                   {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
+
+ ERROR(TypeScript)  Property 'sys' does not exist on type 'WeatherData'.
+ FILE  /home/runner/ModularDash/client/src/components/plugins/WeatherWidget.tsx:328:57
+
+    326 |                   {weather.name}
+    327 |                   {weather.sys?.state && `, ${weather.sys.state}`}
+  > 328 |                   {weather.sys?.country && `, ${weather.sys.country}`}
+        |                                                         ^^^
+    329 |                 </h3>
+    330 |                 <p className="text-3xl font-bold">
+    331 |                   {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
+
+[TypeScript] Found 4 errors. Watching for file changes.
