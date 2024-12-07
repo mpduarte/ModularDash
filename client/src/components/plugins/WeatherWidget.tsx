@@ -141,13 +141,13 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   if (loading && !weather) {
     return (
-      <section className="p-4 bg-background rounded-lg border shadow-sm">
+      <div className="p-6 bg-card/95 backdrop-blur-sm rounded-lg border shadow-sm">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-muted rounded w-1/2" />
           <div className="h-8 bg-muted rounded w-3/4" />
           <div className="h-4 bg-muted rounded w-1/4" />
         </div>
-      </section>
+      </div>
     );
   }
 
@@ -160,89 +160,93 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>,
         document.body
       )}
-      <section className="p-6 bg-card/95 backdrop-blur-sm rounded-lg border shadow-sm space-y-4">
-        <header className="flex justify-between items-center">
-          {editingCity ? (
-            <form 
-              className="flex gap-2 items-center" 
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleCityUpdate();
-              }}
-            >
-              <Input
-                value={tempCity}
-                onChange={(e) => setTempCity(e.target.value)}
-                placeholder="Enter city name"
-                className="w-40"
-              />
-              <Button type="submit" size="sm">Update</Button>
-              <Button onClick={() => setEditingCity(false)} variant="outline" size="sm">Cancel</Button>
-            </form>
-          ) : (
+      <div className="p-6 bg-card/95 backdrop-blur-sm rounded-lg border shadow-sm">
+        <div className="space-y-6">
+          <header className="flex justify-between items-center">
+            {editingCity ? (
+              <form 
+                className="flex gap-2 items-center" 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCityUpdate();
+                }}
+              >
+                <Input
+                  value={tempCity}
+                  onChange={(e) => setTempCity(e.target.value)}
+                  placeholder="Enter city name"
+                  className="w-40"
+                />
+                <Button type="submit" size="sm">Update</Button>
+                <Button onClick={() => setEditingCity(false)} variant="outline" size="sm">Cancel</Button>
+              </form>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
+                <Button onClick={() => setEditingCity(true)} variant="ghost" size="sm">Change City</Button>
+              </>
+            )}
+          </header>
+
+          {error && (
+            <p className="text-destructive text-sm" role="alert">{error}</p>
+          )}
+          
+          {weather && (
             <>
-              <h3 className="text-lg font-semibold">{weather?.name || 'Loading...'}</h3>
-              <Button onClick={() => setEditingCity(true)} variant="ghost" size="sm">Change City</Button>
+              <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
+                <img
+                  src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
+                  alt={weather.weather[0].description}
+                  className="w-16 h-16"
+                />
+                <div>
+                  <p className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</p>
+                  <p className="text-muted-foreground capitalize">{weather.weather[0].description}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <Label>Feels Like</Label>
+                  <p>{Math.round(weather.main.feels_like)}{unitSymbol}</p>
+                </div>
+                <div>
+                  <Label>Humidity</Label>
+                  <p>{weather.main.humidity}%</p>
+                </div>
+              </div>
+
+              {airQuality?.list?.[0] && (
+                <div className="border-t pt-4">
+                  <Label className="block mb-2">Air Quality</Label>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
+                    <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
+                    <span>PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³</span>
+                    <span>PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center">
+                  <Label>Temperature Unit</Label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUnitToggle}
+                  >
+                    Switch to {units === 'metric' ? '°F' : '°C'}
+                  </Button>
+                </div>
+              </div>
             </>
           )}
-        </header>
-
-        {error && (
-          <p className="text-destructive text-sm" role="alert">{error}</p>
-        )}
-        
-        {weather && (
-          <>
-            <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
-              <img
-                src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
-                alt={weather.weather[0].description}
-                className="w-16 h-16"
-              />
-              <div>
-                <p className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</p>
-                <p className="text-muted-foreground capitalize">{weather.weather[0].description}</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <Label>Feels Like</Label>
-                <p>{Math.round(weather.main.feels_like)}{unitSymbol}</p>
-              </div>
-              <div>
-                <Label>Humidity</Label>
-                <p>{weather.main.humidity}%</p>
-              </div>
-            </div>
-
-            {airQuality?.list?.[0] && (
-              <div className="border-t pt-4">
-                <Label className="block mb-2">Air Quality</Label>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
-                  <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-                  <span>PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³</span>
-                  <span>PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³</span>
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center pt-4 border-t">
-              <Label>Temperature Unit</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleUnitToggle}
-              >
-                Switch to {units === 'metric' ? '°F' : '°C'}
-              </Button>
-            </div>
-          </>
-        )}
-      </section>
+        </div>
+      </div>
     </>
   );
 };
