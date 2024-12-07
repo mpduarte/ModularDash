@@ -166,12 +166,18 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
       if (weatherData) {
         setWeather(weatherData);
-        // Update widget title to match city name
+        // Update widget title with city and state/country info
         if (onConfigChange && weatherData.name) {
+          // Extract state/country from city string if present
+          const cityParts = city.split(',').map(part => part.trim());
+          const locationName = cityParts.length > 1 
+            ? `${weatherData.name}, ${cityParts[1]}${cityParts[2] ? `, ${cityParts[2]}` : ''}`
+            : weatherData.name;
+          
           onConfigChange({
             ...config,
-            city: weatherData.name,
-            title: weatherData.name
+            city: city,
+            title: locationName
           });
         }
         if (weatherData.coord) {
@@ -235,6 +241,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             <div>
               <p className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</p>
               <p className="text-muted-foreground capitalize">{weather.weather[0].description}</p>
+              <p className="text-xs text-muted-foreground mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
             </div>
           </div>
           
