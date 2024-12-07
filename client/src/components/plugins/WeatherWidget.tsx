@@ -126,7 +126,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
     return () => clearInterval(interval);
-  }, [config.city, config.refreshInterval]);
+  }, [config.city, config.refreshInterval, config.units]); // Added config.units as dependency
 
   const handleCityUpdate = () => {
     if (onConfigChange) {
