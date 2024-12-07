@@ -2,6 +2,7 @@ import express from "express";
 import { db } from "db";
 import { widgets, plugins } from "@db/schema";
 import { eq } from "drizzle-orm";
+import { weatherProviderErrors, weatherProviderRequests, weatherProviderLatency } from "./metrics";
 
 export function registerRoutes(app: express.Express) {
   // Health check route
@@ -16,7 +17,7 @@ export function registerRoutes(app: express.Express) {
         return res.status(400).json({ error: "City parameter is required" });
       }
 
-      const provider = req.query.provider as string || 'openweathermap';
+      let provider = req.query.provider as string || 'openweathermap';
       const units = req.query.units as string || 'imperial';
       
       // Format city name for API (supports "city,state code,country code")
@@ -24,48 +25,136 @@ export function registerRoutes(app: express.Express) {
         city.split(',').map(part => part.trim()).join(',') + ',US' : 
         `${city},US`;
 
-      if (provider === 'openweathermap') {
-        const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-        if (!API_KEY) {
-          return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
+      // Provider health tracking
+      const providerHealthStatus: Record<string, { lastError?: number; consecutiveErrors: number }> = {
+        openweathermap: { consecutiveErrors: 0 },
+        weatherapi: { consecutiveErrors: 0 }
+      };
+
+      // Health check function that uses in-memory error tracking
+      const checkProviderHealth = (providerName: string) => {
+        const status = providerHealthStatus[providerName];
+        if (!status) return true;
+
+        // If provider has had 3 consecutive errors in the last minute, consider it unhealthy
+        if (status.consecutiveErrors >= 3 && status.lastError && Date.now() - status.lastError < 60000) {
+          return false;
+        }
+        return true;
+      };
+
+      // Update provider health status
+      const updateProviderHealth = (providerName: string, success: boolean) => {
+        const status = providerHealthStatus[providerName];
+        if (!status) return;
+
+        if (success) {
+          status.consecutiveErrors = 0;
+          status.lastError = undefined;
+        } else {
+          status.consecutiveErrors++;
+          status.lastError = Date.now();
+        }
+      };
+
+      // Fetch weather data from a specific provider with error handling and metrics
+      const fetchFromProvider = async (providerName: string): Promise<any> => {
+        const startTime = Date.now();
+        let response, data, url;
+
+        try {
+          // Configure provider-specific details
+          if (providerName === 'openweathermap') {
+            const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+            if (!API_KEY) {
+              console.error('OpenWeatherMap API key missing');
+              throw new Error("OpenWeatherMap API key not configured");
+            }
+            url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=${units}`;
+          } else if (providerName === 'weatherapi') {
+            const API_KEY = process.env.WEATHERAPI_KEY;
+            if (!API_KEY) {
+              console.error('WeatherAPI key missing');
+              throw new Error("WeatherAPI key not configured");
+            }
+            url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(formattedCity)}&aqi=no`;
+          } else {
+            throw new Error("Invalid provider specified");
+          }
+
+          // Log request attempt with redacted API key for debugging
+          const redactedUrl = url.replace(/key=[^&]+|appid=[^&]+/, 'key=REDACTED');
+          console.log(`Attempting to fetch weather data from ${providerName}:`, redactedUrl);
+
+          // Make the API request with timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+          response = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
+          data = await response.json();
+
+          if (!response.ok) {
+            const errorMessage = data.message || data.error?.message || response.statusText;
+            console.error(`${providerName} API error:`, errorMessage);
+            throw new Error(errorMessage);
+          }
+
+          // Record metrics for successful request
+          weatherProviderRequests.labels(providerName, 'success').inc();
+          weatherProviderLatency.labels(providerName).observe((Date.now() - startTime) / 1000);
+
+          console.log(`Successfully fetched weather data from ${providerName}`);
+          return providerName === 'weatherapi' ? data : { ...data, provider: providerName };
+
+        } catch (error) {
+          // Record error metrics
+          weatherProviderErrors.labels(providerName, 'api').inc();
+          weatherProviderRequests.labels(providerName, 'error').inc();
+          weatherProviderLatency.labels(providerName).observe((Date.now() - startTime) / 1000);
+
+          // Enhanced error logging
+          console.error(`Failed to fetch weather data from ${providerName}:`, error instanceof Error ? error.message : 'Unknown error');
+          
+          if (error.name === 'AbortError') {
+            throw new Error(`${providerName} request timed out`);
+          }
+          throw error;
+        }
+      };
+
+      // Try primary provider first
+      try {
+        if (!checkProviderHealth(provider)) {
+          console.log(`Provider ${provider} health check failed, switching to backup provider`);
+          provider = provider === 'openweathermap' ? 'weatherapi' : 'openweathermap';
         }
 
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=${units}`;
-        console.log('Fetching OpenWeatherMap data from:', url.replace(API_KEY, 'REDACTED'));
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error('OpenWeatherMap API error:', data);
-          throw new Error(data.message || response.statusText);
+        try {
+          const data = await fetchFromProvider(provider);
+          updateProviderHealth(provider, true);
+          return res.json(data);
+        } catch (error) {
+          console.error(`Error with ${provider}:`, error);
+          updateProviderHealth(provider, false);
+          throw error;
         }
-
-        return res.json(data);
-      } else if (provider === 'weatherapi') {
-        const API_KEY = process.env.WEATHERAPI_KEY;
-        if (!API_KEY) {
-          return res.status(500).json({ error: "WeatherAPI key not configured" });
+      } catch (primaryError) {
+        // Switch to backup provider
+        const backupProvider = provider === 'openweathermap' ? 'weatherapi' : 'openweathermap';
+        console.log(`Switching to backup provider: ${backupProvider}`);
+        
+        try {
+          const data = await fetchFromProvider(backupProvider);
+          updateProviderHealth(backupProvider, true);
+          return res.json(data);
+        } catch (backupError) {
+          console.error(`Backup provider ${backupProvider} also failed:`, backupError);
+          updateProviderHealth(backupProvider, false);
+          throw new Error('All weather providers failed');
         }
-
-        const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(formattedCity)}&aqi=no`;
-        console.log('Fetching WeatherAPI data from:', url.replace(API_KEY, 'REDACTED'));
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error('WeatherAPI error:', data);
-          return res.status(response.status).json({
-            error: 'Weather API error',
-            message: data.error?.message || response.statusText
-          });
-        }
-
-        return res.json(data);
       }
-
-      return res.status(400).json({ error: "Invalid provider specified" });
     } catch (error) {
       console.error('Error fetching weather data:', error);
       res.status(500).json({

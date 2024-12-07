@@ -26,9 +26,32 @@ export const httpRequestCounter = new Counter({
   labelNames: ['method', 'route', 'status_code']
 });
 
+// Weather provider specific metrics
+export const weatherProviderRequests = new Counter({
+  name: 'weather_provider_requests_total',
+  help: 'Total number of requests to weather providers',
+  labelNames: ['provider', 'status']
+});
+
+export const weatherProviderLatency = new Histogram({
+  name: 'weather_provider_latency_seconds',
+  help: 'Latency of weather provider requests',
+  labelNames: ['provider'],
+  buckets: [0.1, 0.5, 1, 2, 5]
+});
+
+export const weatherProviderErrors = new Counter({
+  name: 'weather_provider_errors_total',
+  help: 'Total number of weather provider errors',
+  labelNames: ['provider', 'error_type']
+});
+
 // Register custom metrics
 register.registerMetric(httpRequestDurationMicroseconds);
 register.registerMetric(httpRequestCounter);
+register.registerMetric(weatherProviderRequests);
+register.registerMetric(weatherProviderLatency);
+register.registerMetric(weatherProviderErrors);
 
 // Metrics middleware
 export const metricsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
