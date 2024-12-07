@@ -127,13 +127,13 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
-  const fetchWeather = async (city: string) => {
+  const fetchWeather = async (city: string, targetUnits?: 'metric' | 'imperial') => {
     try {
       setLoading(true);
       setError(null);
-      const targetUnits = units === 'metric' ? 'metric' : 'imperial';
-      console.log('Fetching weather with units:', targetUnits);
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits}`);
+      const requestUnits = targetUnits || units;
+      console.log('Fetching weather with units:', requestUnits);
+      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${requestUnits}`);
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
@@ -148,7 +148,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch weather data';
       if (errorMessage.includes('city not found')) {
-        setError(`City "${tempCity}" not found. Please enter a valid city name (e.g., "Minden,NV,US" or "San Francisco")`);
+        setError(`City "${city}" not found. Please enter a valid city name (e.g., "Minden,NV,US" or "San Francisco")`);
       } else {
         setError(errorMessage);
       }
@@ -167,21 +167,59 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   // Fetch weather data periodically
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchData = async () => {
-      await fetchWeather(config.city);
+      if (isMounted) {
+        try {
+          await fetchWeather(config.city, config.units);
+        } catch (error) {
+          console.error('Error in periodic weather fetch:', error);
+        }
+      }
     };
 
     fetchData();
     const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
-    return () => clearInterval(interval);
-  }, [config.city, config.refreshInterval, config.units]); // Added config.units as dependency
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [config.city, config.refreshInterval]); // Remove config.units to prevent double fetching
 
-  const handleCityUpdate = () => {
-    if (onConfigChange) {
-      onConfigChange({ ...config, city: tempCity });
+  const formatCityInput = (input: string) => {
+    // Check if input contains a comma (likely has state/country code)
+    if (input.includes(',')) {
+      // Split by comma and trim whitespace
+      const parts = input.split(',').map(part => part.trim());
+      // For US cities with state, add US if not present
+      if (parts.length === 2 && parts[1].length === 2) {
+        return `${parts[0]},${parts[1]},US`;
+      }
     }
-    setEditingCity(false);
+    return input;
+  };
+
+  const handleCityUpdate = async () => {
+    if (!tempCity.trim()) {
+      setError('Please enter a city name');
+      return;
+    }
+
+    const formattedCity = formatCityInput(tempCity);
+    
+    if (onConfigChange) {
+      try {
+        // Test if the city is valid before updating config
+        await fetchWeather(formattedCity, units);
+        onConfigChange({ ...config, city: formattedCity });
+        setEditingCity(false);
+      } catch (error) {
+        // Error handling is done in fetchWeather
+        console.error('Failed to update city:', error);
+      }
+    }
   };
 
   if (loading && !weather) {
@@ -286,19 +324,24 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                       size="sm"
                       onClick={async () => {
                         try {
+                          setLoading(true);
                           const newUnits = units === 'metric' ? 'imperial' : 'metric';
                           console.log('Switching units:', { current: units, new: newUnits });
                           
-                          // First fetch new data with new units
-                          await fetchWeather(config.city);
-                          
-                          // Then update the config
+                          // Update config first
                           await onConfigChange({ ...config, units: newUnits });
                           
-                          console.log('Unit switch completed:', { newUnits });
+                          // Fetch new data with new units
+                          await fetchWeather(config.city, newUnits);
+                          
+                          console.log('Unit switch completed successfully');
                         } catch (error) {
                           console.error('Error switching units:', error);
-                          setError('Failed to switch temperature units');
+                          setError('Failed to switch temperature units. Please try again.');
+                          // Revert to previous units if there's an error
+                          onConfigChange({ ...config });
+                        } finally {
+                          setLoading(false);
                         }
                       }}
                     >
