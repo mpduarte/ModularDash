@@ -135,16 +135,44 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                 {plugin?.component && (
                   <div className="space-y-4 pt-4 border-t">
                     <h4 className="font-medium">Plugin Settings</h4>
-                    <plugin.component
-                      config={widget.config}
-                      onConfigChange={(newConfig) => {
-                        Object.entries(newConfig).forEach(([key, value]) => {
-                          form.setValue(key as any, value, {
-                            shouldValidate: true,
+                    {widget.pluginId === 'weather-widget' ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            {...form.register("city")}
+                            placeholder="Enter city name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="units">Temperature Units</Label>
+                          <Select
+                            value={form.watch("units")}
+                            onValueChange={(value) => form.setValue("units", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select units" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="imperial">Fahrenheit (°F)</SelectItem>
+                              <SelectItem value="metric">Celsius (°C)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ) : (
+                      <plugin.component
+                        config={widget.config}
+                        onConfigChange={(newConfig) => {
+                          Object.entries(newConfig).forEach(([key, value]) => {
+                            form.setValue(key as any, value, {
+                              shouldValidate: true,
+                            });
                           });
-                        });
-                      }}
-                    />
+                        }}
+                      />
+                    )}
                   </div>
                 )}
               </TabsContent>
