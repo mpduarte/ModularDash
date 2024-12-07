@@ -144,18 +144,25 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           weatherData = { ...data, provider: 'openweathermap' };
         } else {
           const errorText = await response.text();
-          console.error('OpenWeatherMap error:', {
+          console.group('Weather API Error');
+          console.error('Provider: OpenWeatherMap');
+          console.table({
             status: response.status,
             statusText: response.statusText,
             error: errorText
           });
+          console.groupEnd();
           throw new Error('OpenWeatherMap service unavailable');
         }
       } catch (openWeatherError) {
-        console.error('Falling back to WeatherAPI.com:', {
-          error: openWeatherError instanceof Error ? openWeatherError.message : 'Unknown error',
+        console.group('Weather API Fallback');
+        console.warn('Primary API failed, switching to backup provider');
+        console.table({
+          provider: 'WeatherAPI.com',
+          reason: openWeatherError instanceof Error ? openWeatherError.message : 'Unknown error',
           timestamp: new Date().toISOString()
         });
+        console.groupEnd();
         
         // Fallback to WeatherAPI.com
         const weatherApiResponse = await fetch(
@@ -216,11 +223,14 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         }
       }
     } catch (error) {
-      console.error('Error fetching weather:', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString(),
-        type: error instanceof Error ? error.name : typeof error
+      console.group('Weather Data Fetch Error');
+      console.error('Failed to retrieve weather data');
+      console.table({
+        errorType: error instanceof Error ? error.name : typeof error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       });
+      console.groupEnd();
       setError(error instanceof Error ? error.message : 'Failed to fetch weather data');
     } finally {
       setLoading(false);

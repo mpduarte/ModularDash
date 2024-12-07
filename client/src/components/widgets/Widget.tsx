@@ -16,7 +16,19 @@ interface WidgetProps {
 export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps) {
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
-  console.log('Loading plugin for widget:', { widgetId: widget.id, pluginId: widget.pluginId, plugin });
+  console.group('Widget Load');
+  console.log('Widget Details:', {
+    id: widget.id,
+    pluginId: widget.pluginId,
+    title: widget.title
+  });
+  if (plugin) {
+    console.log('Plugin Details:', {
+      name: plugin.name,
+      version: plugin.version
+    });
+  }
+  console.groupEnd();
   const PluginComponent = plugin?.component;
 
   const handleConfigChange = (newConfig: Record<string, any>) => {
