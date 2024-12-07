@@ -87,7 +87,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setWeather(data);
       checkAlerts(data);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to fetch weather data');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch weather data';
+      if (errorMessage.includes('city not found')) {
+        setError(`City "${tempCity}" not found. Please enter a valid city name (e.g., "Minden,NV,US" or "San Francisco")`);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }

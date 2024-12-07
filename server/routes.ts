@@ -21,7 +21,9 @@ export function registerRoutes(app: express.Express) {
         return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
       }
 
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=imperial`;
+      // Format city name for API (supports "city,state code,country code")
+      const formattedCity = city.includes(',') ? city.split(',').map(part => part.trim()).join(',') + ',US' : `${city},US`;
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=imperial`;
       console.log('Fetching weather data from:', url.replace(API_KEY, 'REDACTED'));
 
       const response = await fetch(url);
