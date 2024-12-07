@@ -129,6 +129,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setError(null);
       let weatherData = null;
       
+      // Format the location title at the start
+      const formattedLocation = formatLocationTitle(city, city.split(',')[0]);
+      if (onConfigChange) {
+        onConfigChange({
+          ...config,
+          city: city,
+          title: formattedLocation
+        });
+      }
+      
       // Try OpenWeatherMap first
       try {
         const response = await fetch(
@@ -212,20 +222,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         
         // Update widget title with location info
         if (onConfigChange) {
-          // Format the complete location title using the original input and API response
-          const formattedLocation = formatLocationTitle(city, weatherData.name);
-          
-          // Apply the update with the formatted location
-          onConfigChange({
-            ...config,
-            city: city, // Keep the original input for future API calls
-            title: formattedLocation // Use the formatted location as the title
-          });
-          
+          // Keep the formatted location from the input
+          // We don't override with API response to maintain user's input format
           console.group('Weather Widget Title Update');
           console.log('Original input:', city);
           console.log('API response city:', weatherData.name);
-          console.log('Formatted location:', formattedLocation);
           console.groupEnd();
         }
         
