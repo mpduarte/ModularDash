@@ -174,16 +174,23 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           // Start with the confirmed city name from weather data
           let locationParts = [weatherData.name];
           
-          // Add state/region if provided in input
-          if (inputParts.length > 1) {
-            locationParts.push(inputParts[1]);
-          }
+          // Check if it's a US location (looking for state code in second part)
+          const isUS = inputParts.length > 1 && /^[A-Z]{2}$/i.test(inputParts[1]);
           
-          // Add country if provided in input, otherwise use last part
-          if (inputParts.length > 2) {
-            locationParts.push(inputParts[2]);
-          } else if (inputParts.length > 1) {
-            locationParts.push(inputParts[inputParts.length - 1]);
+          if (isUS) {
+            // For US locations: City, State
+            if (inputParts.length > 1) {
+              locationParts.push(inputParts[1].toUpperCase());
+            }
+          } else {
+            // For non-US locations: City, Country
+            if (inputParts.length > 2) {
+              // Use the country if explicitly provided
+              locationParts.push(inputParts[2]);
+            } else if (inputParts.length > 1) {
+              // Use the last part as country
+              locationParts.push(inputParts[inputParts.length - 1]);
+            }
           }
           
           // Combine all parts into a complete location string
