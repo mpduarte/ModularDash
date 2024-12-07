@@ -284,6 +284,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     };
 
     fetchData();
+    
+    // Update title when format changes even without fetching
+    if (weather && onConfigChange && config.titleFormat) {
+      const newTitle = formatLocationTitle(config.city, weather.name, config.titleFormat);
+      onConfigChange({
+        ...config,
+        title: newTitle
+      });
+    }
+
     const refreshInterval = config.autoRefresh ? Math.max(5000, (config.refreshInterval || 30) * 1000) : 0;
     
     let interval: NodeJS.Timeout | null = null;
@@ -296,7 +306,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         clearInterval(interval);
       }
     };
-  }, [config.city, config.refreshInterval, config.units, config.autoRefresh]);
+  }, [config.city, config.refreshInterval, config.units, config.autoRefresh, config.titleFormat]);
 
   if (loading && !weather) {
     return (
