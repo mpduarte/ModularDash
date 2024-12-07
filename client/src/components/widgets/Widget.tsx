@@ -20,7 +20,14 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
   const PluginComponent = plugin?.component;
 
   const handleConfigChange = (newConfig: Record<string, any>) => {
-    onUpdate({ config: { ...widget.config, ...newConfig } });
+    const updates: Partial<WidgetType> = {
+      config: { ...widget.config, ...newConfig }
+    };
+    // Update title if provided in config
+    if (newConfig.title) {
+      updates.title = newConfig.title;
+    }
+    onUpdate(updates);
   };
 
   const handleConfigClick = (e: React.MouseEvent) => {
