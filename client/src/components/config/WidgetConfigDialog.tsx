@@ -195,18 +195,7 @@ const form = useForm<WeatherWidgetConfig>({
                             <Label htmlFor="titleFormat">Location Display Format</Label>
                             <Select
                               value={form.watch("titleFormat") || "city-state-country"}
-                              onValueChange={(value) => {
-                                form.setValue("titleFormat", value);
-                                // Trigger immediate update of the widget title
-                                const city = form.getValues("city");
-                                onUpdate({
-                                  config: {
-                                    ...widget.config,
-                                    titleFormat: value,
-                                    city: city
-                                  }
-                                });
-                              }}
+                              onValueChange={(value) => form.setValue("titleFormat", value)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select title format" />
