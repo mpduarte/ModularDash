@@ -96,24 +96,32 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   };
 
   const formatLocationTitle = (cityInput: string, weatherCityName: string) => {
-    if (!cityInput && !weatherCityName) return 'Unknown Location';
+    // Clean and normalize the input
+    const cleanInput = cityInput.replace(/\s*,\s*/g, ',').trim();
+    const inputParts = cleanInput.split(',').map(part => part.trim()).filter(Boolean);
     
-    const parts = cityInput
-      .split(',')
-      .map(part => part.trim())
-      .filter(Boolean);
+    // Use input city name or fallback to weather API city name
+    const cityName = inputParts[0] || weatherCityName || 'Unknown Location';
     
-    if (parts.length === 0) return weatherCityName;
-    
-    // For US locations (City, State)
-    if (parts.length >= 2 && /^[A-Z]{2}$/i.test(parts[1])) {
-      const [city, state] = parts;
-      const country = parts[2] || 'USA';
-      return `${city}, ${state.toUpperCase()}, ${country}`;
+    // Handle empty or single part input
+    if (inputParts.length <= 1) {
+      return cityName;
     }
     
-    // Return all parts joined for international format
-    return parts.join(', ');
+    // Check for US state code format (e.g., "CA", "NY")
+    const stateCodeRegex = /^[A-Z]{2}$/i;
+    const secondPart = inputParts[1];
+    const isUSState = stateCodeRegex.test(secondPart);
+    
+    if (isUSState) {
+      const stateCode = secondPart.toUpperCase();
+      // If third part exists, use it as country, otherwise default to USA
+      const country = inputParts[2]?.trim() || 'USA';
+      return `${cityName}, ${stateCode}, ${country}`;
+    }
+    
+    // For international format, just join all parts with commas
+    return inputParts.join(', ');
   };
 
   const fetchWeather = async (city: string, targetUnits?: string) => {
@@ -134,7 +142,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           title: initialLocation
         });
       }
-
+      
       // Try OpenWeatherMap first
       try {
         const response = await fetch(
@@ -235,6 +243,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     };
   }, [config.city, config.refreshInterval, config.units, config.autoRefresh]);
 
+  if (loading && !weather) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-4 bg-muted rounded w-1/2" />
+        <div className="h-8 bg-muted rounded w-3/4" />
+        <div className="h-4 bg-muted rounded w-1/4" />
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="text-destructive p-4 rounded-lg border border-destructive/50">
@@ -245,7 +263,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   }
 
   return (
-    <div className="p-4">
+    <>
       {showNotification && createPortal(
         <div className="fixed top-4 right-4 z-[9999] bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2">
           <div className="font-semibold mb-2">Weather Alert</div>
@@ -254,36 +272,22 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         document.body
       )}
       
-      {loading && !weather ? (
-        <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-muted rounded w-1/2" />
-          <div className="h-8 bg-muted rounded w-3/4" />
-          <div className="h-4 bg-muted rounded w-1/4" />
-        </div>
-      ) : weather ? (
+      {weather && (
         <>
           <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
             <img
-              src={
-                weather.provider === 'weatherapi' && weather.weather?.[0]?.icon
-                  ? `https:${weather.weather[0].icon}`
-                  : weather.weather?.[0]?.icon
-                    ? `https://openweathermap.org/img/w/${weather.weather[0].icon}.png`
-                    : 'https://openweathermap.org/img/w/01d.png'
-              }
+              src={weather.provider === 'weatherapi' && weather.weather?.[0]?.icon
+                ? weather.weather[0].icon 
+                : weather.weather?.[0]?.icon
+                  ? `https://openweathermap.org/img/w/${weather.weather[0].icon}.png`
+                  : 'https://openweathermap.org/img/w/01d.png'}
               alt={weather.weather?.[0]?.description || 'Weather icon'}
               className="w-16 h-16"
             />
             <div>
-              <p className="text-3xl font-bold">
-                {weather.main?.temp ? Math.round(weather.main.temp) : '--'}{unitSymbol}
-              </p>
-              <p className="text-muted-foreground capitalize">
-                {weather.weather?.[0]?.description || 'Weather information unavailable'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Last updated: {new Date().toLocaleTimeString()}
-              </p>
+              <p className="text-3xl font-bold">{weather.main?.temp ? Math.round(weather.main.temp) : '--'}{unitSymbol}</p>
+              <p className="text-muted-foreground capitalize">{weather.weather?.[0]?.description || 'Weather information unavailable'}</p>
+              <p className="text-xs text-muted-foreground mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
             </div>
           </div>
           
@@ -312,8 +316,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           )}
         </>
-      ) : null}
-    </div>
+      )}
+    </>
   );
 };
 

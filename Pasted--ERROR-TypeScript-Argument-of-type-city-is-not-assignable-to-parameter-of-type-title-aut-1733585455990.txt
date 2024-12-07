@@ -1,0 +1,62 @@
+ ERROR(TypeScript)  Argument of type '"city"' is not assignable to parameter of type '"title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`'.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfigDialog.tsx:144:47
+
+    142 |                           <Input
+    143 |                             id="city"
+  > 144 |                             {...form.register("city")}
+        |                                               ^^^^^^
+    145 |                             placeholder="Enter city name"
+    146 |                           />
+    147 |                         </div>
+
+ ERROR(TypeScript)  Type 'readonly any[]' is not assignable to type 'string'.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfigDialog.tsx:151:29
+
+    149 |                           <Label htmlFor="units">Temperature Units</Label>
+    150 |                           <Select
+  > 151 |                             value={form.watch("units")}
+        |                             ^^^^^
+    152 |                             onValueChange={(value) => form.setValue("units", value)}
+    153 |                           >
+    154 |                             <SelectTrigger>
+
+ ERROR(TypeScript)  No overload matches this call.
+  Overload 1 of 4, '(names: readonly ("title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`)[], defaultValue?: { ...; } | undefined): readonly any[]', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'readonly ("title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`)[]'.
+  Overload 2 of 4, '(name: "title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`, defaultValue?: any): any', gave the following error.
+    Argument of type '"units"' is not assignable to parameter of type '"title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`'.
+  Overload 3 of 4, '(callback: WatchObserver<{ readonly title: string; readonly autoRefresh: any; readonly refreshInterval: any; readonly theme: any; readonly layout: any; readonly visualMode: any; readonly background: any; ... 8 more ...; readonly weatherCondition: any; }>, defaultValues?: { ...; } | undefined): Subscription', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'WatchObserver<{ readonly title: string; readonly autoRefresh: any; readonly refreshInterval: any; readonly theme: any; readonly layout: any; readonly visualMode: any; readonly background: any; readonly animations: any; ... 7 more ...; readonly weatherCondition: any; }>'.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfigDialog.tsx:151:47
+
+    149 |                           <Label htmlFor="units">Temperature Units</Label>
+    150 |                           <Select
+  > 151 |                             value={form.watch("units")}
+        |                                               ^^^^^^^
+    152 |                             onValueChange={(value) => form.setValue("units", value)}
+    153 |                           >
+    154 |                             <SelectTrigger>
+
+ ERROR(TypeScript)  Argument of type '"units"' is not assignable to parameter of type '"title" | "autoRefresh" | "refreshInterval" | "theme" | "layout" | "visualMode" | "background" | "animations" | "dataSource" | "customStyles" | "borderRadius" | "padding" | ... 18 more ... | `weatherCondition.${string}`'.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfigDialog.tsx:152:69
+
+    150 |                           <Select
+    151 |                             value={form.watch("units")}
+  > 152 |                             onValueChange={(value) => form.setValue("units", value)}
+        |                                                                     ^^^^^^^
+    153 |                           >
+    154 |                             <SelectTrigger>
+    155 |                               <SelectValue placeholder="Select units" />
+
+ ERROR(TypeScript)  'error' is of type 'unknown'.
+ FILE  /home/runner/ModularDash/server/routes.ts:217:50
+
+    215 |           
+    216 |           // Log failure metrics
+  > 217 |           weatherProviderErrors.labels(provider, error.name === 'AbortError' ? 'timeout' : 'api').inc();
+        |                                                  ^^^^^
+    218 |           weatherProviderRequests.labels(provider, 'error').inc();
+    219 |           
+    220 |           throw error;
+
+[TypeScript] Found 5 errors. Watching for file changes.
