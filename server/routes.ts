@@ -22,8 +22,8 @@ export function registerRoutes(app: express.Express) {
       
       // Format city name for API (supports "city,state code,country code")
       const formattedCity = city.includes(',') ? 
-        city.split(',').map(part => part.trim()).join(',') + ',US' : 
-        `${city},US`;
+        city.split(',').map(part => part.trim()).join(',') : 
+        `${city},US`; // Default to US if no country specified
 
       // Provider health tracking
       const providerHealthStatus: Record<string, {

@@ -103,22 +103,26 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     const isUS = inputParts.length > 1 && /^[A-Z]{2}$/i.test(inputParts[1]);
     
     if (isUS) {
-      // For US locations: City, State
+      // For US locations: City, State, USA
       if (inputParts.length > 1) {
         locationParts.push(inputParts[1].toUpperCase());
+        locationParts.push('USA');
       }
     } else {
-      // For non-US locations: City, Country
+      // For non-US locations: City, State/Region (if provided), Country
       if (inputParts.length > 2) {
-        // Use the country if explicitly provided
+        // Add state/region if provided
+        locationParts.push(inputParts[1]);
+        // Add country
         locationParts.push(inputParts[2]);
       } else if (inputParts.length > 1) {
-        // Use the last part as country
+        // Just add country if no state/region
         locationParts.push(inputParts[inputParts.length - 1]);
       }
     }
     
-    return locationParts.join(', ');
+    // Filter out empty parts and join
+    return locationParts.filter(Boolean).join(', ');
   };
 
   const fetchWeather = async (city: string, targetUnits?: string) => {
