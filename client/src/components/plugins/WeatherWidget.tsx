@@ -89,7 +89,9 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${config.units || 'imperial'}`);
+      const targetUnits = units === 'metric' ? 'metric' : 'imperial';
+      console.log('Fetching weather with units:', targetUnits);
+      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits}`);
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
@@ -222,14 +224,21 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                       variant="outline"
                       size="sm"
                       onClick={async () => {
-                        const newUnits = units === 'metric' ? 'imperial' : 'metric';
-                        // Update local config first
-                        await onConfigChange({ ...config, units: newUnits });
-                        // Wait a brief moment for the config update to propagate
-                        setTimeout(async () => {
-                          // Refetch weather data with new units
+                        try {
+                          const newUnits = units === 'metric' ? 'imperial' : 'metric';
+                          console.log('Switching units:', { current: units, new: newUnits });
+                          
+                          // First fetch new data with new units
                           await fetchWeather(config.city);
-                        }, 100);
+                          
+                          // Then update the config
+                          await onConfigChange({ ...config, units: newUnits });
+                          
+                          console.log('Unit switch completed:', { newUnits });
+                        } catch (error) {
+                          console.error('Error switching units:', error);
+                          setError('Failed to switch temperature units');
+                        }
                       }}
                     >
                       Switch to {units === 'metric' ? '°F' : '°C'}
