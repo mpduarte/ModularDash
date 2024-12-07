@@ -143,11 +143,19 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           const data = await response.json();
           weatherData = { ...data, provider: 'openweathermap' };
         } else {
-          console.error('OpenWeatherMap error:\n', JSON.stringify(await response.text(), null, 2));
+          const errorText = await response.text();
+          console.error('OpenWeatherMap error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
           throw new Error('OpenWeatherMap service unavailable');
         }
       } catch (openWeatherError) {
-        console.error('Falling back to WeatherAPI.com due to:\n', JSON.stringify(openWeatherError instanceof Error ? openWeatherError.message : openWeatherError, null, 2));
+        console.error('Falling back to WeatherAPI.com:', {
+          error: openWeatherError instanceof Error ? openWeatherError.message : 'Unknown error',
+          timestamp: new Date().toISOString()
+        });
         
         // Fallback to WeatherAPI.com
         const weatherApiResponse = await fetch(
@@ -208,7 +216,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         }
       }
     } catch (error) {
-      console.error('Error fetching weather:\n', JSON.stringify(error instanceof Error ? error.message : error, null, 2));
+      console.error('Error fetching weather:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+        type: error instanceof Error ? error.name : typeof error
+      });
       setError(error instanceof Error ? error.message : 'Failed to fetch weather data');
     } finally {
       setLoading(false);
