@@ -71,7 +71,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
   const fetchAirQuality = async (lat: number, lon: number) => {
     try {
-      const response = await fetch(`/api/air-quality?lat=${lat}&lon=${lon}`);
+      const response = await fetch(`http://localhost:3000/api/air-quality?lat=${lat}&lon=${lon}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error(`Air Quality API error: ${response.statusText}`);
       }
@@ -133,7 +138,12 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setError(null);
       const requestUnits = targetUnits || units;
       console.log('Fetching weather with units:', requestUnits);
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${requestUnits}`);
+      const response = await fetch(`http://localhost:3000/api/weather?city=${encodeURIComponent(city)}&units=${requestUnits}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
