@@ -166,26 +166,33 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
       if (weatherData) {
         setWeather(weatherData);
-        // Update widget title with city and state/country info
-        if (onConfigChange && weatherData.name) {
-          // Extract state/country from city string if present
-          const cityParts = city.split(',').map(part => part.trim());
-          let locationName = weatherData.name;
+        // Update widget title with complete location info
+        if (onConfigChange) {
+          // Parse input city string for additional location info
+          const inputParts = city.split(',').map(part => part.trim());
           
-          // Add state if available (second part)
-          if (cityParts.length > 1 && cityParts[1]) {
-            locationName += `, ${cityParts[1]}`;
+          // Start with the confirmed city name from weather data
+          let locationParts = [weatherData.name];
+          
+          // Add state/region if provided in input
+          if (inputParts.length > 1) {
+            locationParts.push(inputParts[1]);
           }
           
-          // Add country if available (third part)
-          if (cityParts.length > 2 && cityParts[2]) {
-            locationName += `, ${cityParts[2]}`;
+          // Add country if provided in input, otherwise use last part
+          if (inputParts.length > 2) {
+            locationParts.push(inputParts[2]);
+          } else if (inputParts.length > 1) {
+            locationParts.push(inputParts[inputParts.length - 1]);
           }
+          
+          // Combine all parts into a complete location string
+          const completeLocation = locationParts.join(', ');
           
           onConfigChange({
             ...config,
             city: city,
-            title: locationName
+            title: completeLocation
           });
         }
         if (weatherData.coord) {
@@ -295,7 +302,7 @@ export const weatherWidgetConfig = {
   component: WeatherWidgetComponent,
   category: 'widgets',
   defaultConfig: {
-    city: 'San Francisco',
+    city: 'San Francisco, CA, USA',
     units: 'imperial',
     refreshInterval: 300000,
     enableAlerts: false,

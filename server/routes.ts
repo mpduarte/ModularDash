@@ -247,7 +247,8 @@ export function registerRoutes(app: express.Express) {
           updateProviderHealth(backupProvider, false, responseTime);
           
           // Log failure metrics for backup provider
-          weatherProviderErrors.labels(backupProvider, backupError.name === 'AbortError' ? 'timeout' : 'api').inc();
+          const errorType = backupError instanceof Error && backupError.name === 'AbortError' ? 'timeout' : 'api';
+          weatherProviderErrors.labels(backupProvider, errorType).inc();
           weatherProviderRequests.labels(backupProvider, 'error').inc();
           
           throw new Error('All weather providers failed');
