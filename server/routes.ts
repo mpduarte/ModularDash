@@ -191,13 +191,32 @@ export function registerRoutes(app: express.Express) {
           provider = provider === 'openweathermap' ? 'weatherapi' : 'openweathermap';
         }
 
+        const startTime = Date.now();
         try {
-          const data = await fetchFromProvider(provider);
-          updateProviderHealth(provider, true);
+          const data = await Promise.race([
+            fetchFromProvider(provider),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timeout')), 5000)
+            )
+          ]);
+          
+          const responseTime = Date.now() - startTime;
+          updateProviderHealth(provider, true, responseTime);
+          
+          // Log success metrics
+          weatherProviderRequests.labels(provider, 'success').inc();
+          weatherProviderLatency.labels(provider).observe(responseTime / 1000);
+          
           return res.json(data);
         } catch (error) {
+          const responseTime = Date.now() - startTime;
           console.error(`Error with ${provider}:`, error);
-          updateProviderHealth(provider, false);
+          updateProviderHealth(provider, false, responseTime);
+          
+          // Log failure metrics
+          weatherProviderErrors.labels(provider, error.name === 'AbortError' ? 'timeout' : 'api').inc();
+          weatherProviderRequests.labels(provider, 'error').inc();
+          
           throw error;
         }
       } catch (primaryError) {
@@ -205,13 +224,32 @@ export function registerRoutes(app: express.Express) {
         const backupProvider = provider === 'openweathermap' ? 'weatherapi' : 'openweathermap';
         console.log(`Switching to backup provider: ${backupProvider}`);
         
+        const startTime = Date.now();
         try {
-          const data = await fetchFromProvider(backupProvider);
-          updateProviderHealth(backupProvider, true);
+          const data = await Promise.race([
+            fetchFromProvider(backupProvider),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timeout')), 5000)
+            )
+          ]);
+          
+          const responseTime = Date.now() - startTime;
+          updateProviderHealth(backupProvider, true, responseTime);
+          
+          // Log success metrics for backup provider
+          weatherProviderRequests.labels(backupProvider, 'success').inc();
+          weatherProviderLatency.labels(backupProvider).observe(responseTime / 1000);
+          
           return res.json(data);
         } catch (backupError) {
+          const responseTime = Date.now() - startTime;
           console.error(`Backup provider ${backupProvider} also failed:`, backupError);
-          updateProviderHealth(backupProvider, false);
+          updateProviderHealth(backupProvider, false, responseTime);
+          
+          // Log failure metrics for backup provider
+          weatherProviderErrors.labels(backupProvider, backupError.name === 'AbortError' ? 'timeout' : 'api').inc();
+          weatherProviderRequests.labels(backupProvider, 'error').inc();
+          
           throw new Error('All weather providers failed');
         }
       }
