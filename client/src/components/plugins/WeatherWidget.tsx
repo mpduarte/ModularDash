@@ -35,7 +35,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const [error, setError] = useState<string | null>(null);
   const [editingCity, setEditingCity] = useState(false);
   const [tempCity, setTempCity] = useState(config.city);
-  const [alerts, setAlerts] = useState<WeatherAlert[]>(config.alerts || []);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
@@ -44,28 +43,36 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     
     const triggeredAlerts: string[] = [];
     
-    alerts.forEach(alert => {
-      if (alert.type === 'temperature') {
-        const temp = Math.round(weatherData.main.temp);
-        if (temp >= alert.threshold) {
-          triggeredAlerts.push(`Temperature alert: Current temperature (${temp}°F) exceeds ${alert.threshold}°F`);
-        }
-      } else if (alert.type === 'condition' && alert.condition) {
-        const currentCondition = weatherData.weather[0].main.toLowerCase();
-        if (currentCondition.includes(alert.condition.toLowerCase())) {
-          triggeredAlerts.push(`Weather condition alert: ${weatherData.weather[0].description}`);
-        }
+    // Check temperature threshold
+    const currentTemp = Math.round(weatherData.main.temp);
+    const threshold = config.alertThreshold || 80;
+    
+    if (currentTemp >= threshold) {
+      triggeredAlerts.push(`Temperature Alert: Current temperature (${currentTemp}°F) exceeds threshold of ${threshold}°F`);
+      console.log('Temperature alert triggered:', { currentTemp, threshold });
+    }
+
+    // Check weather condition
+    if (config.weatherCondition) {
+      const currentCondition = weatherData.weather[0].main.toLowerCase();
+      if (currentCondition.includes(config.weatherCondition.toLowerCase())) {
+        triggeredAlerts.push(`Weather Condition Alert: ${weatherData.weather[0].description}`);
+        console.log('Weather condition alert triggered:', { currentCondition, targetCondition: config.weatherCondition });
       }
-    });
+    }
 
     if (triggeredAlerts.length > 0) {
+      console.log('Showing alerts:', triggeredAlerts);
       setNotificationMessage(triggeredAlerts.join('\n'));
       setShowNotification(true);
       
       if (config.alertType === 'sound' || config.alertType === 'both') {
-        // Play alert sound
-        const audio = new Audio('/alert.mp3');
-        audio.play().catch(console.error);
+        try {
+          const audio = new Audio('/public/alert.mp3');
+          audio.play().catch(error => console.error('Error playing alert sound:', error));
+        } catch (error) {
+          console.error('Error creating audio:', error);
+        }
       }
 
       // Auto-hide notification after 5 seconds
@@ -98,19 +105,25 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
+  // Check alerts when weather data changes
   useEffect(() => {
-    const fetchAndCheck = async () => {
+    if (weather) {
+      console.log('Checking alerts for weather data:', weather);
+      checkAlerts(weather);
+    }
+  }, [weather, config.enableAlerts, config.alertThreshold, config.weatherCondition]);
+
+  // Fetch weather data periodically
+  useEffect(() => {
+    const fetchData = async () => {
       await fetchWeather(config.city);
-      if (weather) {
-        checkAlerts(weather);
-      }
     };
 
-    fetchAndCheck();
-    const interval = setInterval(fetchAndCheck, config.refreshInterval || 300000);
+    fetchData();
+    const interval = setInterval(fetchData, config.refreshInterval || 300000);
 
     return () => clearInterval(interval);
-  }, [config.city, config.refreshInterval, config.enableAlerts]);
+  }, [config.city, config.refreshInterval]);
 
   const handleCityUpdate = () => {
     if (onConfigChange) {
@@ -146,8 +159,9 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   return (
     <>
       {showNotification && (
-        <div className="fixed top-4 right-4 z-50 bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2">
-          <pre className="whitespace-pre-wrap">{notificationMessage}</pre>
+        <div className="fixed top-4 right-4 z-50 bg-destructive text-destructive-foreground p-4 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 max-w-md border-2 border-destructive-foreground">
+          <div className="font-semibold mb-2">Weather Alert</div>
+          <pre className="whitespace-pre-wrap text-sm">{notificationMessage}</pre>
         </div>
       )}
       <Card>
