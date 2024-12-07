@@ -24,8 +24,8 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
   const [activeTab, setActiveTab] = useState("basic");
   
   type WeatherWidgetConfig = {
-  city?: string;
-  units?: 'imperial' | 'metric';
+  city: string;
+  units: 'imperial' | 'metric';
   title: string;
   autoRefresh: boolean;
   refreshInterval: number;
@@ -179,8 +179,8 @@ const form = useForm<WeatherWidgetConfig>({
                           <Label htmlFor="city">City</Label>
                           <Input
                             id="city"
-                            {...form.register("city", { required: false })}
-                            placeholder="Enter city name"
+                            {...form.register("city")}
+                            placeholder="Enter city name (e.g., San Francisco, CA, USA)"
                           />
                         </div>
                         <div className="space-y-2">

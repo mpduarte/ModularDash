@@ -212,16 +212,21 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         
         // Update widget title with location info
         if (onConfigChange) {
-          // Use the original city input for formatting
-          const completeLocation = formatLocationTitle(city, weatherData.name);
+          // Format the complete location title using the original input and API response
+          const formattedLocation = formatLocationTitle(city, weatherData.name);
           
+          // Apply the update with the formatted location
           onConfigChange({
             ...config,
-            city: city,
-            title: completeLocation
+            city: city, // Keep the original input for future API calls
+            title: formattedLocation // Use the formatted location as the title
           });
           
-          console.log('Updated widget title:', completeLocation);
+          console.group('Weather Widget Title Update');
+          console.log('Original input:', city);
+          console.log('API response city:', weatherData.name);
+          console.log('Formatted location:', formattedLocation);
+          console.groupEnd();
         }
         
         if (weatherData.coord) {
