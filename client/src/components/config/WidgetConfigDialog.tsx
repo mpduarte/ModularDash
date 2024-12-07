@@ -106,13 +106,14 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Configure Widget</DialogTitle>
           <DialogDescription>
             Customize widget settings and appearance
           </DialogDescription>
         </DialogHeader>
+        <ScrollArea className="flex-grow">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -433,21 +434,21 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                 </Card>
               </TabsContent>
             </Tabs>
-
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="default">
-                Save Changes
-              </Button>
-            </div>
           </form>
         </Form>
+        </ScrollArea>
+        <div className="flex justify-end gap-2 pt-4 mt-4 border-t flex-shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" onClick={form.handleSubmit(onSubmit)} variant="default">
+            Save Changes
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
