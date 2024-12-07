@@ -24,6 +24,27 @@ interface WeatherData {
     lat: number;
     lon: number;
   };
+  provider?: string;
+}
+
+interface WeatherAPIResponse {
+  location: {
+    name: string;
+    lat: number;
+    lon: number;
+  };
+  current: {
+    temp_c: number;
+    temp_f: number;
+    condition: {
+      text: string;
+      icon: string;
+      code: number;
+    };
+    feelslike_c: number;
+    feelslike_f: number;
+    humidity: number;
+  };
 }
 
 interface AirQualityData {
@@ -81,8 +102,34 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setLoading(true);
       setError(null);
       
-      const response = await fetch(
-        `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}`,
+      // Try OpenWeatherMap first
+      try {
+        const response = await fetch(
+          `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=openweathermap`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          setWeather({ ...data, provider: 'openweathermap' });
+          if (data.coord) {
+            await fetchAirQuality(data.coord.lat, data.coord.lon);
+          }
+          return;
+        }
+      } catch (openWeatherError) {
+        console.error('OpenWeatherMap error:', openWeatherError);
+      }
+
+      // Fallback to WeatherAPI.com
+      const weatherApiResponse = await fetch(
+        `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=weatherapi`,
         {
           headers: {
             'Accept': 'application/json',
@@ -90,16 +137,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           },
         }
       );
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || `Weather API error: ${response.statusText}`);
+
+      const weatherApiData = await weatherApiResponse.json();
+
+      if (!weatherApiResponse.ok) {
+        throw new Error(weatherApiData.message || `Weather API error: ${weatherApiResponse.statusText}`);
       }
 
-      setWeather(data);
-      if (data.coord) {
-        await fetchAirQuality(data.coord.lat, data.coord.lon);
+      setWeather({ ...weatherApiData, provider: 'weatherapi' });
+      if (weatherApiData.coord) {
+        await fetchAirQuality(weatherApiData.coord.lat, weatherApiData.coord.lon);
       }
     } catch (error) {
       console.error('Error fetching weather:', error);
@@ -193,7 +240,9 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         <>
           <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
             <img
-              src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
+              src={weather.provider === 'weatherapi' 
+                ? weather.weather[0].icon 
+                : `https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
               alt={weather.weather[0].description}
               className="w-16 h-16"
             />
