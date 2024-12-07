@@ -21,7 +21,34 @@ interface WeatherData {
     main: string;
   }>;
   name: string;
+  coord: {
+    lat: number;
+    lon: number;
+  };
 }
+
+interface AirQualityData {
+  list: Array<{
+    main: {
+      aqi: number;
+    };
+    components: {
+      co: number;
+      no2: number;
+      o3: number;
+      pm2_5: number;
+      pm10: number;
+    };
+  }>;
+}
+
+const AQI_LEVELS = {
+  1: { label: 'Good', color: 'bg-green-500' },
+  2: { label: 'Fair', color: 'bg-yellow-500' },
+  3: { label: 'Moderate', color: 'bg-orange-500' },
+  4: { label: 'Poor', color: 'bg-red-500' },
+  5: { label: 'Very Poor', color: 'bg-purple-500' }
+};
 
 interface WeatherAlert {
   type: 'temperature' | 'condition';
@@ -32,6 +59,7 @@ interface WeatherAlert {
 
 const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingCity, setEditingCity] = useState(false);
@@ -40,6 +68,20 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const unitSymbol = units === 'metric' ? '°C' : '°F';
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+
+  const fetchAirQuality = async (lat: number, lon: number) => {
+    try {
+      const response = await fetch(`/api/air-quality?lat=${lat}&lon=${lon}`);
+      if (!response.ok) {
+        throw new Error(`Air Quality API error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setAirQuality(data);
+    } catch (error) {
+      console.error('Error fetching air quality:', error);
+      // Don't set error state to avoid blocking weather display
+    }
+  };
 
   const checkAlerts = (weatherData: WeatherData) => {
     if (!config.enableAlerts) return;
@@ -98,6 +140,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       const data = await response.json();
       setWeather(data);
       checkAlerts(data);
+      
+      // Fetch air quality data using coordinates
+      if (data.coord) {
+        await fetchAirQuality(data.coord.lat, data.coord.lon);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch weather data';
       if (errorMessage.includes('city not found')) {
@@ -218,6 +265,20 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                     <Label>Humidity</Label>
                     <div>{weather.main.humidity}%</div>
                   </div>
+                  {airQuality?.list?.[0] && (
+                    <div className="col-span-2 border-t pt-2 mt-2">
+                      <Label>Air Quality</Label>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
+                        <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³
+                        <br />
+                        PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³
+                      </div>
+                    </div>
+                  )}
                   <div className="col-span-2 mt-2 flex justify-between items-center">
                     <Label>Temperature Unit</Label>
                     <Button

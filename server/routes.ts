@@ -48,6 +48,45 @@ export function registerRoutes(app: express.Express) {
     }
   });
 
+  // Air Quality API endpoint
+  app.get("/api/air-quality", async (req, res) => {
+    try {
+      const lat = req.query.lat as string;
+      const lon = req.query.lon as string;
+      
+      if (!lat || !lon) {
+        return res.status(400).json({ error: "Latitude and longitude parameters are required" });
+      }
+
+      const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+      if (!API_KEY) {
+        return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
+      }
+
+      const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+      console.log('Fetching air quality data from:', url.replace(API_KEY, 'REDACTED'));
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('OpenWeatherMap API error:', data);
+        return res.status(response.status).json({
+          error: 'Air Quality API error',
+          message: data.message || response.statusText
+        });
+      }
+
+      res.json(data);
+    } catch (error) {
+      console.error('Error fetching air quality data:', error);
+      res.status(500).json({
+        error: 'Failed to fetch air quality data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Plugin routes
   app.get("/api/plugins", async (_req, res) => {
     try {
