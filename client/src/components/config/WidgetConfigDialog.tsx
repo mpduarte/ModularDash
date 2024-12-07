@@ -189,20 +189,39 @@ const form = useForm<WeatherWidgetConfig>({
                             placeholder="Enter city name (e.g., San Francisco, CA, USA)"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="units">Temperature Units</Label>
-                          <Select
-                            value={form.watch("units") || "imperial"}
-                            onValueChange={(value: 'imperial' | 'metric') => form.setValue("units", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select units" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="imperial">Fahrenheit (°F)</SelectItem>
-                              <SelectItem value="metric">Celsius (°C)</SelectItem>
-                            </SelectContent>
-                          </Select>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="titleFormat">Location Display Format</Label>
+                            <Select
+                              value={form.watch("titleFormat") || "city-state-country"}
+                              onValueChange={(value) => form.setValue("titleFormat", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select title format" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="city-only">City Only</SelectItem>
+                                <SelectItem value="city-country">City, Country</SelectItem>
+                                <SelectItem value="city-state">City, State</SelectItem>
+                                <SelectItem value="city-state-country">City, State, Country</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="units">Temperature Units</Label>
+                            <Select
+                              value={form.watch("units") || "imperial"}
+                              onValueChange={(value: 'imperial' | 'metric') => form.setValue("units", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select units" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="imperial">Fahrenheit (°F)</SelectItem>
+                                <SelectItem value="metric">Celsius (°C)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                     ) : (

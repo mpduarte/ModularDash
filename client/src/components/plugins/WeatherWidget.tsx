@@ -25,7 +25,7 @@ interface WeatherData {
     lon: number;
   };
   provider?: string;
-  sys: {
+  sys?: {
     type?: number;
     id?: number;
     country?: string;
@@ -106,7 +106,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
-  const formatLocationTitle = (cityInput: string, weatherCityName: string) => {
+  const formatLocationTitle = (cityInput: string, weatherCityName: string, titleFormat?: string) => {
     // Clean and normalize the input
     const cleanInput = cityInput.replace(/\s*,\s*/g, ',').trim();
     const inputParts = cleanInput.split(',').map(part => part.trim()).filter(Boolean);
@@ -124,15 +124,26 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     const secondPart = inputParts[1];
     const isUSState = stateCodeRegex.test(secondPart);
     
-    if (isUSState) {
-      const stateCode = secondPart.toUpperCase();
-      // If third part exists, use it as country, otherwise default to USA
-      const country = inputParts[2]?.trim() || 'USA';
-      return `${cityName}, ${stateCode}, ${country}`;
+    const stateCode = isUSState ? secondPart.toUpperCase() : '';
+    const country = inputParts[2]?.trim() || (isUSState ? 'USA' : secondPart);
+
+    // Format the title based on configuration
+    switch (titleFormat) {
+      case 'city-only':
+        return cityName;
+      case 'city-country':
+        return country ? `${cityName}, ${country}` : cityName;
+      case 'city-state':
+        return stateCode ? `${cityName}, ${stateCode}` : cityName;
+      case 'city-state-country':
+      default:
+        if (stateCode && country) {
+          return `${cityName}, ${stateCode}, ${country}`;
+        } else if (country) {
+          return `${cityName}, ${country}`;
+        }
+        return cityName;
     }
-    
-    // For international format, just join all parts with commas
-    return inputParts.join(', ');
   };
 
   const fetchWeather = async (city: string, targetUnits?: string) => {
@@ -240,8 +251,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         };
         setWeather(validatedWeatherData);
         
-        // Generate and update the location-based title
-        const generatedTitle = formatLocationTitle(config.city, weatherData.name);
+        // Generate and update the location-based title using the configured format
+        const generatedTitle = formatLocationTitle(config.city, weatherData.name, config.titleFormat);
         if (onConfigChange) {
           onConfigChange({
             ...config,
@@ -405,6 +416,7 @@ export const weatherWidgetConfig = {
   defaultConfig: {
     city: 'San Francisco, CA, USA',
     units: 'imperial',
+    titleFormat: 'city-state-country', // Options: 'city-only', 'city-country', 'city-state', 'city-state-country'
     refreshInterval: 300000,
     enableAlerts: false,
     alertThreshold: 80,
