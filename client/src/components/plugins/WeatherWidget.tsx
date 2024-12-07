@@ -166,6 +166,14 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
       if (weatherData) {
         setWeather(weatherData);
+        // Update widget title to match city name
+        if (onConfigChange && weatherData.name) {
+          onConfigChange({
+            ...config,
+            city: weatherData.name,
+            title: weatherData.name
+          });
+        }
         if (weatherData.coord) {
           await fetchAirQuality(weatherData.coord.lat, weatherData.coord.lon);
         }
