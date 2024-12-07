@@ -101,6 +101,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     try {
       setLoading(true);
       setError(null);
+      let weatherData = null;
       
       // Try OpenWeatherMap first
       try {
@@ -114,62 +115,62 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           }
         );
         
-        const data = await response.json();
-        
         if (response.ok) {
-          setWeather({ ...data, provider: 'openweathermap' });
-          if (data.coord) {
-            await fetchAirQuality(data.coord.lat, data.coord.lon);
-          }
-          return;
+          const data = await response.json();
+          weatherData = { ...data, provider: 'openweathermap' };
+        } else {
+          console.error('OpenWeatherMap error:', await response.text());
+          throw new Error('OpenWeatherMap service unavailable');
         }
       } catch (openWeatherError) {
-        console.error('OpenWeatherMap error:', openWeatherError);
-      }
+        console.error('Falling back to WeatherAPI.com due to:', openWeatherError);
+        
+        // Fallback to WeatherAPI.com
+        const weatherApiResponse = await fetch(
+          `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=weatherapi`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-      // Fallback to WeatherAPI.com
-      const weatherApiResponse = await fetch(
-        `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=weatherapi`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
+        if (!weatherApiResponse.ok) {
+          throw new Error(`Both weather providers failed. WeatherAPI error: ${weatherApiResponse.statusText}`);
         }
-      );
 
-      const weatherApiData: WeatherAPIResponse = await weatherApiResponse.json();
+        const weatherApiData: WeatherAPIResponse = await weatherApiResponse.json();
 
-      if (!weatherApiResponse.ok) {
-        throw new Error(weatherApiData.message || `Weather API error: ${weatherApiResponse.statusText}`);
+        // Transform WeatherAPI.com data to match OpenWeatherMap format
+        weatherData = {
+          main: {
+            temp: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+            feels_like: units === 'metric' ? weatherApiData.current.feelslike_c : weatherApiData.current.feelslike_f,
+            humidity: weatherApiData.current.humidity,
+            temp_min: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+            temp_max: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+          },
+          weather: [{
+            description: weatherApiData.current.condition.text,
+            icon: weatherApiData.current.condition.icon,
+            id: weatherApiData.current.condition.code,
+            main: weatherApiData.current.condition.text,
+          }],
+          name: weatherApiData.location.name,
+          coord: {
+            lat: weatherApiData.location.lat,
+            lon: weatherApiData.location.lon,
+          },
+          provider: 'weatherapi'
+        };
       }
 
-      // Transform WeatherAPI.com data to match OpenWeatherMap format
-      const transformedData: WeatherData = {
-        main: {
-          temp: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
-          feels_like: units === 'metric' ? weatherApiData.current.feelslike_c : weatherApiData.current.feelslike_f,
-          humidity: weatherApiData.current.humidity,
-          temp_min: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
-          temp_max: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
-        },
-        weather: [{
-          description: weatherApiData.current.condition.text,
-          icon: weatherApiData.current.condition.icon,
-          id: weatherApiData.current.condition.code,
-          main: weatherApiData.current.condition.text,
-        }],
-        name: weatherApiData.location.name,
-        coord: {
-          lat: weatherApiData.location.lat,
-          lon: weatherApiData.location.lon,
-        },
-        provider: 'weatherapi'
-      };
-
-      setWeather(transformedData);
-      if (transformedData.coord) {
-        await fetchAirQuality(transformedData.coord.lat, transformedData.coord.lon);
+      if (weatherData) {
+        setWeather(weatherData);
+        if (weatherData.coord) {
+          await fetchAirQuality(weatherData.coord.lat, weatherData.coord.lon);
+        }
       }
     } catch (error) {
       console.error('Error fetching weather:', error);

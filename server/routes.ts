@@ -16,29 +16,56 @@ export function registerRoutes(app: express.Express) {
         return res.status(400).json({ error: "City parameter is required" });
       }
 
-      const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-      if (!API_KEY) {
-        return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
-      }
-
-      // Format city name for API (supports "city,state code,country code")
-      const formattedCity = city.includes(',') ? city.split(',').map(part => part.trim()).join(',') + ',US' : `${city},US`;
+      const provider = req.query.provider as string || 'openweathermap';
       const units = req.query.units as string || 'imperial';
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=${units}`;
-      console.log('Fetching weather data from:', url.replace(API_KEY, 'REDACTED'));
+      
+      // Format city name for API (supports "city,state code,country code")
+      const formattedCity = city.includes(',') ? 
+        city.split(',').map(part => part.trim()).join(',') + ',US' : 
+        `${city},US`;
 
-      const response = await fetch(url);
-      const data = await response.json();
+      if (provider === 'openweathermap') {
+        const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+        if (!API_KEY) {
+          return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
+        }
 
-      if (!response.ok) {
-        console.error('OpenWeatherMap API error:', data);
-        return res.status(response.status).json({
-          error: 'Weather API error',
-          message: data.message || response.statusText
-        });
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=${units}`;
+        console.log('Fetching OpenWeatherMap data from:', url.replace(API_KEY, 'REDACTED'));
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error('OpenWeatherMap API error:', data);
+          throw new Error(data.message || response.statusText);
+        }
+
+        return res.json(data);
+      } else if (provider === 'weatherapi') {
+        const API_KEY = process.env.WEATHERAPI_KEY;
+        if (!API_KEY) {
+          return res.status(500).json({ error: "WeatherAPI key not configured" });
+        }
+
+        const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(formattedCity)}&aqi=no`;
+        console.log('Fetching WeatherAPI data from:', url.replace(API_KEY, 'REDACTED'));
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error('WeatherAPI error:', data);
+          return res.status(response.status).json({
+            error: 'Weather API error',
+            message: data.error?.message || response.statusText
+          });
+        }
+
+        return res.json(data);
       }
 
-      res.json(data);
+      return res.status(400).json({ error: "Invalid provider specified" });
     } catch (error) {
       console.error('Error fetching weather data:', error);
       res.status(500).json({
