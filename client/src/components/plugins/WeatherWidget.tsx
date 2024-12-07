@@ -160,7 +160,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>,
         document.body
       )}
-      <section className="p-4 bg-background rounded-lg border shadow-sm space-y-4">
+      <section className="p-6 bg-card/95 backdrop-blur-sm rounded-lg border shadow-sm space-y-4">
         <header className="flex justify-between items-center">
           {editingCity ? (
             <form 
