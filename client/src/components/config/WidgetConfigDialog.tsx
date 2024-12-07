@@ -74,11 +74,12 @@ const form = useForm<WeatherWidgetConfig>({
 
   const onSubmit = (data: WeatherWidgetConfig) => {
     if (widget.pluginId === 'weather-widget') {
-      const { city, units, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
+      const { city, units, titleFormat, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
       onUpdate({
         config: {
           city,
           units,
+          titleFormat,
           autoRefresh,
           refreshInterval,
           theme,
@@ -194,7 +195,18 @@ const form = useForm<WeatherWidgetConfig>({
                             <Label htmlFor="titleFormat">Location Display Format</Label>
                             <Select
                               value={form.watch("titleFormat") || "city-state-country"}
-                              onValueChange={(value) => form.setValue("titleFormat", value)}
+                              onValueChange={(value) => {
+                                form.setValue("titleFormat", value);
+                                // Trigger immediate update of the widget title
+                                const city = form.getValues("city");
+                                onUpdate({
+                                  config: {
+                                    ...widget.config,
+                                    titleFormat: value,
+                                    city: city
+                                  }
+                                });
+                              }}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select title format" />
