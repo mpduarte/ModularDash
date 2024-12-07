@@ -232,7 +232,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                         }, 100);
                       }}
                     >
-                      Switch to {units === 'imperial' ? '°C' : '°F'}
+                      Switch to {units === 'imperial' ? '°F' : '°C'}
                     </Button>
                   </div>
                 </div>
