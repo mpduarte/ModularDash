@@ -166,7 +166,20 @@ export function registerRoutes(app: express.Express) {
           weatherProviderLatency.labels(providerName).observe((Date.now() - startTime) / 1000);
 
           console.log(`Successfully fetched weather data from ${providerName}`);
-          return providerName === 'weatherapi' ? data : { ...data, provider: providerName };
+          
+          // Format location information consistently
+          let formattedData = { ...data };
+          if (providerName === 'weatherapi') {
+            formattedData = {
+              ...data,
+              name: data.location.name,
+              sys: {
+                country: data.location.country,
+                state: data.location.region
+              }
+            };
+          }
+          return { ...formattedData, provider: providerName };
 
         } catch (error) {
           // Record error metrics

@@ -145,6 +145,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       
       // Try OpenWeatherMap first
       try {
+        console.log('Fetching weather data from OpenWeatherMap for city:', city);
         const response = await fetch(
           `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=openweathermap`,
           {
@@ -155,11 +156,15 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           }
         );
         
+        console.log('OpenWeatherMap response status:', response.status);
         if (response.ok) {
           const data = await response.json();
+          console.log('OpenWeatherMap data received:', data);
           weatherData = { ...data, provider: 'openweathermap' };
+          console.log('Transformed weather data:', weatherData);
         } else {
           const errorText = await response.text();
+          console.error('OpenWeatherMap error response:', errorText);
           throw new Error('OpenWeatherMap service unavailable');
         }
       } catch (openWeatherError) {
@@ -206,12 +211,32 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         };
       }
 
-      if (weatherData) {
-        setWeather(weatherData);
+      if (weatherData && weatherData.main && weatherData.weather) {
+        console.log('Setting weather data:', weatherData);
+        // Ensure the weather data has the required structure
+        const validatedWeatherData = {
+          ...weatherData,
+          main: {
+            temp: weatherData.main.temp || 0,
+            feels_like: weatherData.main.feels_like || 0,
+            humidity: weatherData.main.humidity || 0,
+          },
+          weather: [{
+            description: weatherData.weather[0]?.description || 'No description available',
+            icon: weatherData.weather[0]?.icon || '01d',
+            id: weatherData.weather[0]?.id || 0,
+            main: weatherData.weather[0]?.main || 'Unknown'
+          }]
+        };
+        setWeather(validatedWeatherData);
         
         if (weatherData.coord) {
+          console.log('Fetching air quality for coordinates:', weatherData.coord);
           await fetchAirQuality(weatherData.coord.lat, weatherData.coord.lon);
         }
+      } else {
+        console.warn('Invalid or missing weather data structure:', weatherData);
+        setError('Unable to process weather data');
       }
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -272,33 +297,57 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         document.body
       )}
       
-      {weather && (
+      {error ? (
+        <div className="text-destructive p-4 text-center">
+          <p>{error}</p>
+        </div>
+      ) : weather && weather.main && weather.weather ? (
         <>
           <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
             <img
-              src={weather.provider === 'weatherapi' && weather.weather?.[0]?.icon
-                ? weather.weather[0].icon 
-                : weather.weather?.[0]?.icon
-                  ? `https://openweathermap.org/img/w/${weather.weather[0].icon}.png`
-                  : 'https://openweathermap.org/img/w/01d.png'}
-              alt={weather.weather?.[0]?.description || 'Weather icon'}
+              src={
+                weather.provider === 'weatherapi' && weather.weather[0]?.icon
+                  ? weather.weather[0].icon
+                  : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
+              }
+              alt={weather.weather[0]?.description || 'Weather icon'}
               className="w-16 h-16"
+              onError={(e) => {
+                e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
+              }}
             />
             <div>
-              <p className="text-3xl font-bold">{weather.main?.temp ? Math.round(weather.main.temp) : '--'}{unitSymbol}</p>
-              <p className="text-muted-foreground capitalize">{weather.weather?.[0]?.description || 'Weather information unavailable'}</p>
-              <p className="text-xs text-muted-foreground mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                  {weather.name}
+                  {weather.sys?.state && `, ${weather.sys.state}`}
+                  {weather.sys?.country && `, ${weather.sys.country}`}
+                </h3>
+                <p className="text-3xl font-bold">
+                  {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
+                  {unitSymbol}
+                </p>
+                <p className="text-muted-foreground capitalize">
+                  {weather.weather[0]?.description || 'Weather information unavailable'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last updated: {new Date().toLocaleTimeString()}
+                </p>
+              </div>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4 text-sm mt-4">
             <div>
               <Label>Feels Like</Label>
-              <p>{weather.main?.feels_like ? Math.round(weather.main.feels_like) : '--'}{unitSymbol}</p>
+              <p>
+                {typeof weather.main.feels_like === 'number' ? Math.round(weather.main.feels_like) : '--'}
+                {unitSymbol}
+              </p>
             </div>
             <div>
               <Label>Humidity</Label>
-              <p>{weather.main?.humidity ?? '--'}%</p>
+              <p>{typeof weather.main.humidity === 'number' ? weather.main.humidity : '--'}%</p>
             </div>
           </div>
 
@@ -316,6 +365,10 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           )}
         </>
+      ) : (
+        <div className="text-muted-foreground p-4 text-center">
+          <p>Loading weather information...</p>
+        </div>
       )}
     </>
   );
