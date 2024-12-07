@@ -170,9 +170,17 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         if (onConfigChange && weatherData.name) {
           // Extract state/country from city string if present
           const cityParts = city.split(',').map(part => part.trim());
-          const locationName = cityParts.length > 1 
-            ? `${weatherData.name}, ${cityParts[1]}${cityParts[2] ? `, ${cityParts[2]}` : ''}`
-            : weatherData.name;
+          let locationName = weatherData.name;
+          
+          // Add state if available (second part)
+          if (cityParts.length > 1 && cityParts[1]) {
+            locationName += `, ${cityParts[1]}`;
+          }
+          
+          // Add country if available (third part)
+          if (cityParts.length > 2 && cityParts[2]) {
+            locationName += `, ${cityParts[2]}`;
+          }
           
           onConfigChange({
             ...config,
