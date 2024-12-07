@@ -95,6 +95,32 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     }
   };
 
+  const formatLocationTitle = (cityInput: string, weatherCityName: string) => {
+    const inputParts = cityInput.split(',').map(part => part.trim());
+    let locationParts = [weatherCityName];
+    
+    // Check if it's a US location (looking for state code in second part)
+    const isUS = inputParts.length > 1 && /^[A-Z]{2}$/i.test(inputParts[1]);
+    
+    if (isUS) {
+      // For US locations: City, State
+      if (inputParts.length > 1) {
+        locationParts.push(inputParts[1].toUpperCase());
+      }
+    } else {
+      // For non-US locations: City, Country
+      if (inputParts.length > 2) {
+        // Use the country if explicitly provided
+        locationParts.push(inputParts[2]);
+      } else if (inputParts.length > 1) {
+        // Use the last part as country
+        locationParts.push(inputParts[inputParts.length - 1]);
+      }
+    }
+    
+    return locationParts.join(', ');
+  };
+
   const fetchWeather = async (city: string, targetUnits?: string) => {
     try {
       setLoading(true);
@@ -166,42 +192,17 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
       if (weatherData) {
         setWeather(weatherData);
-        // Update widget title with complete location info
+        
+        // Update widget title with location info
         if (onConfigChange) {
-          // Parse input city string for additional location info
-          const inputParts = city.split(',').map(part => part.trim());
-          
-          // Start with the confirmed city name from weather data
-          let locationParts = [weatherData.name];
-          
-          // Check if it's a US location (looking for state code in second part)
-          const isUS = inputParts.length > 1 && /^[A-Z]{2}$/i.test(inputParts[1]);
-          
-          if (isUS) {
-            // For US locations: City, State
-            if (inputParts.length > 1) {
-              locationParts.push(inputParts[1].toUpperCase());
-            }
-          } else {
-            // For non-US locations: City, Country
-            if (inputParts.length > 2) {
-              // Use the country if explicitly provided
-              locationParts.push(inputParts[2]);
-            } else if (inputParts.length > 1) {
-              // Use the last part as country
-              locationParts.push(inputParts[inputParts.length - 1]);
-            }
-          }
-          
-          // Combine all parts into a complete location string
-          const completeLocation = locationParts.join(', ');
-          
+          const completeLocation = formatLocationTitle(city, weatherData.name);
           onConfigChange({
             ...config,
             city: city,
             title: completeLocation
           });
         }
+        
         if (weatherData.coord) {
           await fetchAirQuality(weatherData.coord.lat, weatherData.coord.lon);
         }
@@ -291,8 +292,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
               </div>
             </div>
           )}
-
-          {/* Temperature unit controls moved to settings */}
         </>
       )}
     </>
