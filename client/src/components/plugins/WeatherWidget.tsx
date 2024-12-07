@@ -223,10 +223,13 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                       size="sm"
                       onClick={async () => {
                         const newUnits = units === 'imperial' ? 'metric' : 'imperial';
-                        // Update local config and trigger refetch
-                        onConfigChange({ ...config, units: newUnits });
-                        // Refetch weather data with new units
-                        await fetchWeather(config.city);
+                        // Update local config first
+                        await onConfigChange({ ...config, units: newUnits });
+                        // Wait a brief moment for the config update to propagate
+                        setTimeout(async () => {
+                          // Refetch weather data with new units
+                          await fetchWeather(config.city);
+                        }, 100);
                       }}
                     >
                       Switch to {units === 'imperial' ? '°C' : '°F'}
