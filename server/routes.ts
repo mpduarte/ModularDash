@@ -48,6 +48,54 @@ export function registerRoutes(app: express.Express) {
     }
   });
 
+  // Weather API endpoint
+  app.get("/api/weather", async (req, res) => {
+    try {
+      const city = req.query.city as string;
+      const units = req.query.units as string || 'metric';
+      
+      if (!city) {
+        return res.status(400).json({ error: "City parameter is required" });
+      }
+
+      const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+      if (!API_KEY) {
+        return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
+      }
+
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`;
+      console.log('Fetching weather data from:', url.replace(API_KEY, 'REDACTED'));
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('OpenWeatherMap API error:', data);
+        
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          return res.status(429).json({
+            error: 'Rate limit exceeded',
+            message: 'Please try again in a few minutes'
+          });
+        }
+        
+        return res.status(response.status).json({
+          error: 'Weather API error',
+          message: data.message || response.statusText
+        });
+      }
+
+      res.json(data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      res.status(500).json({
+        error: 'Failed to fetch weather data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Air Quality API endpoint
   app.get("/api/air-quality", async (req, res) => {
     try {
