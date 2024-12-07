@@ -40,7 +40,8 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       enableAlerts: widget.config.enableAlerts || false,
       alertThreshold: widget.config.alertThreshold || 80,
       alertType: widget.config.alertType || "visual",
-    },
+      weatherCondition: widget.config.weatherCondition || "rain",
+    } as const,
   });
 
   const onSubmit = (data: any) => {

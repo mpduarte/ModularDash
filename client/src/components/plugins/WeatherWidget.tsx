@@ -29,7 +29,7 @@ interface WeatherAlert {
   triggered: boolean;
 }
 
-const WeatherWidgetComponent: React.FC<{ config: any; onConfigChange?: (config: any) => void }> = ({ config, onConfigChange }) => {
+const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
