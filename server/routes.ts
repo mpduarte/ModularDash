@@ -11,22 +11,30 @@ export function registerRoutes(app: express.Express) {
   // Weather API endpoint
   app.get("/api/weather", async (req, res) => {
     try {
-      const city = req.query.city as string || 'San Francisco';
+      const city = req.query.city as string;
+      if (!city) {
+        return res.status(400).json({ error: "City parameter is required" });
+      }
+
       const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-      
       if (!API_KEY) {
         return res.status(500).json({ error: "OpenWeatherMap API key not configured" });
       }
 
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=imperial`
-      );
-      
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=imperial`;
+      console.log('Fetching weather data from:', url.replace(API_KEY, 'REDACTED'));
+
+      const response = await fetch(url);
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(`Weather API error: ${response.statusText}`);
+        console.error('OpenWeatherMap API error:', data);
+        return res.status(response.status).json({
+          error: 'Weather API error',
+          message: data.message || response.statusText
+        });
       }
 
-      const data = await response.json();
       res.json(data);
     } catch (error) {
       console.error('Error fetching weather data:', error);
