@@ -75,8 +75,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editingCity, setEditingCity] = useState(false);
-  const [tempCity, setTempCity] = useState(config.city);
   const units = config.units || 'imperial';
   const unitSymbol = units === 'metric' ? '°C' : '°F';
   const [showNotification, setShowNotification] = useState(false);
@@ -191,24 +189,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
 
     return () => clearInterval(interval);
   }, [config.city, config.refreshInterval, config.units]);
-
-  const handleCityUpdate = () => {
-    if (tempCity.trim() === '') {
-      setError('City name cannot be empty');
-      return;
-    }
-    
-    if (onConfigChange) {
-      onConfigChange({ ...config, city: tempCity });
-    }
-    setEditingCity(false);
-  };
-
-  const handleUnitToggle = async () => {
-    const newUnits = units === 'metric' ? 'imperial' : 'metric';
-    await onConfigChange({ ...config, units: newUnits });
-    await fetchWeather(config.city, newUnits);
-  };
 
   if (loading && !weather) {
     return (
