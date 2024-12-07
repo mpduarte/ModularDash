@@ -36,6 +36,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
   const [error, setError] = useState<string | null>(null);
   const [editingCity, setEditingCity] = useState(false);
   const [tempCity, setTempCity] = useState(config.city);
+  const units = config.units || 'imperial';
+  const unitSymbol = units === 'imperial' ? '°F' : '°C';
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
 
@@ -87,7 +89,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+      const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}&units=${config.units || 'imperial'}`);
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.statusText}`);
       }
@@ -198,7 +200,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                     className="w-16 h-16"
                   />
                   <div>
-                    <div className="text-3xl font-bold">{Math.round(weather.main.temp)}°F</div>
+                    <div className="text-3xl font-bold">{Math.round(weather.main.temp)}{unitSymbol}</div>
                     <div className="text-muted-foreground capitalize">
                       {weather.weather[0].description}
                     </div>
@@ -208,11 +210,24 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <Label>Feels Like</Label>
-                    <div>{Math.round(weather.main.feels_like)}°F</div>
+                    <div>{Math.round(weather.main.feels_like)}{unitSymbol}</div>
                   </div>
                   <div>
                     <Label>Humidity</Label>
                     <div>{weather.main.humidity}%</div>
+                  </div>
+                  <div className="col-span-2 mt-2 flex justify-between items-center">
+                    <Label>Temperature Unit</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newUnits = units === 'imperial' ? 'metric' : 'imperial';
+                        onConfigChange({ ...config, units: newUnits });
+                      }}
+                    >
+                      Switch to {units === 'imperial' ? '°C' : '°F'}
+                    </Button>
                   </div>
                 </div>
               </>

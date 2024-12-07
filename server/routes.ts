@@ -23,7 +23,8 @@ export function registerRoutes(app: express.Express) {
 
       // Format city name for API (supports "city,state code,country code")
       const formattedCity = city.includes(',') ? city.split(',').map(part => part.trim()).join(',') + ',US' : `${city},US`;
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=imperial`;
+      const units = req.query.units as string || 'imperial';
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(formattedCity)}&appid=${API_KEY}&units=${units}`;
       console.log('Fetching weather data from:', url.replace(API_KEY, 'REDACTED'));
 
       const response = await fetch(url);
