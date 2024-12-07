@@ -138,15 +138,38 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         }
       );
 
-      const weatherApiData = await weatherApiResponse.json();
+      const weatherApiData: WeatherAPIResponse = await weatherApiResponse.json();
 
       if (!weatherApiResponse.ok) {
         throw new Error(weatherApiData.message || `Weather API error: ${weatherApiResponse.statusText}`);
       }
 
-      setWeather({ ...weatherApiData, provider: 'weatherapi' });
-      if (weatherApiData.coord) {
-        await fetchAirQuality(weatherApiData.coord.lat, weatherApiData.coord.lon);
+      // Transform WeatherAPI.com data to match OpenWeatherMap format
+      const transformedData: WeatherData = {
+        main: {
+          temp: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+          feels_like: units === 'metric' ? weatherApiData.current.feelslike_c : weatherApiData.current.feelslike_f,
+          humidity: weatherApiData.current.humidity,
+          temp_min: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+          temp_max: units === 'metric' ? weatherApiData.current.temp_c : weatherApiData.current.temp_f,
+        },
+        weather: [{
+          description: weatherApiData.current.condition.text,
+          icon: weatherApiData.current.condition.icon,
+          id: weatherApiData.current.condition.code,
+          main: weatherApiData.current.condition.text,
+        }],
+        name: weatherApiData.location.name,
+        coord: {
+          lat: weatherApiData.location.lat,
+          lon: weatherApiData.location.lon,
+        },
+        provider: 'weatherapi'
+      };
+
+      setWeather(transformedData);
+      if (transformedData.coord) {
+        await fetchAirQuality(transformedData.coord.lat, transformedData.coord.lon);
       }
     } catch (error) {
       console.error('Error fetching weather:', error);
