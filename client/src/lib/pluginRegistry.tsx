@@ -3,6 +3,7 @@ import { PluginRegistry, PluginComponent } from './types';
 import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
 import { WeatherWidget, weatherWidgetConfig } from '../components/plugins/WeatherWidget';
 import { TimeWidget, timeWidgetConfig } from '../components/plugins/TimeWidget';
+import { CalendarWidget } from '../components/plugins/CalendarWidget';
 
 const registry: PluginRegistry = {};
 
@@ -100,6 +101,17 @@ registerPlugin(
   timeWidgetConfig.name,
   timeWidgetConfig.version,
   'Displays current time with configurable format',
+  'widgets'
+);
+
+// Register calendar widget plugin
+registerPlugin(
+  'calendar-widget',
+  CalendarWidget,
+  { calendarUrl: '' },
+  'Calendar Widget',
+  '1.0.0',
+  'Display calendar events from iCal/WebCal/CalDAV feeds',
   'widgets'
 );
 

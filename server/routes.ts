@@ -3,12 +3,16 @@ import { db } from "db";
 import { widgets, plugins } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { weatherProviderErrors, weatherProviderRequests, weatherProviderLatency } from "./metrics";
+import calendarRoutes from "./routes/calendar";
 
 export function registerRoutes(app: express.Express) {
   // Health check route
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+  
+  // Calendar routes
+  app.use("/api/calendar", calendarRoutes);
   // Weather API endpoint
   app.get("/api/weather", async (req, res) => {
     try {
