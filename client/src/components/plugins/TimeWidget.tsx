@@ -196,8 +196,11 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
           </div>
         )}
         {config.showDate && (
-          <div className="text-lg text-muted-foreground mt-2">
+          <div className={`text-lg text-muted-foreground mt-2 ${config.displayMode === 'analog' ? 'text-center' : ''}`}>
             {format(currentTime, config.dateFormat || 'PPP')}
+            {config.dateFormat === 'do' && (
+              <span className="ml-1">of {format(currentTime, 'MMMM')}</span>
+            )}
           </div>
         )}
       </CardContent>

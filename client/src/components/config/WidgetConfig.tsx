@@ -182,6 +182,11 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                     <SelectItem value="PPP">Long (December 8th, 2024)</SelectItem>
                                     <SelectItem value="PP">Medium (Dec 8, 2024)</SelectItem>
                                     <SelectItem value="P">Short (12/08/2024)</SelectItem>
+                                    <SelectItem value="PPPP">Full (Sunday, December 8th, 2024)</SelectItem>
+                                    <SelectItem value="MMMM d, yyyy">Custom (December 8, 2024)</SelectItem>
+                                    <SelectItem value="MMM d">Month Day (Dec 8)</SelectItem>
+                                    <SelectItem value="EEEE">Weekday Only (Sunday)</SelectItem>
+                                    <SelectItem value="do">Day with Ordinal (8th)</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
