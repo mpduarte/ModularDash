@@ -90,12 +90,15 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg">
                       <CollapsibleTrigger className="flex-1 text-left flex items-center gap-2 group">
                         <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
-                        <span>{widget.title}</span>
+                        <span>{widget.title || (isTimeWidget ? 'Time Widget' : isWeatherWidget ? 'Weather Widget' : 'Widget')}</span>
                       </CollapsibleTrigger>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onRemove(widget.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemove(widget.id);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -103,7 +106,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                     
                     <CollapsibleContent>
                       <div className="space-y-4 p-4 border rounded-lg mx-3 mb-3">
-                        {widget.pluginId === 'time-widget' && (
+                        {isTimeWidget && (
                           <>
                             <div className="space-y-2">
                               <Label>Display Mode</Label>
