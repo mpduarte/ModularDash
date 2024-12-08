@@ -343,7 +343,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>
       ) : weather && weather.main && weather.weather ? (
         <>
-          <div className="grid grid-cols-[auto_1fr] gap-2 items-start">
+          <div className="grid grid-cols-[auto_1fr] items-center">
             <img
               src={
                 weather.provider === 'weatherapi' && weather.weather[0]?.icon
@@ -351,7 +351,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                   : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
               }
               alt={weather.weather[0]?.description || 'Weather icon'}
-              className="w-16 h-16"
+              className="w-12 h-12"
               onError={(e) => {
                 e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
               }}

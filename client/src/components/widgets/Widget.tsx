@@ -55,29 +55,39 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        <div className="invisible group-hover:visible absolute top-2 right-2 z-10" onClick={e => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 bg-background/80 hover:bg-background shadow-sm"
-            onClick={() => onUpdate({ visible: false })}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+        <div className="group/widget w-full h-full">
+          {/* Close button - only visible on hover */}
+          <div className="invisible group-hover/widget:visible absolute top-1 right-1 z-20">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ visible: false });
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          
+          {/* Drag handle - full size but lower z-index */}
+          <div className="drag-handle absolute inset-0 z-10" />
+          
+          {/* Content area */}
+          <CardContent className="p-0 h-full relative z-0">
+            {PluginComponent ? (
+              <div className="w-full h-full">
+                <PluginComponent 
+                  config={widget.config || {}}
+                  onConfigChange={handleConfigChange}
+                />
+              </div>
+            ) : (
+              <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
+            )}
+          </CardContent>
         </div>
-        <div className="drag-handle cursor-move absolute inset-0" />
-        <CardContent className="p-2 h-full">
-          {PluginComponent ? (
-            <div className="w-full h-full">
-              <PluginComponent 
-                config={widget.config || {}}
-                onConfigChange={handleConfigChange}
-              />
-            </div>
-          ) : (
-            <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
-          )}
-        </CardContent>
       </Card>
 
       {showConfig && (
