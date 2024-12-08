@@ -59,7 +59,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           <div className="drag-handle flex-1 cursor-move">
             <h3 className="font-medium select-none">{widget.title}</h3>
           </div>
-          <div className="flex gap-2 items-center" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center" onClick={e => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"

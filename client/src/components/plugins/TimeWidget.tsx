@@ -144,7 +144,7 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <Card className="w-full h-full">
+    <Card className="w-full h-full relative">
       <CardContent className="p-6 flex flex-col items-center justify-center h-full">
         {config.displayMode === 'analog' ? (
           <AnalogClock time={currentTime} config={config} />
