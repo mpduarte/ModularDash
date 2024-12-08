@@ -343,7 +343,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>
       ) : weather && weather.main && weather.weather ? (
         <>
-          <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
+          <div className="grid grid-cols-[auto_1fr] gap-2 items-start">
             <img
               src={
                 weather.provider === 'weatherapi' && weather.weather[0]?.icon

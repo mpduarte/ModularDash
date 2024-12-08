@@ -66,7 +66,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           </Button>
         </div>
         <div className="drag-handle cursor-move absolute inset-0" />
-        <CardContent className="p-4 h-full">
+        <CardContent className="p-2 h-full">
           {PluginComponent ? (
             <div className="w-full h-full">
               <PluginComponent 
