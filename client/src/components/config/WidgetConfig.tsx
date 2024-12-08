@@ -97,12 +97,20 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                 {isLoading ? (
                   <div className="flex items-center justify-center p-4">
                     <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+                    <span className="ml-2">Loading plugins...</span>
                   </div>
                 ) : isError ? (
                   <div className="p-4 text-destructive text-center">
                     <p>Error loading plugins: {error?.message}</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => window.location.reload()}
+                    >
+                      Retry
+                    </Button>
                   </div>
-                ) : plugins.length === 0 ? (
+                ) : !plugins || plugins.length === 0 ? (
                   <div className="p-4 text-muted-foreground text-center">
                     <p>No plugins available</p>
                   </div>

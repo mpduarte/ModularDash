@@ -12,32 +12,51 @@ export function usePlugins() {
   } = useQuery<Plugin[], Error>({
     queryKey: ['plugins'],
     queryFn: async () => {
+      console.log('Starting plugin fetch...');
       try {
-        console.log('Fetching plugins...');
         const response = await fetch('/api/plugins');
+        console.log('Plugin API response status:', response.status);
+        
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Plugin API error response:', errorText);
           throw new Error(`Failed to fetch plugins: ${response.statusText}`);
         }
+
         const data = await response.json();
+        console.log('Raw API response:', data);
+
         if (!Array.isArray(data)) {
-          throw new Error('Invalid plugins data received');
+          console.error('Invalid data structure received:', data);
+          throw new Error('Invalid plugins data received - expected array');
         }
-        console.log('Raw plugins data:', data);
-        const enabledPlugins = data
-          .filter((plugin: Plugin) => plugin.enabled)
-          .map((plugin: Plugin) => ({
+
+        // Map and validate each plugin
+        const processedPlugins = data.map((plugin: any) => {
+          console.log('Processing plugin:', plugin);
+          if (!plugin.id || !plugin.name) {
+            console.warn('Invalid plugin structure:', plugin);
+          }
+          return {
             ...plugin,
-            category: plugin.category || 'other'
-          }));
-        console.log('Enabled plugins:', enabledPlugins);
+            enabled: plugin.enabled ?? true,
+            category: plugin.category || 'other',
+            config: plugin.config || {}
+          };
+        });
+
+        const enabledPlugins = processedPlugins.filter((plugin: Plugin) => plugin.enabled);
+        console.log('Final processed plugins:', enabledPlugins);
+        
         return enabledPlugins;
       } catch (error) {
-        console.error('Error fetching plugins:', error);
+        console.error('Plugin fetch error:', error);
         throw error;
       }
     },
     staleTime: 30000,
-    retry: 2
+    retry: 2,
+    refetchOnWindowFocus: false
   });
 
   const installPlugin = useMutation({
