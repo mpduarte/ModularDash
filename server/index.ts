@@ -74,7 +74,7 @@ async function seedDefaultPlugins() {
       version: '1.0.0',
       enabled: true,
       component: 'TextWidget',
-      category: 'content',
+      category: 'widgets',
       config: {}
     },
     {
