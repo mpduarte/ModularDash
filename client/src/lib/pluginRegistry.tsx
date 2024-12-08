@@ -37,9 +37,9 @@ const TextWidget: PluginComponent = ({ config }) => (
   </div>
 );
 
+// Register text widget plugin
 registerPlugin('text-widget', TextWidget, {
-  content: '',
-  category: 'widgets'
+  content: ''
 }, 'Text Widget', '1.0.0');
 
 // Register HTML widget plugin
@@ -51,28 +51,21 @@ const HtmlWidget: PluginComponent = ({ config }) => (
 );
 
 registerPlugin('html-widget', HtmlWidget, {
-  content: '',
-  category: 'content'
+  content: ''
 }, 'HTML Widget', '1.0.0');
 
 // Register background manager plugin
 registerPlugin(
   backgroundManagerPluginConfig.id,
   backgroundManagerPluginConfig.component,
-  {
-    ...backgroundManagerPluginConfig.defaultConfig,
-    category: 'appearance'
-  }
+  backgroundManagerPluginConfig.defaultConfig
 );
 
 // Register weather widget plugin
 registerPlugin(
   'weather-widget',
   weatherWidgetConfig.component,
-  {
-    ...weatherWidgetConfig.defaultConfig,
-    category: 'widgets'
-  },
+  weatherWidgetConfig.defaultConfig,
   weatherWidgetConfig.name,
   weatherWidgetConfig.version
 );

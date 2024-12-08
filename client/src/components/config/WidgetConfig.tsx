@@ -47,8 +47,8 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
           <TabsContent value="widgets" className="py-4">
             <div className="space-y-4">
               {plugins
-                .filter(plugin => plugin.enabled && plugin.config?.category && 
-                  (plugin.config.category === 'widgets' || plugin.config.category === 'content'))
+                .filter(plugin => plugin.enabled && 
+                  (plugin.category === 'widgets' || plugin.category === 'content'))
                 .map(plugin => {
                   console.log('Rendering plugin button:', plugin);
                   const registeredPlugin = getPlugin(plugin.id);
