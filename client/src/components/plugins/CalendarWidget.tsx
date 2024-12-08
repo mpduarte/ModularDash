@@ -166,11 +166,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   return (
-    <Card className="w-full h-full p-4">
+    <Card className="w-full h-full p-2">
       <div className="flex flex-col h-full">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">{config?.title || 'Calendar'}</h3>
-        </div>
+        
         
         <div className="grid gap-4">
           <Calendar
