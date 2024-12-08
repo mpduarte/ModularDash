@@ -58,9 +58,12 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
             const rowHeight = 80;
             const newRows = Math.max(2, Math.ceil(actualHeight / rowHeight));
             if (newRows !== newItem.h) {
-              onLayoutChange(layout.map(item =>
-                item.i === newItem.i ? { ...item, h: newRows } : item
-              ));
+              onWidgetUpdate(widget.id, {
+                x: newItem.x,
+                y: newItem.y,
+                w: newItem.w,
+                h: newRows
+              });
             }
           }
         }}
