@@ -174,6 +174,22 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                 />
                               </div>
                             )}
+                            <div className="flex justify-end mt-4 pt-4 border-t">
+                              <Button
+                                type="button"
+                                variant="default"
+                                onClick={() => {
+                                  const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                  if (widgetId) {
+                                    updateWidget(widgetId, {
+                                      config: weatherConfig
+                                    });
+                                  }
+                                }}
+                              >
+                                Save Configuration
+                              </Button>
+                            </div>
                           </div>
                         )}
                       </div>
