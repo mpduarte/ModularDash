@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import { ScrollArea } from '../ui/scroll-area';
-import { format, startOfDay, endOfDay, isEqual } from 'date-fns';
+import { format, startOfDay, endOfDay, isEqual, parseISO, addDays } from 'date-fns';
 import { Badge } from '../ui/badge';
 
 interface CalendarEvent {
@@ -41,7 +41,6 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       fetchEvents();
     }
 
-    // Set up auto-refresh if enabled
     if (config?.autoRefresh && config?.refreshInterval) {
       const interval = setInterval(fetchEvents, config.refreshInterval * 1000);
       return () => clearInterval(interval);
@@ -64,31 +63,53 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       const { events: calendarEvents } = await response.json();
       
       const processedEvents = calendarEvents.map((event: CalendarEvent) => {
-        // Parse dates and normalize to local timezone
-        const start = new Date(event.start);
-        const end = new Date(event.end);
+        // Parse dates as UTC and convert to local time
+        const rawStart = typeof event.start === 'string' ? event.start : event.start.toString();
+        const rawEnd = typeof event.end === 'string' ? event.end : event.end.toString();
+        
+        // Function to parse date considering UTC
+        const parseDate = (dateStr: string) => {
+          if (!dateStr.includes('T')) {
+            // Date-only format: treat as local midnight
+            return new Date(dateStr + 'T00:00:00');
+          }
+          // Parse ISO string and convert to local time
+          return parseISO(dateStr);
+        };
 
-        // Function to check if a date string is in date-only format (no time component)
-        const isDateOnly = (dateStr: string) => 
-          typeof dateStr === 'string' && !dateStr.includes('T');
+        const start = parseDate(rawStart);
+        const end = parseDate(rawEnd);
 
-        // Function to check if two dates are on the same day
-        const isSameDay = (date1: Date, date2: Date) =>
-          date1.getFullYear() === date2.getFullYear() &&
-          date1.getMonth() === date2.getMonth() &&
-          date1.getDate() === date2.getDate();
+        // Calculate if it's an all-day event
+        const isAllDay = (() => {
+          // Case 1: Date-only strings (no time component)
+          if (!rawStart.includes('T') && !rawEnd.includes('T')) {
+            return true;
+          }
 
-        // Detect if it's an all-day event
-        const isAllDay = 
-          // Case 1: Date-only format in iCal
-          (isDateOnly(event.start.toString()) && isDateOnly(event.end.toString())) ||
-          // Case 2: Same start/end time in a day indicates an all-day event
-          (isSameDay(start, end) && 
-           start.getHours() === end.getHours() && 
-           start.getMinutes() === end.getMinutes()) ||
-          // Case 3: 24-hour period
-          (isSameDay(start, end) &&
-           Math.abs(end.getTime() - start.getTime()) <= 24 * 60 * 60 * 1000);
+          // Case 2: Same date with same time or 24h period
+          if (format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd')) {
+            // Check if times are the same
+            if (start.getHours() === end.getHours() && 
+                start.getMinutes() === end.getMinutes()) {
+              return true;
+            }
+            // Check if it spans exactly 24 hours
+            const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+            if (diffHours === 24) {
+              return true;
+            }
+          }
+
+          // Case 3: Ends at midnight of the next day
+          const nextDay = addDays(start, 1);
+          if (format(nextDay, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd') &&
+              end.getHours() === 0 && end.getMinutes() === 0) {
+            return true;
+          }
+
+          return false;
+        })();
 
         return {
           ...event,
@@ -109,22 +130,28 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   const getDayEvents = (day: Date) => {
-    return events.filter(event => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+    const dayStart = startOfDay(day);
+    const dayEnd = endOfDay(day);
 
-      // For all-day events, only check the date portion
-      if (event.isAllDay) {
-        const eventDate = startOfDay(eventStart);
-        const compareDate = startOfDay(day);
-        return isEqual(eventDate, compareDate);
-      }
+    return events
+      .filter(event => {
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
 
-      // For time-specific events, check if they occur on this day
-      const dayStartTime = startOfDay(day);
-      const dayEndTime = endOfDay(day);
-      return eventStart >= dayStartTime && eventStart <= dayEndTime;
-    }).sort((a, b) => a.start.getTime() - b.start.getTime());
+        if (event.isAllDay) {
+          // For all-day events, compare the date without time
+          const eventDate = startOfDay(eventStart);
+          return format(eventDate, 'yyyy-MM-dd') === format(dayStart, 'yyyy-MM-dd');
+        }
+
+        // For time-specific events, check if they occur on this day
+        return eventStart >= dayStart && eventStart <= dayEnd;
+      })
+      .sort((a, b) => {
+        if (a.isAllDay && !b.isAllDay) return -1;
+        if (!a.isAllDay && b.isAllDay) return 1;
+        return a.start.getTime() - b.start.getTime();
+      });
   };
 
   return (
