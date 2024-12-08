@@ -40,15 +40,31 @@ router.get('/events', async (req, res) => {
         try {
           const calendarEvents = Object.values(data)
             .filter(event => event.type === 'VEVENT')
-            .map(event => ({
-              summary: event.summary || 'Untitled Event',
-              description: event.description,
-              start: event.start,
-              end: event.end || event.start,
-              location: event.location,
-              recurrence: event.rrule ? [event.rrule.toString()] : undefined,
-              uid: event.uid
-            }))
+            .map(event => {
+              // Determine if it's an all-day event by checking if start/end are date-only
+              const isDateOnly = !event.start?.toString().includes('T');
+              
+              // For all-day events, ensure we use the date portion only
+              let start = event.start;
+              let end = event.end || event.start;
+              
+              if (isDateOnly) {
+                // For date-only events, create dates at start of day in local timezone
+                start = new Date(event.start.toISOString().split('T')[0]);
+                end = new Date(end.toISOString().split('T')[0]);
+              }
+
+              return {
+                summary: event.summary || 'Untitled Event',
+                description: event.description,
+                start: start,
+                end: end,
+                location: event.location,
+                recurrence: event.rrule ? [event.rrule.toString()] : undefined,
+                uid: event.uid,
+                isAllDay: isDateOnly
+              };
+            })
             .filter(event => event.start && event.end) // Ensure valid dates
             .sort((a, b) => a.start.getTime() - b.start.getTime()); // Sort by start time
 

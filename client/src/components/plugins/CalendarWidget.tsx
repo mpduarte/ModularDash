@@ -80,36 +80,34 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         const start = parseDate(rawStart);
         const end = parseDate(rawEnd);
 
-        // Calculate if it's an all-day event
-        const isAllDay = (() => {
+        // Use the server-provided isAllDay flag or calculate it
+        const isAllDay = event.isAllDay ?? (() => {
           // Case 1: Date-only strings (no time component)
           if (!rawStart.includes('T') && !rawEnd.includes('T')) {
             return true;
           }
 
-          // Case 2: Same date with same time or 24h period
-          if (format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd')) {
-            // Check if times are the same
-            if (start.getHours() === end.getHours() && 
-                start.getMinutes() === end.getMinutes()) {
-              return true;
-            }
-            // Check if it spans exactly 24 hours
-            const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-            if (diffHours === 24) {
-              return true;
-            }
+          // Case 2: Same date with same time
+          if (format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd') &&
+              start.getHours() === end.getHours() && 
+              start.getMinutes() === end.getMinutes()) {
+            return true;
           }
 
-          // Case 3: Ends at midnight of the next day
-          const nextDay = addDays(start, 1);
-          if (format(nextDay, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd') &&
-              end.getHours() === 0 && end.getMinutes() === 0) {
+          // Case 3: Exactly 24 hours apart
+          const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+          if (Math.abs(diffHours - 24) < 0.1) { // Allow small precision differences
             return true;
           }
 
           return false;
         })();
+
+        // For all-day events, ensure dates are at the start of the day
+        if (isAllDay) {
+          start = startOfDay(start);
+          end = startOfDay(end);
+        }
 
         return {
           ...event,
