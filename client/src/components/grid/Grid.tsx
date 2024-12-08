@@ -18,7 +18,6 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
     const isTimeWidget = widget.pluginId === 'time-widget';
     const isCalendarWidget = widget.pluginId === 'calendar-widget';
     
-    // Default constraints
     const constraints = {
       minW: 1,
       maxW: 3,
@@ -28,7 +27,6 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       h: widget.h || 2
     };
 
-    // Widget-specific constraints
     if (isWeatherWidget) {
       constraints.minH = 3;
       constraints.maxH = 6;
