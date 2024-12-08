@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { format } from 'date-fns';
 
@@ -26,25 +15,19 @@ interface CalendarEvent {
 interface CalendarWidgetProps {
   id: string;
   title?: string;
-  content?: string;
   config?: {
     calendarUrl?: string;
   };
-  onConfigUpdate?: (id: string, config: { calendarUrl: string }) => void;
 }
 
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   id,
   title,
-  content,
   config,
-  onConfigUpdate,
 }) => {
   const [date, setDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [calendarUrl, setCalendarUrl] = useState(config?.calendarUrl || '');
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (config?.calendarUrl) {
@@ -66,12 +49,6 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     }
   };
 
-  const handleSaveConfig = () => {
-    if (onConfigUpdate) {
-      onConfigUpdate(id, { calendarUrl });
-    }
-  };
-
   const getDayEvents = (day: Date) => {
     return events.filter(event => {
       const eventDate = new Date(event.start);
@@ -85,38 +62,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     <Card className="w-full h-full p-4">
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                Configure
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Calendar Configuration</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="calendarUrl">Calendar URL (iCal/WebCal)</Label>
-                  <Input
-                    id="calendarUrl"
-                    value={calendarUrl}
-                    onChange={(e) => setCalendarUrl(e.target.value)}
-                    placeholder="webcal:// or https:// URL"
-                  />
-                </div>
-                <DialogClose asChild>
-                  <Button 
-                    onClick={handleSaveConfig}
-                    disabled={!calendarUrl.trim()}
-                  >
-                    Save Configuration
-                  </Button>
-                </DialogClose>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <h3 className="text-lg font-semibold">{title || 'Calendar'}</h3>
         </div>
         
         <div className="grid gap-4">

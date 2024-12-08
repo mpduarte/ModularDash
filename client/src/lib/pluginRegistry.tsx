@@ -105,14 +105,35 @@ registerPlugin(
 );
 
 // Register calendar widget plugin
+// Register calendar widget plugin with configuration schema
+const calendarWidgetConfig = {
+  component: CalendarWidget,
+  defaultConfig: { 
+    calendarUrl: '' 
+  },
+  configSchema: {
+    calendarUrl: {
+      type: 'string',
+      label: 'Calendar URL',
+      description: 'Enter iCal/WebCal/CalDAV feed URL (webcal:// or https://)',
+      placeholder: 'webcal:// or https:// URL',
+      required: true
+    }
+  },
+  name: 'Calendar Widget',
+  version: '1.0.0',
+  description: 'Display calendar events from iCal/WebCal/CalDAV feeds',
+  category: 'widgets'
+};
+
 registerPlugin(
   'calendar-widget',
-  CalendarWidget,
-  { calendarUrl: '' },
-  'Calendar Widget',
-  '1.0.0',
-  'Display calendar events from iCal/WebCal/CalDAV feeds',
-  'widgets'
+  calendarWidgetConfig.component,
+  calendarWidgetConfig.defaultConfig,
+  calendarWidgetConfig.name,
+  calendarWidgetConfig.version,
+  calendarWidgetConfig.description,
+  calendarWidgetConfig.category
 );
 
 export default registry;
