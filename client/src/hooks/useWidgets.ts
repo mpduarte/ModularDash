@@ -63,7 +63,7 @@ export function useWidgets() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: 'New Widget',
+          title: plugin?.name || 'New Widget',
           content: '',
           x: 0,
           y: 0,
