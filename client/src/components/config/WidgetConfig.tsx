@@ -184,6 +184,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                     updateWidget(widgetId, {
                                       config: weatherConfig
                                     });
+                                    onClose();
                                   }
                                 }}
                               >
