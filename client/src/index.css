@@ -13,7 +13,7 @@
 }
 
 .react-grid-item {
-  @apply bg-transparent transition-all duration-200;
+  @apply bg-transparent transition-all duration-200 border-none outline-none;
 }
 
 .drag-handle {
