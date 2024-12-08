@@ -272,6 +272,25 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                             </div>
                           </>
                         )}
+                        {widget.pluginId === 'calendar-widget' && (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Calendar URL</Label>
+                              <Input
+                                placeholder="Enter iCal/WebCal/CalDAV feed URL"
+                                value={config.calendarUrl || ''}
+                                onChange={(e) => {
+                                  updateWidget(widget.id, {
+                                    config: { ...config, calendarUrl: e.target.value }
+                                  });
+                                }}
+                              />
+                              <p className="text-sm text-muted-foreground">
+                                Enter a webcal:// or https:// URL for your calendar feed
+                              </p>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="flex items-center justify-between">
                           <Label>Auto Refresh</Label>
