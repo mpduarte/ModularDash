@@ -2,6 +2,7 @@ import React from 'react';
 import { PluginRegistry, PluginComponent } from './types';
 import { backgroundManagerPluginConfig } from '../components/plugins/BackgroundManagerPlugin';
 import { WeatherWidget, weatherWidgetConfig } from '../components/plugins/WeatherWidget';
+import { TimeWidget, timeWidgetConfig } from '../components/plugins/TimeWidget';
 
 const registry: PluginRegistry = {};
 
@@ -88,6 +89,17 @@ registerPlugin(
   weatherWidgetConfig.name,
   weatherWidgetConfig.version,
   'Displays weather information for a specified location',
+  'widgets'
+);
+
+// Register time widget plugin
+registerPlugin(
+  'time-widget',
+  TimeWidget,
+  timeWidgetConfig.defaultConfig,
+  timeWidgetConfig.name,
+  timeWidgetConfig.version,
+  'Displays current time with configurable format',
   'widgets'
 );
 
