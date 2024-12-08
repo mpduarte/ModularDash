@@ -1,0 +1,69 @@
+ at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 42ms :: {"location":{"name":"Minden","region":"Nevada",…
+Attempting to fetch weather data from openweathermap: https://api.openweathermap.org/data/2.5/weather?q=Minden%2CNV&key=REDACTED&units=imperial
+openweathermap API error: city not found
+Failed to fetch weather data from openweathermap: city not found
+Error with openweathermap: Error: city not found
+    at fetchFromProvider (/home/runner/ModularDash/server/routes.ts:161:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+03:39:56 AM [express] GET /api/plugins 304 in 59ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 41ms :: {"location":{"name":"Minden","region":"Nevada",…
+Attempting to fetch weather data from openweathermap: https://api.openweathermap.org/data/2.5/weather?q=Minden%2CNV&key=REDACTED&units=imperial
+openweathermap API error: city not found
+Failed to fetch weather data from openweathermap: city not found
+Error with openweathermap: Error: city not found
+    at fetchFromProvider (/home/runner/ModularDash/server/routes.ts:161:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+03:39:56 AM [express] GET /api/plugins 304 in 58ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 42ms :: {"location":{"name":"Minden","region":"Nevada",…
+Attempting to fetch weather data from openweathermap: https://api.openweathermap.org/data/2.5/weather?q=Minden%2CNV&key=REDACTED&units=imperial
+openweathermap API error: city not found
+Failed to fetch weather data from openweathermap: city not found
+Error with openweathermap: Error: city not found
+    at fetchFromProvider (/home/runner/ModularDash/server/routes.ts:161:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 42ms :: {"location":{"name":"Minden","region":"Nevada",…
+03:39:56 AM [express] GET /api/plugins 304 in 58ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+Attempting to fetch weather data from openweathermap: https://api.openweathermap.org/data/2.5/weather?q=Minden%2CNV&key=REDACTED&units=imperial
+openweathermap API error: city not found
+Failed to fetch weather data from openweathermap: city not found
+Error with openweathermap: Error: city not found
+    at fetchFromProvider (/home/runner/ModularDash/server/routes.ts:161:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 42ms :: {"location":{"name":"Minden","region":"Nevada",…
+03:39:56 AM [express] GET /api/plugins 304 in 59ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+Attempting to fetch weather data from openweathermap: https://api.openweathermap.org/data/2.5/weather?q=Minden%2CNV&key=REDACTED&units=imperial
+openweathermap API error: city not found
+Failed to fetch weather data from openweathermap: city not found
+Error with openweathermap: Error: city not found
+    at fetchFromProvider (/home/runner/ModularDash/server/routes.ts:161:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at <anonymous> (/home/runner/ModularDash/server/routes.ts:209:24)
+Switching to backup provider: weatherapi
+Attempting to fetch weather data from weatherapi: https://api.weatherapi.com/v1/current.json?key=REDACTED&q=Minden%2CNV&aqi=no
+Successfully fetched weather data from weatherapi
+03:39:56 AM [express] GET /api/weather 304 in 42ms :: {"location":{"name":"Minden","region":"Nevada",…
+03:39:56 AM [express] GET /api/plugins 304 in 58ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+03:39:56 AM [express] GET /api/plugins 304 in 59ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+03:39:57 AM [express] GET /api/plugins 304 in 62ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+03:39:57 AM [express] GET /api/plugins 304 in 59ms :: [{"id":"html-widget","name":"HTML Widget","desc…
+03:39:57 AM [express] GET /api/plugins 304 in 62ms :: [{"id":"html-widget","name":"HTML Widget","desc…

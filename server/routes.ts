@@ -342,13 +342,35 @@ export function registerRoutes(app: express.Express) {
   // Plugin routes
   app.get("/api/plugins", async (_req, res) => {
     try {
+      console.log('Fetching plugins from database...');
       const allPlugins = await db.select().from(plugins);
-      res.json(allPlugins);
+      console.log('Retrieved plugins:', JSON.stringify(allPlugins, null, 2));
+      
+      // Ensure proper response headers for caching
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Content-Type', 'application/json');
+      
+      if (!Array.isArray(allPlugins)) {
+        console.error('Invalid plugins data structure:', allPlugins);
+        throw new Error('Invalid plugins data structure');
+      }
+      
+      // Ensure all plugins have required fields
+      const processedPlugins = allPlugins.map(plugin => ({
+        ...plugin,
+        enabled: plugin.enabled ?? true,
+        category: plugin.category || 'other',
+        config: plugin.config || {}
+      }));
+      
+      console.log('Sending processed plugins:', JSON.stringify(processedPlugins, null, 2));
+      res.json(processedPlugins);
     } catch (error) {
       console.error('Error fetching plugins:', error);
       res.status(500).json({
         error: 'Failed to fetch plugins',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.stack : undefined
       });
     }
   });
