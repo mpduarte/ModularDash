@@ -109,37 +109,51 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                   {Object.entries(
                     plugins.reduce((acc, plugin) => {
                       console.log('Processing plugin:', plugin);
-                      // Categorize widgets based on both id and category
+                      // Determine the category based on plugin type and id
                       let category = plugin.category;
-                      if (plugin.id.includes('widget') || category === 'content') {
+                      if (plugin.id.includes('widget') || category === 'widgets' || category === 'content') {
                         category = 'widgets';
-                      } else if (!category) {
+                      } else if (category === 'appearance') {
+                        category = 'appearance';
+                      } else {
                         category = 'other';
                       }
+                      
+                      // Initialize category array if it doesn't exist
                       if (!acc[category]) {
                         acc[category] = [];
                       }
+                      
+                      // Add plugin to appropriate category
                       acc[category].push(plugin);
+                      console.log(`Added plugin ${plugin.id} to category ${category}`);
                       return acc;
                     }, {} as Record<string, Plugin[]>)
                   ).map(([category, categoryPlugins]) => (
-                    <Collapsible key={category} className="mb-4">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted/50 rounded-lg hover:bg-muted">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold capitalize">{category}</h3>
-                          <Badge variant="secondary">
-                            {categoryPlugins.length} {categoryPlugins.length === 1 ? 'plugin' : 'plugins'}
-                          </Badge>
-                        </div>
-                        <ChevronDown className="h-4 w-4" />
+                    <Collapsible key={category} defaultOpen className="mb-4">
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center justify-between w-full p-4 bg-muted/50 rounded-lg hover:bg-muted"
+                        >
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold capitalize">{category}</h3>
+                            <Badge variant="secondary">
+                              {categoryPlugins.length} {categoryPlugins.length === 1 ? 'plugin' : 'plugins'}
+                            </Badge>
+                          </div>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="mt-2 space-y-2">
                         {categoryPlugins.map(plugin => {
+                          console.log(`Rendering plugin in category: ${category}`, plugin);
                           const registeredPlugin = getPlugin(plugin.id);
+                          console.log('Registered plugin:', registeredPlugin);
                           const PluginComponent = registeredPlugin?.component;
                           return (
-                            <Card key={plugin.id} className="mb-2">
-                              <CardContent className="pt-6">
+                            <Card key={plugin.id} className="mb-2 overflow-hidden">
+                              <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
