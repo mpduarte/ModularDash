@@ -61,6 +61,7 @@
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "express-static-gzip": "^2.2.0",
+    "ical": "^0.8.0",
     "ical.js": "^2.1.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.453.0",
