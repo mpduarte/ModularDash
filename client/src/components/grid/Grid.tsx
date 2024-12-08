@@ -75,9 +75,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       layouts={{ lg: widgets.map(getWidgetConstraints) }}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
-      rowHeight={80}
-      margin={[12, 12]}
-      containerPadding={[0, 0]}
+      rowHeight={100}
+      margin={[16, 16]}
+      containerPadding={[16, 16]}
       onLayoutChange={handleLayoutChange}
       isResizable={true}
       isDraggable={true}
@@ -86,16 +86,12 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       className="layout"
     >
       {widgets.map(widget => (
-        <div
+        <Widget
           key={widget.id.toString()}
-          className="bg-white bg-opacity-90 rounded-lg shadow-lg h-full"
-        >
-          <Widget
-            widget={widget}
-            onShowOverlay={onShowOverlay}
-            onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
-          />
-        </div>
+          widget={widget}
+          onShowOverlay={onShowOverlay}
+          onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+        />
       ))}
     </ResponsiveGridLayout>
   );
