@@ -13,6 +13,7 @@ interface CalendarEvent {
   location?: string;
   recurrence?: string[];
   isRecurring?: boolean;
+  isAllDay?: boolean;
   uid?: string;
 }
 
@@ -62,12 +63,27 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const { events: calendarEvents } = await response.json();
       
-      const processedEvents = calendarEvents.map((event: CalendarEvent) => ({
-        ...event,
-        start: new Date(event.start),
-        end: new Date(event.end),
-        isRecurring: Boolean(event.recurrence?.length)
-      }));
+      const processedEvents = calendarEvents.map((event: CalendarEvent) => {
+        // Parse dates
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+        
+        // Detect if it's an all-day event
+        const isAllDay = 
+          (typeof event.start === 'string' && !event.start.includes('T') && 
+           typeof event.end === 'string' && !event.end.includes('T')) || // iCal date-only format
+          (start.getHours() === start.getUTCHours() && start.getMinutes() === 0 &&
+           end.getHours() === end.getUTCHours() && end.getMinutes() === 0 &&
+           Math.abs(end.getTime() - start.getTime()) === 24 * 60 * 60 * 1000);
+
+        return {
+          ...event,
+          start,
+          end,
+          isRecurring: Boolean(event.recurrence?.length),
+          isAllDay
+        };
+      });
 
       setEvents(processedEvents);
     } catch (error) {
@@ -136,11 +152,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {(event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
-                        event.end.getHours() === 0 && event.end.getMinutes() === 0 &&
-                        Math.abs(event.end.getTime() - event.start.getTime()) <= 24 * 60 * 60 * 1000)
-                        ? "All Day"
-                        : `${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`}
+                      {event.isAllDay ? "All Day" : `${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`}
                     </p>
                     {event.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">
