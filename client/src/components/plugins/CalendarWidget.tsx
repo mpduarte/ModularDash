@@ -170,7 +170,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       <div className="flex flex-col h-full">
         
         
-        <div className="grid gap-4">
+        <div className="flex flex-col w-full space-y-4">
           <Calendar
             mode="single"
             selected={date}
