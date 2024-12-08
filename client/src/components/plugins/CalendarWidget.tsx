@@ -36,12 +36,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   }, [config?.calendarUrl]);
 
   const fetchEvents = async () => {
+    if (!config?.calendarUrl) return;
+    
     try {
       setLoading(true);
-      const response = await fetch(`/api/calendar/events?url=${encodeURIComponent(config?.calendarUrl || '')}`);
+      const response = await fetch(`/api/calendar/events?url=${encodeURIComponent(config.calendarUrl)}`);
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
-      setEvents(data.events);
+      setEvents(data.events.map((event: any) => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end)
+      })));
     } catch (error) {
       console.error('Error fetching calendar events:', error);
     } finally {
@@ -75,23 +81,26 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           
           <ScrollArea className="h-[200px] rounded-md border p-4">
             <div className="space-y-4">
-              {getDayEvents(date).map((event, index) => (
-                <div key={index} className="space-y-1">
-                  <h4 className="font-medium">{event.summary}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(event.start), 'HH:mm')} - 
-                    {format(new Date(event.end), 'HH:mm')}
-                  </p>
-                  {event.location && (
+              {loading ? (
+                <p className="text-sm text-muted-foreground">Loading events...</p>
+              ) : getDayEvents(date).length > 0 ? (
+                getDayEvents(date).map((event, index) => (
+                  <div key={index} className="space-y-1">
+                    <h4 className="font-medium">{event.summary}</h4>
                     <p className="text-sm text-muted-foreground">
-                      📍 {event.location}
+                      {format(new Date(event.start), 'HH:mm')} - 
+                      {format(new Date(event.end), 'HH:mm')}
                     </p>
-                  )}
-                </div>
-              ))}
-              {getDayEvents(date).length === 0 && (
+                    {event.location && (
+                      <p className="text-sm text-muted-foreground">
+                        📍 {event.location}
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
                 <p className="text-sm text-muted-foreground">
-                  No events for this day
+                  {config?.calendarUrl ? 'No events for this day' : 'No calendar URL configured'}
                 </p>
               )}
             </div>
