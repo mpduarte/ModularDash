@@ -41,17 +41,22 @@ router.get('/events', async (req, res) => {
           const calendarEvents = Object.values(data)
             .filter(event => event.type === 'VEVENT')
             .map(event => {
-              // Determine if it's an all-day event by checking if start/end are date-only
-              const isDateOnly = !event.start?.toString().includes('T');
+              // Check if the event is a date-only event (no time component)
+              const isDateOnly = !event.start?.toISOString().includes('T');
               
-              // For all-day events, ensure we use the date portion only
-              let start = event.start;
-              let end = event.end || event.start;
+              // For all-day events, preserve the original date without timezone conversion
+              let start, end;
               
               if (isDateOnly) {
-                // For date-only events, create dates at start of day in local timezone
-                start = new Date(event.start.toISOString().split('T')[0]);
-                end = new Date(end.toISOString().split('T')[0]);
+                // For date-only events, keep the original date
+                const startStr = event.start.toISOString().split('T')[0];
+                const endStr = (event.end || event.start).toISOString().split('T')[0];
+                // Add time component to make it a full day
+                start = new Date(`${startStr}T00:00:00.000Z`);
+                end = new Date(`${endStr}T00:00:00.000Z`);
+              } else {
+                start = event.start;
+                end = event.end || event.start;
               }
 
               return {

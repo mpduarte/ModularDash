@@ -67,18 +67,19 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         const rawStart = typeof event.start === 'string' ? event.start : event.start.toString();
         const rawEnd = typeof event.end === 'string' ? event.end : event.end.toString();
         
-        // Function to parse date considering UTC
-        const parseDate = (dateStr: string) => {
-          if (!dateStr.includes('T')) {
-            // Date-only format: treat as local midnight
-            return new Date(dateStr + 'T00:00:00');
+        // Function to parse date considering UTC and all-day events
+        const parseDate = (dateStr: string, isAllDay: boolean) => {
+          if (isAllDay) {
+            // For all-day events, preserve the date without timezone conversion
+            const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+            return new Date(year, month - 1, day);
           }
-          // Parse ISO string and convert to local time
+          // For time-specific events, parse as ISO and convert to local time
           return parseISO(dateStr);
         };
 
-        const start = parseDate(rawStart);
-        const end = parseDate(rawEnd);
+        const start = parseDate(rawStart, event.isAllDay);
+        const end = parseDate(rawEnd, event.isAllDay);
 
         // Use the server-provided isAllDay flag or calculate it
         const isAllDay = event.isAllDay ?? (() => {
@@ -137,9 +138,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         const eventEnd = new Date(event.end);
 
         if (event.isAllDay) {
-          // For all-day events, compare the date without time
-          const eventDate = startOfDay(eventStart);
-          return format(eventDate, 'yyyy-MM-dd') === format(dayStart, 'yyyy-MM-dd');
+          // For all-day events, check if the selected day falls within the event duration
+          const eventStartDay = startOfDay(eventStart);
+          const eventEndDay = startOfDay(eventEnd);
+          return dayStart >= eventStartDay && dayStart <= eventEndDay;
         }
 
         // For time-specific events, check if they occur on this day
@@ -148,7 +150,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       .sort((a, b) => {
         if (a.isAllDay && !b.isAllDay) return -1;
         if (!a.isAllDay && b.isAllDay) return 1;
-        return a.start.getTime() - b.start.getTime();
+        return new Date(a.start).getTime() - new Date(b.start).getTime();
       });
   };
 
