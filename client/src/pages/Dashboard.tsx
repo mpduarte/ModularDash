@@ -15,8 +15,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <BackgroundZone>
-        <div className="p-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+        <div className="p-4 flex justify-end items-center">
           <Button 
             variant="ghost" 
             size="icon"
