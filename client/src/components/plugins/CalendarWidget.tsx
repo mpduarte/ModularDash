@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '../ui/dialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { format } from 'date-fns';
@@ -43,6 +44,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [calendarUrl, setCalendarUrl] = useState(config?.calendarUrl || '');
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (config?.calendarUrl) {
@@ -84,7 +86,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 Configure
@@ -104,9 +106,14 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                     placeholder="webcal:// or https:// URL"
                   />
                 </div>
-                <Button onClick={handleSaveConfig}>
-                  Save Configuration
-                </Button>
+                <DialogClose asChild>
+                  <Button 
+                    onClick={handleSaveConfig}
+                    disabled={!calendarUrl.trim()}
+                  >
+                    Save Configuration
+                  </Button>
+                </DialogClose>
               </div>
             </DialogContent>
           </Dialog>
