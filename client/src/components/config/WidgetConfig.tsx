@@ -35,14 +35,15 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Dashboard Configuration</DialogTitle>
           <DialogDescription>
             Manage your widgets and plugins
           </DialogDescription>
         </DialogHeader>
         
+        <ScrollArea className="flex-grow">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="widgets">Widgets</TabsTrigger>
@@ -373,6 +374,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
             </ScrollArea>
           </TabsContent>
         </Tabs>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
