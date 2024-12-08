@@ -103,10 +103,12 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                   <p>Error loading plugins: {error?.message}</p>
                 </div>
               )}
-              {!isLoading && !isError && (
+              {!isLoading && !isError && plugins.length > 0 && (
                 <div className="space-y-4">
+                  {console.log('Rendering plugins:', plugins)}
                   {Object.entries(
                     plugins.reduce((acc, plugin) => {
+                      console.log('Processing plugin:', plugin);
                       const category = plugin.category || 'other';
                       if (!acc[category]) {
                         acc[category] = [];

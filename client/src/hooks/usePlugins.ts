@@ -19,8 +19,10 @@ export function usePlugins() {
           throw new Error(`Failed to fetch plugins: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log('Plugins fetched successfully:', data);
-        return data.filter((plugin: Plugin) => plugin.enabled);
+        console.log('Raw plugins data:', data);
+        const enabledPlugins = data.filter((plugin: Plugin) => plugin.enabled);
+        console.log('Enabled plugins:', enabledPlugins);
+        return enabledPlugins;
       } catch (error) {
         console.error('Error fetching plugins:', error);
         throw error;
