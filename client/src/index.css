@@ -13,7 +13,7 @@
 }
 
 .react-grid-item {
-  @apply bg-transparent border border-dashed border-border/50 transition-all duration-200;
+  @apply bg-transparent transition-all duration-200;
 }
 
 .drag-handle {
@@ -21,7 +21,7 @@
 }
 
 .react-grid-item.react-draggable-dragging {
-  @apply border-primary/50 shadow-lg z-[100] cursor-grabbing !important;
+  @apply shadow-lg z-[100] cursor-grabbing !important;
 }
 
 .react-grid-item.react-grid-placeholder {

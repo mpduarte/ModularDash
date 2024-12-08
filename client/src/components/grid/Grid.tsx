@@ -37,7 +37,7 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
   return (
     <div className="relative w-full min-h-[600px] p-4">
       <ResponsiveGridLayout
-        className="layout"
+        className="layout no-border-grid"
         layouts={layouts}
         isDraggable={true}
         isResizable={true}
