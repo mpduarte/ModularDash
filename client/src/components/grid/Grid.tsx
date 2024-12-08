@@ -63,9 +63,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
   };
 
   return (
-    <div className="relative w-full min-h-[600px] p-4 overflow-x-hidden">
+    <div className="grid-container relative w-full min-h-[600px] p-4">
       <ResponsiveGridLayout
-        className="layout"
+        className="layout widget-grid"
         layouts={layouts}
         isDraggable={true}
         isResizable={true}
@@ -145,19 +145,13 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         }}
       >
         {widgets.map(widget => (
-          <div 
-            key={String(widget.id)} 
-            className={`relative react-grid-item ${
-              widget.pluginId === 'weather-widget' ? 'weather-widget-container' : ''
-            }`}>
-            <div className="w-full h-full flex flex-col bg-white bg-opacity-90 rounded-lg shadow-lg">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-opacity-95">
+          <div key={String(widget.id)} className="widget-container">
+            <div className="widget-inner bg-white bg-opacity-90 rounded-lg shadow-lg h-full flex flex-col">
+              <div className="widget-header flex items-center justify-between px-4 py-2 border-b border-gray-200">
                 <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
                 <div className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</div>
               </div>
-              <div className={`flex-1 p-4 overflow-y-auto ${
-                widget.pluginId === 'weather-widget' ? 'weather-widget-content' : ''
-              } widget-content`}>
+              <div className="widget-content flex-1 p-4 overflow-y-auto">
                 <Widget
                   widget={widget}
                   onShowOverlay={onShowOverlay}
