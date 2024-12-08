@@ -90,10 +90,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         (eventEnd.getTime() - eventStart.getTime() === 24 * 60 * 60 * 1000);
 
       if (isAllDay) {
-        // For all-day events, only match the date
-        return eventStart.getDate() === day.getDate() &&
-               eventStart.getMonth() === day.getMonth() &&
-               eventStart.getFullYear() === day.getFullYear();
+        // For all-day events, adjust for timezone and compare dates
+        const eventDate = new Date(eventStart.toISOString().split('T')[0]);
+        const compareDate = new Date(day.toISOString().split('T')[0]);
+        return eventDate.getTime() === compareDate.getTime();
       } else {
         // For time-specific events, check if they overlap with the day
         const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
