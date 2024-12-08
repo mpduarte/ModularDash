@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import { ScrollArea } from '../ui/scroll-area';
-import { format, parseISO } from 'date-fns';
-import * as ical from 'ical';
+import { format } from 'date-fns';
+import { Badge } from '../ui/badge';
 
 interface CalendarEvent {
   summary: string;
@@ -12,6 +12,8 @@ interface CalendarEvent {
   end: Date;
   location?: string;
   recurrence?: string[];
+  isRecurring?: boolean;
+  uid?: string;
 }
 
 interface CalendarWidgetProps {
@@ -60,11 +62,14 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const { events: calendarEvents } = await response.json();
       
-      setEvents(calendarEvents.map((event: any) => ({
+      const processedEvents = calendarEvents.map((event: CalendarEvent) => ({
         ...event,
         start: new Date(event.start),
-        end: new Date(event.end)
-      })));
+        end: new Date(event.end),
+        isRecurring: Boolean(event.recurrence?.length)
+      }));
+
+      setEvents(processedEvents);
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
@@ -75,10 +80,13 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
 
   const getDayEvents = (day: Date) => {
     return events.filter(event => {
-      const eventDate = new Date(event.start);
-      return eventDate.getDate() === day.getDate() &&
-             eventDate.getMonth() === day.getMonth() &&
-             eventDate.getFullYear() === day.getFullYear();
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+      const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+      
+      // Event starts or ends on this day, or spans over this day
+      return (eventStart <= endOfDay && eventEnd >= startOfDay);
     }).sort((a, b) => a.start.getTime() - b.start.getTime());
   };
 
@@ -105,11 +113,17 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                 <p className="text-sm text-destructive">{error}</p>
               ) : getDayEvents(date).length > 0 ? (
                 getDayEvents(date).map((event, index) => (
-                  <div key={index} className="space-y-1">
-                    <h4 className="font-medium">{event.summary}</h4>
+                  <div key={`${event.uid}-${index}`} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">{event.summary}</h4>
+                      {event.isRecurring && (
+                        <Badge variant="outline" className="text-xs">
+                          Recurring
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
-                      {format(event.start, 'HH:mm')} - 
-                      {format(event.end, 'HH:mm')}
+                      {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                     </p>
                     {event.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">
