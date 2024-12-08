@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import { ScrollArea } from '../ui/scroll-area';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, isEqual } from 'date-fns';
 import { Badge } from '../ui/badge';
 
 interface CalendarEvent {
@@ -64,20 +64,23 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       const { events: calendarEvents } = await response.json();
       
       const processedEvents = calendarEvents.map((event: CalendarEvent) => {
-        // Parse dates
+        // Parse dates and normalize to local timezone
         const start = new Date(event.start);
         const end = new Date(event.end);
-        
-        // Detect if it's an all-day event using multiple criteria
+
+        // Function to check if a date string is in date-only format (no time component)
+        const isDateOnly = (dateStr: string) => 
+          typeof dateStr === 'string' && !dateStr.includes('T');
+
+        // Detect if it's an all-day event
         const isAllDay = 
-          // Case 1: iCal date-only format (no time component)
-          (typeof event.start === 'string' && !event.start.includes('T') && 
-           typeof event.end === 'string' && !event.end.includes('T')) ||
-          // Case 2: Same start and end time within a day
-          (start.getHours() === end.getHours() && 
-           start.getMinutes() === end.getMinutes() &&
-           format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd')) ||
-          // Case 3: Exactly 24 hours apart with midnight boundaries
+          // Case 1: Date-only format in iCal
+          (isDateOnly(event.start.toString()) && isDateOnly(event.end.toString())) ||
+          // Case 2: Same start/end time in a day (like "16:00-16:00")
+          (isEqual(startOfDay(start), startOfDay(end)) && 
+           start.getHours() === end.getHours() && 
+           start.getMinutes() === end.getMinutes()) ||
+          // Case 3: 24-hour period starting at midnight
           (start.getHours() === 0 && start.getMinutes() === 0 &&
            end.getHours() === 0 && end.getMinutes() === 0 &&
            Math.abs(end.getTime() - start.getTime()) === 24 * 60 * 60 * 1000);
@@ -105,17 +108,17 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
 
-      // For events marked as all-day during processing
+      // For all-day events, compare dates without time component
       if (event.isAllDay) {
-        const eventDate = new Date(eventStart.toISOString().split('T')[0]);
-        const compareDate = new Date(day.toISOString().split('T')[0]);
-        return eventDate.getTime() === compareDate.getTime();
+        const dayStart = startOfDay(day);
+        const eventDayStart = startOfDay(eventStart);
+        return isEqual(dayStart, eventDayStart);
       }
 
       // For time-specific events, check if they overlap with the day
-      const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-      const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
-      return (eventStart <= endOfDay && eventEnd >= startOfDay);
+      const dayStartTime = startOfDay(day);
+      const dayEndTime = endOfDay(day);
+      return (eventStart <= dayEndTime && eventEnd >= dayStartTime);
     }).sort((a, b) => a.start.getTime() - b.start.getTime());
   };
 
