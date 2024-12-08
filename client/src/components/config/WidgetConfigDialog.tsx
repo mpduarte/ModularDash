@@ -128,7 +128,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4 pt-4">
-                  {widget.pluginId !== 'weather-widget' && (
+                  {widget.pluginId !== 'weather-widget' && widget.pluginId !== 'time-widget' && (
                     <div className="space-y-2">
                       <Label htmlFor="title">Widget Title</Label>
                       <Input
