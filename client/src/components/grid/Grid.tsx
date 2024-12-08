@@ -23,7 +23,8 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       minW: 1,
       maxW: 3,
       minH: 1,
-      maxH: 3
+      // Allow weather widgets to expand vertically as needed
+      maxH: widget.pluginId === 'weather-widget' ? Infinity : 3
     } as GridLayout))
   };
 
@@ -37,9 +38,13 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         draggableHandle=".drag-handle"
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
-        rowHeight={200}
+        rowHeight={150}
         margin={[16, 16]}
         containerPadding={[16, 16]}
+        useCSSTransforms={true}
+        verticalCompact={true}
+        // Allow widgets to have auto-height based on content
+        autoSize={true}
         onLayoutChange={(layout: Layout[]) => {
           layout.forEach(item => {
             const widget = widgets.find(w => w.id.toString() === item.i);
@@ -55,7 +60,11 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         }}
       >
         {widgets.map(widget => (
-          <div key={String(widget.id)} className="relative react-grid-item">
+          <div 
+            key={String(widget.id)} 
+            className={`relative react-grid-item ${
+              widget.pluginId === 'weather-widget' ? 'overflow-visible h-auto' : ''
+            }`}>
             <Widget
               widget={widget}
               onShowOverlay={onShowOverlay}
