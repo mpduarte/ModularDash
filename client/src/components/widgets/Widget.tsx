@@ -32,8 +32,8 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     <>
       <Card 
         className={cn(
-          "w-full h-full relative",
-          widget.config.theme === "minimal" && "bg-transparent border-0",
+          "w-full h-full relative group hover:border-border/80 transition-colors duration-200",
+          widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
           widget.config.theme === "compact" && "shadow-sm",
           widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
           widget.config.borderRadius === "rounded" && "rounded-xl",

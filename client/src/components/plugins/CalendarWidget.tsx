@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import { ScrollArea } from '../ui/scroll-area';
-import { format, startOfDay, endOfDay, isEqual, parseISO, addDays, subMonths, addMonths } from 'date-fns';
+import { format, startOfDay, endOfDay, parseISO, subMonths, addMonths } from 'date-fns';
 import { Badge } from '../ui/badge';
 import { expandRecurringEvents } from '@/lib/recurringEvents';
+import { type PluginProps } from '@/lib/types';
 
 interface CalendarEvent {
   summary: string;
   description?: string;
-  start: Date;
-  end: Date;
+  start: string | Date;
+  end: string | Date;
   location?: string;
   recurrence?: string[];
   isRecurring?: boolean;
@@ -18,14 +19,13 @@ interface CalendarEvent {
   uid?: string;
 }
 
-interface CalendarWidgetProps {
+interface CalendarWidgetProps extends PluginProps {
   config?: {
     calendarUrl?: string;
     autoRefresh?: boolean;
     refreshInterval?: number;
     title?: string;
   };
-  onConfigChange?: (config: any) => void;
 }
 
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
@@ -63,14 +63,14 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const { events: calendarEvents } = await response.json();
       
-      // First process the basic event properties
+      // Process the basic event properties
       let processedEvents = calendarEvents.map((event: CalendarEvent) => {
-        // Parse dates as UTC and convert to local time
+        // Parse dates considering UTC and all-day events
         const rawStart = typeof event.start === 'string' ? event.start : event.start.toString();
         const rawEnd = typeof event.end === 'string' ? event.end : event.end.toString();
         
         // Function to parse date considering UTC and all-day events
-        const parseDate = (dateStr: string, isAllDay: boolean) => {
+        const parseDate = (dateStr: string, isAllDay: boolean = false) => {
           if (isAllDay) {
             // For all-day events, preserve the date without timezone conversion
             const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
@@ -80,8 +80,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           return parseISO(dateStr);
         };
 
-        const start = parseDate(rawStart, event.isAllDay);
-        const end = parseDate(rawEnd, event.isAllDay);
+        let start = parseDate(rawStart, event.isAllDay);
+        let end = parseDate(rawEnd, event.isAllDay);
 
         // Use the server-provided isAllDay flag or calculate it
         const isAllDay = event.isAllDay ?? (() => {
@@ -122,7 +122,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       });
 
       // Expand recurring events
-      const expandedEvents = processedEvents.flatMap(event => 
+      const expandedEvents = processedEvents.flatMap((event: CalendarEvent) => 
         expandRecurringEvents(
           event,
           subMonths(new Date(), 1), // Start range from 1 month ago
@@ -166,60 +166,56 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   return (
-    <Card className="w-full h-full p-2">
-      <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full">
+      <div className="flex flex-col w-full space-y-4">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(newDate) => newDate && setDate(newDate)}
+          className="w-full rounded-md border"
+        />
         
-        
-        <div className="flex flex-col w-full space-y-4">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(newDate) => newDate && setDate(newDate)}
-            className="rounded-md border w-full"
-          />
-          
-          <ScrollArea className="h-[200px] rounded-md border p-4">
-            <div className="space-y-4">
-              {loading ? (
-                <p className="text-sm text-muted-foreground">Loading events...</p>
-              ) : error ? (
-                <p className="text-sm text-destructive">{error}</p>
-              ) : getDayEvents(date).length > 0 ? (
-                getDayEvents(date).map((event, index) => (
-                  <div key={`${event.uid}-${index}`} className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{event.summary}</h4>
-                      {event.isRecurring && (
-                        <Badge variant="outline" className="text-xs">
-                          Recurring
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {event.isAllDay ? "All Day" : `${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`}
-                    </p>
-                    {event.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {event.description}
-                      </p>
-                    )}
-                    {event.location && (
-                      <p className="text-sm text-muted-foreground">
-                        📍 {event.location}
-                      </p>
+        <ScrollArea className="h-[200px] rounded-md border p-4">
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading events...</p>
+            ) : error ? (
+              <p className="text-sm text-destructive">{error}</p>
+            ) : getDayEvents(date).length > 0 ? (
+              getDayEvents(date).map((event, index) => (
+                <div key={`${event.uid}-${index}`} className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium">{event.summary}</h4>
+                    {event.isRecurring && (
+                      <Badge variant="outline" className="text-xs">
+                        Recurring
+                      </Badge>
                     )}
                   </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  {config?.calendarUrl ? 'No events for this day' : 'No calendar URL configured'}
-                </p>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
+                  <p className="text-sm text-muted-foreground">
+                    {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'HH:mm')} - ${format(new Date(event.end), 'HH:mm')}`}
+                  </p>
+                  {event.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {event.description}
+                    </p>
+                  )}
+                  {event.location && (
+                    <p className="text-sm text-muted-foreground">
+                      📍 {event.location}
+                    </p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {config?.calendarUrl ? 'No events for this day' : 'No calendar URL configured'}
+              </p>
+            )}
+          </div>
+        </ScrollArea>
       </div>
-    </Card>
+    </div>
   );
 };
 
