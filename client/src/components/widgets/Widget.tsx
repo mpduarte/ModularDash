@@ -55,22 +55,18 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between py-1 px-4">
-          <div className="drag-handle flex-1 cursor-move">
-            <h3 className="font-medium select-none">{widget.title || plugin?.name || 'New Widget'}</h3>
-          </div>
-          <div className="flex items-center" onClick={e => e.stopPropagation()}>
+        <CardContent className="p-4 relative">
+          <div className="absolute top-1 right-1 z-10" onClick={e => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"
-              className="pointer-events-auto"
+              className="pointer-events-auto h-8 w-8"
               onClick={() => onUpdate({ visible: false })}
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
+          <div className="drag-handle cursor-move absolute top-0 left-0 right-8 h-8" />
           {PluginComponent ? (
             <div className="w-full h-full">
               <PluginComponent 
