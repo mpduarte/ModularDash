@@ -77,36 +77,35 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
   };
 
   return (
-    <div className="grid-wrapper">
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={layouts}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
-        rowHeight={80}
-        margin={[12, 12]}
-        containerPadding={[12, 12]}
-        onLayoutChange={handleLayoutChange}
-        isResizable={true}
-        isDraggable={true}
-        draggableHandle=".drag-handle"
-      >
-        {widgets.map(widget => (
-          <div key={widget.id.toString()} className="bg-white bg-opacity-90 rounded-lg shadow-lg">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
-              <div className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</div>
-            </div>
-            <div className="p-4">
-              <Widget
-                widget={widget}
-                onShowOverlay={onShowOverlay}
-                onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
-              />
-            </div>
-          </div>
-        ))}
-      </ResponsiveGridLayout>
-    </div>
+    <ResponsiveGridLayout
+      className="layout"
+      layouts={layouts}
+      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+      cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
+      rowHeight={80}
+      margin={[12, 12]}
+      containerPadding={[12, 12]}
+      onLayoutChange={handleLayoutChange}
+      isResizable={true}
+      isDraggable={true}
+      draggableHandle=".drag-handle"
+    >
+      {widgets.map(widget => (
+        <div 
+          key={widget.id.toString()} 
+          className="widget-container bg-white bg-opacity-90 rounded-lg shadow-lg overflow-hidden"
+        >
+          <header className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
+            <span className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</span>
+          </header>
+          <Widget
+            widget={widget}
+            onShowOverlay={onShowOverlay}
+            onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+          />
+        </div>
+      ))}
+    </ResponsiveGridLayout>
   );
 }
