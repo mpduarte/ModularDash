@@ -75,9 +75,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       layouts={{ lg: widgets.map(getWidgetConstraints) }}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
-      rowHeight={100}
-      margin={[16, 16]}
-      containerPadding={[16, 16]}
+      rowHeight={80}
+      margin={[12, 12]}
+      containerPadding={[0, 0]}
       onLayoutChange={handleLayoutChange}
       isResizable={true}
       isDraggable={true}
@@ -86,12 +86,20 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       className="layout"
     >
       {widgets.map(widget => (
-        <Widget
+        <section
           key={widget.id.toString()}
-          widget={widget}
-          onShowOverlay={onShowOverlay}
-          onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
-        />
+          className="bg-white bg-opacity-90 rounded-lg shadow-lg grid grid-rows-[auto,1fr] h-full"
+        >
+          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
+            <span className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</span>
+          </div>
+          <Widget
+            widget={widget}
+            onShowOverlay={onShowOverlay}
+            onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+          />
+        </section>
       ))}
     </ResponsiveGridLayout>
   );
