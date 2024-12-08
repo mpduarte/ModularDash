@@ -47,15 +47,15 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.borderRadius === "rounded" && "rounded-xl",
           widget.config.borderRadius === "square" && "rounded-none",
           widget.config.borderRadius === "pill" && "rounded-full",
-          widget.config.padding === "compact" && "p-2",
-          widget.config.padding === "normal" && "p-4",
-          widget.config.padding === "relaxed" && "p-6",
+          widget.config.padding === "compact" && "p-1",
+          widget.config.padding === "normal" && "p-2",
+          widget.config.padding === "relaxed" && "p-4",
           widget.config.enableAlerts && "relative",
           "border border-border/50",
           widget.config.customStyles
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between p-4">
+        <CardHeader className="flex flex-row items-center justify-between p-2">
           <div className="drag-handle flex-1 cursor-move">
             <h3 className="font-medium select-none">{widget.title}</h3>
           </div>
@@ -78,7 +78,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           {PluginComponent ? (
             <div className="w-full h-full">
               <PluginComponent 
