@@ -75,7 +75,9 @@ async function seedDefaultPlugins() {
       enabled: true,
       component: 'TextWidget',
       category: 'widgets',
-      config: {}
+      config: {
+        content: 'Sample text content'
+      }
     },
     {
       id: 'html-widget',
@@ -84,7 +86,7 @@ async function seedDefaultPlugins() {
       version: '1.0.0',
       enabled: true,
       component: 'HtmlWidget',
-      category: 'content',
+      category: 'widgets',
       config: {}
     },
     {

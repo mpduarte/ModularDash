@@ -109,10 +109,13 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                   {Object.entries(
                     plugins.reduce((acc, plugin) => {
                       console.log('Processing plugin:', plugin);
-                      // Ensure widgets show up in the widgets category
-                      const category = plugin.category === 'widgets' || plugin.id.includes('widget') 
-                        ? 'widgets' 
-                        : (plugin.category || 'other');
+                      // Categorize widgets based on both id and category
+                      let category = plugin.category;
+                      if (plugin.id.includes('widget') || category === 'content') {
+                        category = 'widgets';
+                      } else if (!category) {
+                        category = 'other';
+                      }
                       if (!acc[category]) {
                         acc[category] = [];
                       }
