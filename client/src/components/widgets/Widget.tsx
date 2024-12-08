@@ -16,37 +16,16 @@ interface WidgetProps {
 export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps) {
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
-  console.group('Widget Load');
-  console.log('Widget Details:', {
-    id: widget.id,
-    pluginId: widget.pluginId,
-    title: widget.title
-  });
-  if (plugin) {
-    console.log('Plugin Details:', {
-      name: plugin.name,
-      version: plugin.version
-    });
-  }
-  console.groupEnd();
   const PluginComponent = plugin?.component;
 
   const handleConfigChange = (newConfig: Record<string, any>) => {
     const updates: Partial<WidgetType> = {
       config: { ...widget.config, ...newConfig }
     };
-    // Update title if provided in config
     if (newConfig.title) {
       updates.title = newConfig.title;
     }
     onUpdate(updates);
-  };
-
-  const handleConfigClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Opening config dialog for widget:', widget);
-    setShowConfig(true);
   };
 
   return (
@@ -74,29 +53,26 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.enableAlerts && "relative",
           "border border-border/50",
           widget.config.customStyles
-        )}>
-        <CardHeader className="flex flex-row justify-between items-center p-4 drag-handle">
-          <h3 className="font-medium">{widget.title}</h3>
-          <div className="flex gap-2">
+        )}
+      >
+        <CardHeader className="flex flex-row items-center justify-between p-4">
+          <div className="drag-handle flex-1 cursor-move">
+            <h3 className="font-medium select-none">{widget.title}</h3>
+          </div>
+          <div className="flex gap-2 items-center" onClick={e => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleConfigClick}
-              className="no-drag flex items-center justify-center p-0 h-8 w-8"
-              onMouseDown={(e) => e.stopPropagation()}
+              className="pointer-events-auto"
+              onClick={() => setShowConfig(true)}
             >
               <Settings className="h-4 w-4" />
             </Button>
-            
             <Button
               variant="ghost"
               size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onUpdate({ visible: false });
-              }}
-              className="no-drag"
-              onMouseDown={(e) => e.stopPropagation()}
+              className="pointer-events-auto"
+              onClick={() => onUpdate({ visible: false })}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -116,20 +92,16 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         </CardContent>
       </Card>
 
-      {showConfig ? (
+      {showConfig && (
         <WidgetConfigDialog
           widget={widget}
-          onClose={() => {
-            console.log('Closing config dialog');
-            setShowConfig(false);
-          }}
+          onClose={() => setShowConfig(false)}
           onUpdate={(updates) => {
-            console.log('Updating widget with:', updates);
             onUpdate(updates);
             setShowConfig(false);
           }}
         />
-      ) : null}
+      )}
     </>
   );
 }

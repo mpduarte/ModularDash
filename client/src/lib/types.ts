@@ -59,6 +59,8 @@ export interface RegisteredPlugin {
   defaultConfig: Record<string, any>;
   name: string;
   version: string;
+  description: string;
+  category: string;
 }
 
 export interface PluginRegistry {
