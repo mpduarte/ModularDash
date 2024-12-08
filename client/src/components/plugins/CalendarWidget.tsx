@@ -136,8 +136,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {event.start.getHours() === 0 && event.start.getMinutes() === 0 &&
-                       event.end.getHours() === 0 && event.end.getMinutes() === 0 
+                      {format(event.start, 'yyyy-MM-dd') === format(event.end, 'yyyy-MM-dd') &&
+                       event.start.getUTCHours() === 0 && event.start.getUTCMinutes() === 0 &&
+                       event.end.getUTCHours() === 0 && event.end.getUTCMinutes() === 0 
                         ? "All Day"
                         : `${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`}
                     </p>
