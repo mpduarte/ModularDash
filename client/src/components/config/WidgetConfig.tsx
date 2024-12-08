@@ -85,10 +85,10 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                               <Label>City</Label>
                               <Input
                                 placeholder="Enter city (e.g., San Francisco, CA, USA)"
-                                value={weatherConfig.city || ''}
-                                onChange={(e) => {
+                                defaultValue={weatherConfig.city || ''}
+                                onBlur={(e) => {
                                   const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
-                                  if (widgetId) {
+                                  if (widgetId && e.target.value !== weatherConfig.city) {
                                     updateWidget(widgetId, {
                                       config: { ...weatherConfig, city: e.target.value }
                                     });
