@@ -68,12 +68,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         const start = new Date(event.start);
         const end = new Date(event.end);
         
-        // Detect if it's an all-day event
+        // Detect if it's an all-day event using multiple criteria
         const isAllDay = 
+          // Case 1: iCal date-only format (no time component)
           (typeof event.start === 'string' && !event.start.includes('T') && 
-           typeof event.end === 'string' && !event.end.includes('T')) || // iCal date-only format
-          (start.getHours() === start.getUTCHours() && start.getMinutes() === 0 &&
-           end.getHours() === end.getUTCHours() && end.getMinutes() === 0 &&
+           typeof event.end === 'string' && !event.end.includes('T')) ||
+          // Case 2: Same start and end time within a day
+          (start.getHours() === end.getHours() && 
+           start.getMinutes() === end.getMinutes() &&
+           format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd')) ||
+          // Case 3: Exactly 24 hours apart with midnight boundaries
+          (start.getHours() === 0 && start.getMinutes() === 0 &&
+           end.getHours() === 0 && end.getMinutes() === 0 &&
            Math.abs(end.getTime() - start.getTime()) === 24 * 60 * 60 * 1000);
 
         return {
@@ -98,24 +104,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     return events.filter(event => {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
-      
-      // Check if it's an all-day event (no time component or full 24h period)
-      const isAllDay = 
-        (eventStart.getHours() === 0 && eventStart.getMinutes() === 0 &&
-         eventEnd.getHours() === 0 && eventEnd.getMinutes() === 0) ||
-        (eventEnd.getTime() - eventStart.getTime() === 24 * 60 * 60 * 1000);
 
-      if (isAllDay) {
-        // For all-day events, adjust for timezone and compare dates
+      // For events marked as all-day during processing
+      if (event.isAllDay) {
         const eventDate = new Date(eventStart.toISOString().split('T')[0]);
         const compareDate = new Date(day.toISOString().split('T')[0]);
         return eventDate.getTime() === compareDate.getTime();
-      } else {
-        // For time-specific events, check if they overlap with the day
-        const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-        const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
-        return (eventStart <= endOfDay && eventEnd >= startOfDay);
       }
+
+      // For time-specific events, check if they overlap with the day
+      const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+      const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+      return (eventStart <= endOfDay && eventEnd >= startOfDay);
     }).sort((a, b) => a.start.getTime() - b.start.getTime());
   };
 
