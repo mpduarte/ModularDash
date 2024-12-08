@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Widget as WidgetType } from "../../lib/types";
-import { X, Settings } from "lucide-react";
+import { X } from "lucide-react";
 import { getPlugin } from "../../lib/pluginRegistry";
 import { useState } from "react";
 import WidgetConfigDialog from "../config/WidgetConfigDialog";
@@ -32,7 +32,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     <>
       <Card 
         className={cn(
-          "w-full h-full shadow-lg",
+          "w-full h-full shadow-lg relative",
           widget.config.background === "blur" && "bg-background/60 backdrop-blur-lg",
           widget.config.background === "transparent" && "bg-background/30",
           widget.config.background === "solid" && "bg-background",
@@ -55,18 +55,18 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        <CardContent className="p-4 relative">
-          <div className="absolute top-1 right-1 z-10" onClick={e => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="pointer-events-auto h-8 w-8"
-              onClick={() => onUpdate({ visible: false })}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="drag-handle cursor-move absolute top-0 left-0 right-8 h-8" />
+        <div className="invisible group-hover:visible absolute top-2 right-2 z-10" onClick={e => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 bg-background/80 hover:bg-background shadow-sm"
+            onClick={() => onUpdate({ visible: false })}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="drag-handle cursor-move absolute inset-0" />
+        <CardContent className="p-4 h-full">
           {PluginComponent ? (
             <div className="w-full h-full">
               <PluginComponent 
