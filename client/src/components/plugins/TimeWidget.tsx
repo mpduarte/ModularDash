@@ -182,8 +182,8 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <Card className="w-full h-full relative overflow-hidden">
-      <CardContent className="p-6 flex flex-col items-center justify-center h-full">
+    <div className="w-full h-full relative overflow-hidden">
+      <div className="p-6 flex flex-col items-center justify-center h-full">
         {config.displayMode === 'analog' ? (
           <div className="relative group transition-all duration-300 hover:scale-105">
             <AnalogClock time={currentTime} config={config} />
@@ -201,8 +201,8 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
