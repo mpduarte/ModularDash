@@ -537,7 +537,11 @@ const form = useForm<WeatherWidgetConfig>({
           >
             Cancel
           </Button>
-          <Button type="submit" onClick={form.handleSubmit(onSubmit)} variant="default">
+          <Button 
+            type="submit" 
+            onClick={form.handleSubmit(onSubmit)} 
+            variant="default"
+          >
             Save Changes
           </Button>
         </div>
