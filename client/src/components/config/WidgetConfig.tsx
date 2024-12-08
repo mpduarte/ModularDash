@@ -90,7 +90,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg">
                       <CollapsibleTrigger className="flex-1 text-left flex items-center gap-2 group">
                         <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
-                        <span>{widget.title || (isTimeWidget ? 'Time Widget' : isWeatherWidget ? 'Weather Widget' : 'Widget')}</span>
+                        <span>{widget.title || (isTimeWidget ? 'Clock' : isWeatherWidget ? 'Weather Widget' : 'Widget')}</span>
                       </CollapsibleTrigger>
                       <Button
                         variant="ghost"
