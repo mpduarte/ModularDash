@@ -20,70 +20,104 @@ interface TimeWidgetProps {
 const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> = ({ time, config }) => {
   const size = config.clockSize || 200;
   const center = size / 2;
-  const hourHandLength = size * 0.3;
-  const minuteHandLength = size * 0.4;
-  const secondHandLength = size * 0.45;
+  const hourHandLength = size * 0.25; // Slightly shorter for better proportion
+  const minuteHandLength = size * 0.35;
+  const secondHandLength = size * 0.4;
+  const radius = size * 0.45; // Slightly smaller radius for better appearance
 
-  const hourAngle = (time.getHours() % 12 + time.getMinutes() / 60) * 30 - 90;
-  const minuteAngle = (time.getMinutes() + time.getSeconds() / 60) * 6 - 90;
-  const secondAngle = time.getSeconds() * 6 - 90;
+  // Calculate angles with smooth transitions
+  const hours = time.getHours() % 12;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+  const milliseconds = time.getMilliseconds();
+
+  // Smooth transitions for all hands
+  const hourAngle = ((hours + minutes / 60) * 30) - 90;
+  const minuteAngle = ((minutes + seconds / 60) * 6) - 90;
+  const secondAngle = ((seconds + milliseconds / 1000) * 6) - 90;
 
   return (
-    <svg width={size} height={size} className="transform -rotate-90">
-      {/* Clock face */}
+    <svg 
+      width={size} 
+      height={size} 
+      className="transform transition-transform duration-300 ease-in-out"
+      style={{ transform: 'rotate(-90deg)' }}
+    >
+      {/* Clock face with gradient background */}
+      <defs>
+        <radialGradient id="face-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
+          <stop offset="90%" stopColor="currentColor" stopOpacity="0.02" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      
+      {/* Clock face background */}
       <circle
         cx={center}
         cy={center}
-        r={size * 0.48}
+        r={radius}
+        fill="url(#face-gradient)"
+      />
+
+      {/* Clock border */}
+      <circle
+        cx={center}
+        cy={center}
+        r={radius}
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        className="transition-colors duration-300"
       />
 
-      {/* Hour marks */}
+      {/* Hour marks - thicker and longer for better visibility */}
       {config.showHourMarks && [...Array(12)].map((_, i) => {
         const angle = (i * 30 * Math.PI) / 180;
-        const x1 = center + (size * 0.45) * Math.cos(angle);
-        const y1 = center + (size * 0.45) * Math.sin(angle);
-        const x2 = center + (size * 0.48) * Math.cos(angle);
-        const y2 = center + (size * 0.48) * Math.sin(angle);
+        const length = i % 3 === 0 ? 0.08 : 0.06; // Longer marks for 12, 3, 6, 9
+        const x1 = center + (radius - size * length) * Math.cos(angle);
+        const y1 = center + (radius - size * length) * Math.sin(angle);
+        const x2 = center + radius * Math.cos(angle);
+        const y2 = center + radius * Math.sin(angle);
         return (
           <line
-            key={i}
+            key={`hour-${i}`}
             x1={x1}
             y1={y1}
             x2={x2}
             y2={y2}
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth={i % 3 === 0 ? 3 : 2}
+            className="transition-colors duration-300"
           />
         );
       })}
 
-      {/* Minute marks */}
+      {/* Minute marks - thinner and shorter */}
       {config.showMinuteMarks && [...Array(60)].map((_, i) => {
-        if (i % 5 !== 0) { // Skip positions where hour marks are
+        if (i % 5 !== 0) {
           const angle = (i * 6 * Math.PI) / 180;
-          const x1 = center + (size * 0.46) * Math.cos(angle);
-          const y1 = center + (size * 0.46) * Math.sin(angle);
-          const x2 = center + (size * 0.48) * Math.cos(angle);
-          const y2 = center + (size * 0.48) * Math.sin(angle);
+          const x1 = center + (radius - size * 0.03) * Math.cos(angle);
+          const y1 = center + (radius - size * 0.03) * Math.sin(angle);
+          const x2 = center + radius * Math.cos(angle);
+          const y2 = center + radius * Math.sin(angle);
           return (
             <line
-              key={i}
+              key={`minute-${i}`}
               x1={x1}
               y1={y1}
               x2={x2}
               y2={y2}
               stroke="currentColor"
               strokeWidth="1"
+              className="transition-colors duration-300"
             />
           );
         }
         return null;
       })}
 
-      {/* Hour hand */}
+      {/* Hour hand with rounded end */}
       <line
         x1={center}
         y1={center}
@@ -92,9 +126,10 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         stroke="currentColor"
         strokeWidth="4"
         strokeLinecap="round"
+        className="transition-colors duration-300"
       />
 
-      {/* Minute hand */}
+      {/* Minute hand with rounded end */}
       <line
         x1={center}
         y1={center}
@@ -103,9 +138,10 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
+        className="transition-colors duration-300"
       />
 
-      {/* Second hand */}
+      {/* Second hand with smooth movement */}
       {config.showSeconds && (
         <line
           x1={center}
@@ -115,15 +151,17 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
           stroke="currentColor"
           strokeWidth="1"
           strokeLinecap="round"
+          className="transition-colors duration-300"
         />
       )}
 
-      {/* Center dot */}
+      {/* Center dot with shadow effect */}
       <circle
         cx={center}
         cy={center}
-        r="3"
+        r="4"
         fill="currentColor"
+        className="transition-colors duration-300"
       />
     </svg>
   );
