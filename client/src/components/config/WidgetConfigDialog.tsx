@@ -20,9 +20,7 @@ interface WidgetConfigDialogProps {
 }
 
 export default function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDialogProps) {
-  console.log('WidgetConfigDialog mounted with props:', { widget, pluginId: widget.pluginId });
   const plugin = getPlugin(widget.pluginId);
-  console.log('Plugin found:', plugin);
   const [activeTab, setActiveTab] = useState("basic");
   
   type WeatherWidgetConfig = {
@@ -44,10 +42,10 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
     alertThreshold: number;
     alertType: string;
     weatherCondition: string;
-    [key: string]: any; // Allow for dynamic properties
+    [key: string]: any;
   };
 
-const form = useForm<WeatherWidgetConfig>({
+  const form = useForm<WeatherWidgetConfig>({
     defaultValues: {
       title: widget.title,
       ...(widget.pluginId === 'weather-widget' ? {
@@ -156,15 +154,16 @@ const form = useForm<WeatherWidgetConfig>({
             Customize widget settings and appearance
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-grow">
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">Basic</TabsTrigger>
-                <TabsTrigger value="advanced">Advanced</TabsTrigger>
-                <TabsTrigger value="presets">Presets</TabsTrigger>
-              </TabsList>
+            <ScrollArea className="flex-grow pr-4">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="basic">Basic</TabsTrigger>
+                  <TabsTrigger value="advanced">Advanced</TabsTrigger>
+                  <TabsTrigger value="presets">Presets</TabsTrigger>
+                </TabsList>
 
               <TabsContent value="basic" className="space-y-4 pt-4">
                 {widget.pluginId !== 'weather-widget' && (
@@ -525,26 +524,26 @@ const form = useForm<WeatherWidgetConfig>({
                   </CardContent>
                 </Card>
               </TabsContent>
-            </Tabs>
+              </Tabs>
+            </ScrollArea>
+            
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                variant="default"
+              >
+                Save Changes
+              </Button>
+            </div>
           </form>
         </Form>
-        </ScrollArea>
-        <div className="flex justify-end gap-2 pt-4 mt-4 border-t flex-shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            onClick={form.handleSubmit(onSubmit)} 
-            variant="default"
-          >
-            Save Changes
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );
