@@ -32,7 +32,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     <>
       <Card 
         className={cn(
-          "w-full h-full shadow-lg relative",
+          "w-full h-full shadow-lg",
           widget.config.background === "blur" && "bg-background/60 backdrop-blur-lg",
           widget.config.background === "transparent" && "bg-background/30",
           widget.config.background === "solid" && "bg-background",
@@ -55,18 +55,22 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        <div className="absolute top-2 right-2 z-10" onClick={e => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="pointer-events-auto"
-            onClick={() => onUpdate({ visible: false })}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <CardContent className="p-4 relative">
-          <div className="drag-handle absolute top-0 left-0 right-8 h-8 cursor-move" />
+        <CardHeader className="flex flex-row items-center justify-between py-1 px-4">
+          <div className="drag-handle flex-1 cursor-move">
+            <h3 className="font-medium select-none">{widget.title || plugin?.name || 'New Widget'}</h3>
+          </div>
+          <div className="flex items-center" onClick={e => e.stopPropagation()}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="pointer-events-auto"
+              onClick={() => onUpdate({ visible: false })}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
           {PluginComponent ? (
             <div className="w-full h-full">
               <PluginComponent 
