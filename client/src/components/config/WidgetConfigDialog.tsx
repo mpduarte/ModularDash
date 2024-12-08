@@ -93,6 +93,36 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
           ...pluginConfig,
         },
       });
+    } else if (widget.pluginId === 'time-widget') {
+      const {
+        displayMode,
+        showSeconds,
+        use24Hour,
+        showDate,
+        dateFormat,
+        showMinuteMarks,
+        showHourMarks,
+        clockSize,
+        autoRefresh,
+        refreshInterval,
+        theme,
+        ...rest
+      } = data;
+      onUpdate({
+        config: {
+          displayMode,
+          showSeconds,
+          use24Hour,
+          showDate,
+          dateFormat,
+          showMinuteMarks,
+          showHourMarks,
+          clockSize,
+          autoRefresh,
+          refreshInterval,
+          theme,
+        },
+      });
     } else {
       const { title, autoRefresh, refreshInterval, theme, ...pluginConfig } = data;
       onUpdate({
