@@ -82,11 +82,24 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     return events.filter(event => {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
-      const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-      const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
       
-      // Event starts or ends on this day, or spans over this day
-      return (eventStart <= endOfDay && eventEnd >= startOfDay);
+      // Check if it's an all-day event (no time component or full 24h period)
+      const isAllDay = 
+        (eventStart.getHours() === 0 && eventStart.getMinutes() === 0 &&
+         eventEnd.getHours() === 0 && eventEnd.getMinutes() === 0) ||
+        (eventEnd.getTime() - eventStart.getTime() === 24 * 60 * 60 * 1000);
+
+      if (isAllDay) {
+        // For all-day events, only match the date
+        return eventStart.getDate() === day.getDate() &&
+               eventStart.getMonth() === day.getMonth() &&
+               eventStart.getFullYear() === day.getFullYear();
+      } else {
+        // For time-specific events, check if they overlap with the day
+        const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+        const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59);
+        return (eventStart <= endOfDay && eventEnd >= startOfDay);
+      }
     }).sort((a, b) => a.start.getTime() - b.start.getTime());
   };
 
