@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Widget, Plugin } from "../../lib/types";
 import { getPlugin } from "../../lib/pluginRegistry";
-import { Plus, Trash2, Power, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Power, ChevronDown, ChevronRight } from "lucide-react";
 import { usePlugins } from "../../hooks/usePlugins";
 import { useState } from "react";
 import { useWidgets } from "../../hooks/useWidgets";
@@ -108,7 +108,8 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                 return (
                   <Collapsible key={widget.id}>
                     <div className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg">
-                      <CollapsibleTrigger className="flex-1 text-left">
+                      <CollapsibleTrigger className="flex-1 text-left flex items-center gap-2 group">
+                        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-90" />
                         <span>{widget.title}</span>
                       </CollapsibleTrigger>
                       <Button
