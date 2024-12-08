@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
 import { ScrollArea } from '../ui/scroll-area';
-import { format, startOfDay, endOfDay, isEqual, parseISO, addDays } from 'date-fns';
+import { format, startOfDay, endOfDay, isEqual, parseISO, addDays, subMonths, addMonths } from 'date-fns';
 import { Badge } from '../ui/badge';
+import { expandRecurringEvents } from '@/lib/recurringEvents';
 
 interface CalendarEvent {
   summary: string;
@@ -62,7 +63,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const { events: calendarEvents } = await response.json();
       
-      const processedEvents = calendarEvents.map((event: CalendarEvent) => {
+      // First process the basic event properties
+      let processedEvents = calendarEvents.map((event: CalendarEvent) => {
         // Parse dates as UTC and convert to local time
         const rawStart = typeof event.start === 'string' ? event.start : event.start.toString();
         const rawEnd = typeof event.end === 'string' ? event.end : event.end.toString();
@@ -119,7 +121,16 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         };
       });
 
-      setEvents(processedEvents);
+      // Expand recurring events
+      const expandedEvents = processedEvents.flatMap(event => 
+        expandRecurringEvents(
+          event,
+          subMonths(new Date(), 1), // Start range from 1 month ago
+          addMonths(new Date(), 3)  // End range 3 months ahead
+        )
+      );
+      
+      setEvents(expandedEvents);
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
