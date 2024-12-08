@@ -72,18 +72,23 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         const isDateOnly = (dateStr: string) => 
           typeof dateStr === 'string' && !dateStr.includes('T');
 
+        // Function to check if two dates are on the same day
+        const isSameDay = (date1: Date, date2: Date) =>
+          date1.getFullYear() === date2.getFullYear() &&
+          date1.getMonth() === date2.getMonth() &&
+          date1.getDate() === date2.getDate();
+
         // Detect if it's an all-day event
         const isAllDay = 
           // Case 1: Date-only format in iCal
           (isDateOnly(event.start.toString()) && isDateOnly(event.end.toString())) ||
-          // Case 2: Same start/end time in a day (like "16:00-16:00")
-          (isEqual(startOfDay(start), startOfDay(end)) && 
+          // Case 2: Same start/end time in a day indicates an all-day event
+          (isSameDay(start, end) && 
            start.getHours() === end.getHours() && 
            start.getMinutes() === end.getMinutes()) ||
-          // Case 3: 24-hour period starting at midnight
-          (start.getHours() === 0 && start.getMinutes() === 0 &&
-           end.getHours() === 0 && end.getMinutes() === 0 &&
-           Math.abs(end.getTime() - start.getTime()) === 24 * 60 * 60 * 1000);
+          // Case 3: 24-hour period
+          (isSameDay(start, end) &&
+           Math.abs(end.getTime() - start.getTime()) <= 24 * 60 * 60 * 1000);
 
         return {
           ...event,
@@ -108,17 +113,17 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
 
-      // For all-day events, compare dates without time component
+      // For all-day events, only check the date portion
       if (event.isAllDay) {
-        const dayStart = startOfDay(day);
-        const eventDayStart = startOfDay(eventStart);
-        return isEqual(dayStart, eventDayStart);
+        const eventDate = startOfDay(eventStart);
+        const compareDate = startOfDay(day);
+        return isEqual(eventDate, compareDate);
       }
 
-      // For time-specific events, check if they overlap with the day
+      // For time-specific events, check if they occur on this day
       const dayStartTime = startOfDay(day);
       const dayEndTime = endOfDay(day);
-      return (eventStart <= dayEndTime && eventEnd >= dayStartTime);
+      return eventStart >= dayStartTime && eventStart <= dayEndTime;
     }).sort((a, b) => a.start.getTime() - b.start.getTime());
   };
 
