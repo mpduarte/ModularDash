@@ -30,6 +30,7 @@ interface WidgetConfigProps {
 
 export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }: WidgetConfigProps) {
   const { plugins, updatePlugin, isLoading, isError, error } = usePlugins();
+  const { updateWidget } = useWidgets();
   const [activeTab, setActiveTab] = useState("widgets");
 
   return (
