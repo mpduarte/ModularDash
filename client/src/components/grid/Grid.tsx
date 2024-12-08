@@ -20,7 +20,10 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       minH: 2,
       maxH: 4,
       w: widget.w || 1,
-      h: widget.h || 2
+      h: widget.h || 2,
+      x: widget.x || 0,
+      y: widget.y || 0,
+      i: widget.id.toString()
     };
 
     switch (widget.pluginId) {
@@ -42,15 +45,6 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
     }
 
     return constraints;
-  };
-
-  const layouts = {
-    lg: widgets.map(widget => ({
-      i: widget.id.toString(),
-      x: widget.x || 0,
-      y: widget.y || 0,
-      ...getWidgetConstraints(widget)
-    }))
   };
 
   const handleLayoutChange = (layout: Layout[]) => {
@@ -78,33 +72,34 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
 
   return (
     <ResponsiveGridLayout
-      className="layout"
-      layouts={layouts}
+      layouts={{ lg: widgets.map(getWidgetConstraints) }}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: 3, md: 3, sm: 2, xs: 1, xxs: 1 }}
       rowHeight={80}
       margin={[12, 12]}
-      containerPadding={[12, 12]}
+      containerPadding={[0, 0]}
       onLayoutChange={handleLayoutChange}
       isResizable={true}
       isDraggable={true}
       draggableHandle=".drag-handle"
+      useCSSTransforms={true}
+      className="layout"
     >
       {widgets.map(widget => (
-        <div 
-          key={widget.id.toString()} 
-          className="widget-container bg-white bg-opacity-90 rounded-lg shadow-lg overflow-hidden"
+        <section
+          key={widget.id.toString()}
+          className="bg-white bg-opacity-90 rounded-lg shadow-lg grid grid-rows-[auto,1fr] h-full"
         >
-          <header className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
             <span className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</span>
-          </header>
+          </div>
           <Widget
             widget={widget}
             onShowOverlay={onShowOverlay}
             onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
           />
-        </div>
+        </section>
       ))}
     </ResponsiveGridLayout>
   );
