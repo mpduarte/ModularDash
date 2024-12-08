@@ -108,22 +108,22 @@ registerPlugin(
 registerPlugin(
   'calendar-widget',
   CalendarWidget,
-  {
-    calendarUrl: '',
-    schema: {
-      calendarUrl: {
-        type: 'string',
-        label: 'Calendar URL',
-        description: 'Enter iCal/WebCal/CalDAV feed URL (webcal:// or https://)',
-        placeholder: 'webcal:// or https:// URL',
-        required: true
-      }
-    }
+  { 
+    calendarUrl: '' 
   },
   'Calendar Widget',
   '1.0.0',
   'Display calendar events from iCal/WebCal/CalDAV feeds',
-  'widgets'
+  'widgets',
+  {
+    calendarUrl: {
+      type: 'string',
+      label: 'Calendar URL',
+      description: 'Enter iCal/WebCal/CalDAV feed URL (webcal:// or https://)',
+      placeholder: 'webcal:// or https:// URL',
+      required: true
+    }
+  }
 );
 
 export default registry;
