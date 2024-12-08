@@ -24,11 +24,11 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         h: widget.h,
         minW: 1,
         maxW: 3,
-        minH: isWeatherWidget ? 2 : 1,
-        maxH: isWeatherWidget ? 6 : 3,
+        minH: 1,
+        maxH: isWeatherWidget ? 8 : 4,
         isDraggable: true,
         isResizable: true,
-        resizeHandles: ['s'],
+        resizeHandles: ['s', 'se'],
         isBounded: true
       } as GridLayout;
     })
@@ -87,8 +87,10 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
             className={`relative react-grid-item ${
               widget.pluginId === 'weather-widget' ? 'weather-widget-container' : ''
             }`}>
-            <div className="w-full h-full flex flex-col">
-              <div className="weather-widget-content flex-1 p-4">
+            <div className="w-full h-full flex flex-col overflow-hidden">
+              <div className={`flex-1 p-4 overflow-y-auto ${
+                widget.pluginId === 'weather-widget' ? 'weather-widget-content' : 'widget-content'
+              }`}>
                 <Widget
                   widget={widget}
                   onShowOverlay={onShowOverlay}
