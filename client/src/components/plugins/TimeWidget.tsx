@@ -46,9 +46,9 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
       {/* Clock face with gradient background */}
       <defs>
         <radialGradient id="face-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
-          <stop offset="90%" stopColor="currentColor" stopOpacity="0.02" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
+          <stop offset="90%" stopColor="hsl(var(--primary))" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
         </radialGradient>
       </defs>
       
@@ -171,21 +171,25 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
   useEffect(() => {
+    // Update more frequently for smooth second hand movement in analog mode
+    const interval = config.displayMode === 'analog' && config.showSeconds ? 50 : 1000;
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, interval);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [config.displayMode, config.showSeconds]);
 
   const timeFormat = config.use24Hour ? 'HH:mm' : 'hh:mm a';
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <Card className="w-full h-full relative">
+    <Card className="w-full h-full relative overflow-hidden">
       <CardContent className="p-6 flex flex-col items-center justify-center h-full">
         {config.displayMode === 'analog' ? (
-          <AnalogClock time={currentTime} config={config} />
+          <div className="relative group transition-all duration-300 hover:scale-105">
+            <AnalogClock time={currentTime} config={config} />
+          </div>
         ) : (
           <div className="text-4xl font-bold">
             {format(currentTime, fullTimeFormat)}
