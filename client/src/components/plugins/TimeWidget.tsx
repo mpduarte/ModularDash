@@ -66,8 +66,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         cy={center}
         r={radius}
         fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
         className="transition-colors duration-300"
       />
 
