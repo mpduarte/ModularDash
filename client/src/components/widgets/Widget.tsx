@@ -64,6 +64,14 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               variant="ghost"
               size="icon"
               className="pointer-events-auto"
+              onClick={() => setShowConfig(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="pointer-events-auto"
               onClick={() => onUpdate({ visible: false })}
             >
               <X className="h-4 w-4" />
