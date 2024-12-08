@@ -372,7 +372,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+          <div className="grid grid-cols-3 gap-4 text-sm mt-4">
             <div>
               <Label>Feels Like</Label>
               <p>
@@ -384,21 +384,16 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
               <Label>Humidity</Label>
               <p>{typeof weather.main.humidity === 'number' ? weather.main.humidity : '--'}%</p>
             </div>
+            {airQuality?.list?.[0] && (
+              <div>
+                <Label>Air Quality</Label>
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
+                  <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
+                </div>
+              </div>
+            )}
           </div>
-
-          {airQuality?.list?.[0] && (
-            <div className="border-t pt-4 mt-4">
-              <Label className="block mb-2">Air Quality</Label>
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`w-3 h-3 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
-                <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-                <span>PM2.5: {airQuality.list[0].components.pm2_5.toFixed(1)} μg/m³</span>
-                <span>PM10: {airQuality.list[0].components.pm10.toFixed(1)} μg/m³</span>
-              </div>
-            </div>
-          )}
         </>
       ) : (
         <div className="text-muted-foreground p-4 text-center">
