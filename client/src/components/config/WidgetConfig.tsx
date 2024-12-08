@@ -43,7 +43,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-grow">
+        <ScrollArea className="flex-grow overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="widgets">Widgets</TabsTrigger>
