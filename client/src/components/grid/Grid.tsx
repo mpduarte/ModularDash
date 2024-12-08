@@ -83,18 +83,15 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
             key={String(widget.id)} 
             className={`relative react-grid-item ${
               widget.pluginId === 'weather-widget' ? 'weather-widget-container' : ''
-            }`}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            }}>
-            <div className={`weather-widget-content w-full h-full`}>
-              <Widget
-                widget={widget}
-                onShowOverlay={onShowOverlay}
-                onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
-              />
+            }`}>
+            <div className="w-full h-full flex flex-col">
+              <div className="weather-widget-content flex-1 p-4">
+                <Widget
+                  widget={widget}
+                  onShowOverlay={onShowOverlay}
+                  onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+                />
+              </div>
             </div>
           </div>
         ))}
