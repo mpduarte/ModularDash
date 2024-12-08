@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { format } from 'date-fns';
 
 interface TimeWidgetProps {
@@ -20,18 +19,16 @@ interface TimeWidgetProps {
 const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> = ({ time, config }) => {
   const size = config.clockSize || 200;
   const center = size / 2;
-  const hourHandLength = size * 0.25; // Slightly shorter for better proportion
+  const hourHandLength = size * 0.25;
   const minuteHandLength = size * 0.35;
   const secondHandLength = size * 0.4;
-  const radius = size * 0.45; // Slightly smaller radius for better appearance
+  const radius = size * 0.45;
 
-  // Calculate angles with smooth transitions
   const hours = time.getHours() % 12;
   const minutes = time.getMinutes();
   const seconds = time.getSeconds();
   const milliseconds = time.getMilliseconds();
 
-  // Smooth transitions for all hands
   const hourAngle = ((hours + minutes / 60) * 30) - 90;
   const minuteAngle = ((minutes + seconds / 60) * 6) - 90;
   const secondAngle = ((seconds + milliseconds / 1000) * 6) - 90;
@@ -43,7 +40,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
       className="transform transition-transform duration-300 ease-in-out"
       style={{ transform: 'rotate(-90deg)' }}
     >
-      {/* Clock face with gradient background */}
       <defs>
         <radialGradient id="face-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
           <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
@@ -52,27 +48,12 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         </radialGradient>
       </defs>
       
-      {/* Clock face background */}
-      <circle
-        cx={center}
-        cy={center}
-        r={radius}
-        fill="url(#face-gradient)"
-      />
+      <circle cx={center} cy={center} r={radius} fill="url(#face-gradient)" />
+      <circle cx={center} cy={center} r={radius} fill="none" className="transition-colors duration-300" />
 
-      {/* Clock border */}
-      <circle
-        cx={center}
-        cy={center}
-        r={radius}
-        fill="none"
-        className="transition-colors duration-300"
-      />
-
-      {/* Hour marks - thicker and longer for better visibility */}
       {config.showHourMarks && [...Array(12)].map((_, i) => {
         const angle = (i * 30 * Math.PI) / 180;
-        const length = i % 3 === 0 ? 0.08 : 0.06; // Longer marks for 12, 3, 6, 9
+        const length = i % 3 === 0 ? 0.08 : 0.06;
         const x1 = center + (radius - size * length) * Math.cos(angle);
         const y1 = center + (radius - size * length) * Math.sin(angle);
         const x2 = center + radius * Math.cos(angle);
@@ -91,7 +72,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         );
       })}
 
-      {/* Minute marks - thinner and shorter */}
       {config.showMinuteMarks && [...Array(60)].map((_, i) => {
         if (i % 5 !== 0) {
           const angle = (i * 6 * Math.PI) / 180;
@@ -115,7 +95,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         return null;
       })}
 
-      {/* Hour hand with rounded end */}
       <line
         x1={center}
         y1={center}
@@ -127,7 +106,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         className="transition-colors duration-300"
       />
 
-      {/* Minute hand with rounded end */}
       <line
         x1={center}
         y1={center}
@@ -139,7 +117,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         className="transition-colors duration-300"
       />
 
-      {/* Second hand with smooth movement */}
       {config.showSeconds && (
         <line
           x1={center}
@@ -153,7 +130,6 @@ const AnalogClock: React.FC<{ time: Date; config: TimeWidgetProps['config'] }> =
         />
       )}
 
-      {/* Center dot with shadow effect */}
       <circle
         cx={center}
         cy={center}
@@ -169,7 +145,6 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
   useEffect(() => {
-    // Update more frequently for smooth second hand movement in analog mode
     const interval = config.displayMode === 'analog' && config.showSeconds ? 50 : 1000;
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -182,10 +157,10 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center">
+    <div className="flex items-center justify-center h-full">
+      <div className="flex flex-col items-center">
         {config.displayMode === 'analog' ? (
-          <div className="relative group transition-all duration-300 hover:scale-105">
+          <div className="group transition-all duration-300 hover:scale-105">
             <AnalogClock time={currentTime} config={config} />
           </div>
         ) : (
@@ -194,11 +169,8 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
           </div>
         )}
         {config.showDate && (
-          <div className={`text-lg text-muted-foreground mt-2 ${config.displayMode === 'analog' ? 'text-center' : ''}`}>
+          <div className="text-lg text-muted-foreground">
             {format(currentTime, config.dateFormat || 'PPP')}
-            {config.dateFormat === 'do' && (
-              <span className="ml-1">of {format(currentTime, 'MMMM')}</span>
-            )}
           </div>
         )}
       </div>

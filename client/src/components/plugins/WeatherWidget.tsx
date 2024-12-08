@@ -343,7 +343,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         </div>
       ) : weather && weather.main && weather.weather ? (
         <>
-          <div className="grid grid-cols-[auto_1fr] items-center">
+          <div className="flex items-start space-x-3">
             <img
               src={
                 weather.provider === 'weatherapi' && weather.weather[0]?.icon
@@ -351,28 +351,26 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
                   : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
               }
               alt={weather.weather[0]?.description || 'Weather icon'}
-              className="w-12 h-12"
+              className="w-10 h-10"
               onError={(e) => {
                 e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
               }}
             />
             <div>
-              <div>
-                <p className="text-3xl font-bold">
-                  {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
-                  {unitSymbol}
-                </p>
-                <p className="text-muted-foreground capitalize">
-                  {weather.weather[0]?.description || 'Weather information unavailable'}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Last updated: {new Date().toLocaleTimeString()}
-                </p>
-              </div>
+              <p className="text-2xl font-bold leading-none">
+                {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
+                {unitSymbol}
+              </p>
+              <p className="text-muted-foreground capitalize text-sm">
+                {weather.weather[0]?.description || 'Weather information unavailable'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Last updated: {new Date().toLocaleTimeString()}
+              </p>
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 text-sm mt-4">
+          <div className="grid grid-cols-3 gap-2 text-xs mt-3">
             <div>
               <Label>Feels Like</Label>
               <p>
