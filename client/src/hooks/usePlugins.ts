@@ -19,15 +19,25 @@ export function usePlugins() {
           throw new Error(`Failed to fetch plugins: ${response.statusText}`);
         }
         const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid plugins data received');
+        }
         console.log('Raw plugins data:', data);
-        const enabledPlugins = data.filter((plugin: Plugin) => plugin.enabled);
+        const enabledPlugins = data
+          .filter((plugin: Plugin) => plugin.enabled)
+          .map((plugin: Plugin) => ({
+            ...plugin,
+            category: plugin.category || 'other'
+          }));
         console.log('Enabled plugins:', enabledPlugins);
         return enabledPlugins;
       } catch (error) {
         console.error('Error fetching plugins:', error);
         throw error;
       }
-    }
+    },
+    staleTime: 30000,
+    retry: 2
   });
 
   const installPlugin = useMutation({

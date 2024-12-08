@@ -93,20 +93,23 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
 
           <TabsContent value="plugins" className="py-4">
             <ScrollArea className="h-[400px]">
-              {isLoading && (
-                <div className="flex items-center justify-center p-4">
-                  <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
-                </div>
-              )}
-              {isError && (
-                <div className="p-4 text-destructive text-center">
-                  <p>Error loading plugins: {error?.message}</p>
-                </div>
-              )}
-              {!isLoading && !isError && plugins.length > 0 && (
-                <div className="space-y-4">
-                  {console.log('Rendering plugins:', plugins)}
-                  {Object.entries(
+              <div className="space-y-4">
+                {isLoading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+                  </div>
+                ) : isError ? (
+                  <div className="p-4 text-destructive text-center">
+                    <p>Error loading plugins: {error?.message}</p>
+                  </div>
+                ) : plugins.length === 0 ? (
+                  <div className="p-4 text-muted-foreground text-center">
+                    <p>No plugins available</p>
+                  </div>
+                ) : (
+                  <>
+                    {console.log('Rendering plugins:', plugins)}
+                    {Object.entries(
                     plugins.reduce((acc, plugin) => {
                       console.log('Processing plugin:', plugin);
                       // Determine the category based on plugin type and id
@@ -197,8 +200,9 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                       </CollapsibleContent>
                     </Collapsible>
                   ))}
-                </div>
-              )}
+                  </>
+                )}
+              </div>
             </ScrollArea>
           </TabsContent>
         </Tabs>
