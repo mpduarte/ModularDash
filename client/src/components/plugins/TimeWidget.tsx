@@ -179,7 +179,7 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
 };
 
 export const timeWidgetConfig = {
-  name: 'Clock',
+  name: '',
   version: '1.0.0',
   defaultConfig: {
     format: 'HH:mm',
