@@ -18,11 +18,22 @@ router.get('/events', async (req, res) => {
     // Convert webcal to https
     const fetchUrl = url.replace(/^webcal:\/\//i, 'https://');
     
+    // Validate URL format
+    try {
+      new URL(fetchUrl);
+    } catch (urlError) {
+      calendarProviderErrors.labels('invalid_url').inc();
+      return res.status(400).json({ 
+        error: 'Invalid calendar URL',
+        message: 'Please provide a valid webcal:// or https:// URL'
+      });
+    }
+
     const events = await new Promise((resolve, reject) => {
       ical.fromURL(fetchUrl, {}, (error, data) => {
         if (error) {
           calendarProviderErrors.labels('fetch_error').inc();
-          reject(error);
+          reject(new Error(`Failed to fetch calendar: ${error.message}`));
           return;
         }
 
@@ -33,15 +44,18 @@ router.get('/events', async (req, res) => {
               summary: event.summary || 'Untitled Event',
               description: event.description,
               start: event.start,
-              end: event.end,
+              end: event.end || event.start,
               location: event.location,
+              recurrence: event.rrule ? [event.rrule.toString()] : undefined,
+              uid: event.uid
             }))
-            .filter(event => event.start && event.end); // Ensure valid dates
+            .filter(event => event.start && event.end) // Ensure valid dates
+            .sort((a, b) => a.start.getTime() - b.start.getTime()); // Sort by start time
 
           resolve(calendarEvents);
         } catch (parseError) {
           calendarProviderErrors.labels('parse_error').inc();
-          reject(parseError);
+          reject(new Error(`Failed to parse calendar data: ${parseError.message}`));
         }
       });
     });

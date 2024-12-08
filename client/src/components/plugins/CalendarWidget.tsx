@@ -51,24 +51,20 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(config.calendarUrl);
-      if (!response.ok) throw new Error('Failed to fetch calendar feed');
       
-      const icalData = await response.text();
-      const parsedEvents = ical.parseICS(icalData);
+      const response = await fetch(`/api/calendar/events?url=${encodeURIComponent(config.calendarUrl)}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch calendar feed');
+      }
       
-      const processedEvents: CalendarEvent[] = Object.values(parsedEvents)
-        .filter(event => event.type === 'VEVENT')
-        .map(event => ({
-          summary: event.summary || 'Untitled Event',
-          description: event.description,
-          start: event.start || new Date(),
-          end: event.end || new Date(),
-          location: event.location,
-          recurrence: event.rrule ? [event.rrule.toString()] : undefined
-        }));
-
-      setEvents(processedEvents);
+      const { events: calendarEvents } = await response.json();
+      
+      setEvents(calendarEvents.map((event: any) => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end)
+      })));
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
