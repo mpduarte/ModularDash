@@ -24,12 +24,12 @@ interface CalendarEvent {
 
 interface CalendarWidgetProps {
   id: string;
-  title: string;
-  content: string;
+  title?: string;
+  content?: string;
   config?: {
     calendarUrl?: string;
   };
-  onConfigUpdate: (config: any) => void;
+  onConfigUpdate?: (id: string, config: { calendarUrl: string }) => void;
 }
 
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
@@ -65,7 +65,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   const handleSaveConfig = () => {
-    onConfigUpdate({ calendarUrl });
+    if (onConfigUpdate) {
+      onConfigUpdate(id, { calendarUrl });
+    }
   };
 
   const getDayEvents = (day: Date) => {
