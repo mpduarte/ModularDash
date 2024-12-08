@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Widget as WidgetType } from "../../lib/types";
-import { Maximize2, X, Settings } from "lucide-react";
+import { X, Settings } from "lucide-react";
 import { getPlugin } from "../../lib/pluginRegistry";
 import { useState } from "react";
 import WidgetConfigDialog from "../config/WidgetConfigDialog";
@@ -9,11 +9,10 @@ import { cn } from "@/lib/utils";
 
 interface WidgetProps {
   widget: WidgetType;
-  onShowOverlay: () => void;
   onUpdate: (updates: Partial<WidgetType>) => void;
 }
 
-export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps) {
+export default function Widget({ widget, onUpdate }: WidgetProps) {
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
   console.group('Widget Load');
@@ -87,18 +86,7 @@ export default function Widget({ widget, onShowOverlay, onUpdate }: WidgetProps)
             >
               <Settings className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onShowOverlay();
-              }}
-              className="no-drag"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <Maximize2 className="h-4 w-4" />
-            </Button>
+            
             <Button
               variant="ghost"
               size="icon"
