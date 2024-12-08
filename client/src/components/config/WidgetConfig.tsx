@@ -7,9 +7,13 @@ import { getPlugin } from "../../lib/pluginRegistry";
 import { Plus, Trash2, Power, ChevronDown } from "lucide-react";
 import { usePlugins } from "../../hooks/usePlugins";
 import { useState } from "react";
+import { useWidgets } from "../../hooks/useWidgets";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Collapsible,
   CollapsibleContent,
@@ -56,6 +60,125 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                     console.warn(`Plugin ${plugin.id} not found in registry`);
                     return null;
                   }
+                  
+                  // Special handling for weather widget
+                  if (plugin.id === 'weather-widget') {
+                    const weatherConfig = widgets.find(w => w.pluginId === 'weather-widget')?.config || {};
+                    return (
+                      <div key={plugin.id} className="space-y-4">
+                        <Button
+                          onClick={() => {
+                            console.log('Adding weather widget:', plugin);
+                            onAdd(plugin.id);
+                          }}
+                          className="w-full"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add {plugin.name}
+                        </Button>
+                        
+                        {widgets.some(w => w.pluginId === 'weather-widget') && (
+                          <div className="space-y-4 p-4 border rounded-lg">
+                            <h3 className="font-medium">Weather Widget Settings</h3>
+                            <div className="space-y-2">
+                              <Label>City</Label>
+                              <Input
+                                placeholder="Enter city (e.g., San Francisco, CA, USA)"
+                                value={weatherConfig.city || ''}
+                                onChange={(e) => {
+                                  const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                  if (widgetId) {
+                                    updateWidget(widgetId, {
+                                      config: { ...weatherConfig, city: e.target.value }
+                                    });
+                                  }
+                                }}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Units</Label>
+                              <Select
+                                value={weatherConfig.units || 'imperial'}
+                                onValueChange={(value) => {
+                                  const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                  if (widgetId) {
+                                    updateWidget(widgetId, {
+                                      config: { ...weatherConfig, units: value }
+                                    });
+                                  }
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select units" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="imperial">Fahrenheit (°F)</SelectItem>
+                                  <SelectItem value="metric">Celsius (°C)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Display Format</Label>
+                              <Select
+                                value={weatherConfig.titleFormat || 'city-state-country'}
+                                onValueChange={(value) => {
+                                  const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                  if (widgetId) {
+                                    updateWidget(widgetId, {
+                                      config: { ...weatherConfig, titleFormat: value }
+                                    });
+                                  }
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select format" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="city-only">City Only</SelectItem>
+                                  <SelectItem value="city-country">City, Country</SelectItem>
+                                  <SelectItem value="city-state">City, State</SelectItem>
+                                  <SelectItem value="city-state-country">City, State, Country</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label>Auto Refresh</Label>
+                              <Switch
+                                checked={weatherConfig.autoRefresh || false}
+                                onCheckedChange={(checked) => {
+                                  const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                  if (widgetId) {
+                                    updateWidget(widgetId, {
+                                      config: { ...weatherConfig, autoRefresh: checked }
+                                    });
+                                  }
+                                }}
+                              />
+                            </div>
+                            {weatherConfig.autoRefresh && (
+                              <div className="space-y-2">
+                                <Label>Refresh Interval (seconds)</Label>
+                                <Input
+                                  type="number"
+                                  min="5"
+                                  value={weatherConfig.refreshInterval || 30}
+                                  onChange={(e) => {
+                                    const widgetId = widgets.find(w => w.pluginId === 'weather-widget')?.id;
+                                    if (widgetId) {
+                                      updateWidget(widgetId, {
+                                        config: { ...weatherConfig, refreshInterval: Number(e.target.value) }
+                                      });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
                   return (
                     <Button
                       key={plugin.id}
