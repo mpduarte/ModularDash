@@ -45,6 +45,24 @@ export const weatherProviderErrors = new Counter({
   help: 'Total number of weather provider errors',
   labelNames: ['provider', 'error_type']
 });
+// Calendar provider metrics
+export const calendarProviderRequests = new Counter({
+  name: 'calendar_provider_requests_total',
+  help: 'Total number of requests to calendar providers',
+  labelNames: ['status']
+});
+
+export const calendarProviderLatency = new Histogram({
+  name: 'calendar_provider_latency_seconds',
+  help: 'Latency of calendar provider requests',
+  buckets: [0.1, 0.5, 1, 2, 5]
+});
+
+export const calendarProviderErrors = new Counter({
+  name: 'calendar_provider_errors_total',
+  help: 'Total number of calendar provider errors',
+  labelNames: ['error_type']
+});
 
 // Register custom metrics
 register.registerMetric(httpRequestDurationMicroseconds);
@@ -52,6 +70,9 @@ register.registerMetric(httpRequestCounter);
 register.registerMetric(weatherProviderRequests);
 register.registerMetric(weatherProviderLatency);
 register.registerMetric(weatherProviderErrors);
+register.registerMetric(calendarProviderRequests);
+register.registerMetric(calendarProviderLatency);
+register.registerMetric(calendarProviderErrors);
 
 // Metrics middleware
 export const metricsMiddleware = async (req: Request, res: Response, next: NextFunction) => {
