@@ -57,7 +57,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
       >
         <CardHeader className="flex flex-row items-center justify-between py-1 px-4">
           <div className="drag-handle flex-1 cursor-move">
-            <h3 className="font-medium select-none">{widget.title}</h3>
+            <h3 className="font-medium select-none">{widget.title || plugin?.name || 'New Widget'}</h3>
           </div>
           <div className="flex items-center" onClick={e => e.stopPropagation()}>
             <Button

@@ -96,19 +96,9 @@ registerPlugin(
 registerPlugin(
   'time-widget',
   TimeWidget,
-  {
-    ...timeWidgetConfig.defaultConfig,
-    displayMode: 'digital',
-    showSeconds: false,
-    use24Hour: false,
-    showDate: true,
-    dateFormat: 'PPP',
-    showMinuteMarks: true,
-    showHourMarks: true,
-    clockSize: 200
-  },
-  'Time Widget',
-  '1.0.0',
+  timeWidgetConfig.defaultConfig,
+  timeWidgetConfig.name,
+  timeWidgetConfig.version,
   'Displays current time with configurable format',
   'widgets'
 );
