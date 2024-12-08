@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
 interface WidgetProps {
   widget: WidgetType;
   onUpdate: (updates: Partial<WidgetType>) => void;
+  onShowOverlay?: () => void;
 }
 
-export default function Widget({ widget, onUpdate }: WidgetProps) {
+export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps) {
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
   console.group('Widget Load');

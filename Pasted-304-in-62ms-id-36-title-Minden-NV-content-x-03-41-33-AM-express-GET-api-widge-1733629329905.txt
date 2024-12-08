@@ -1,0 +1,36 @@
+304 in 62ms :: [{"id":36,"title":"Minden, NV","content":"","x"…
+03:41:33 AM [express] GET /api/widgets 304 in 60ms :: [{"id":36,"title":"Minden, NV","content":"","x"…
+
+ ERROR(TypeScript)  Type '{ children: (void | Element[])[]; }' is not assignable to type '{ children?: ReactNode; }'.
+  Types of property 'children' are incompatible.
+    Type '(void | Element[])[]' is not assignable to type 'ReactNode'.
+      Type '(void | Element[])[]' is not assignable to type 'Iterable<ReactNode>'.
+        The types returned by '[Symbol.iterator]().next(...)' are incompatible between these types.
+          Type 'IteratorResult<void | Element[], undefined>' is not assignable to type 'IteratorResult<ReactNode, any>'.
+            Type 'IteratorYieldResult<void | Element[]>' is not assignable to type 'IteratorResult<ReactNode, any>'.
+              Type 'IteratorYieldResult<void | Element[]>' is not assignable to type 'IteratorYieldResult<ReactNode>'.
+                Type 'void | Element[]' is not assignable to type 'ReactNode'.
+                  Type 'void' is not assignable to type 'ReactNode'.
+ FILE  /home/runner/ModularDash/client/src/components/config/WidgetConfig.tsx:118:19
+
+    116 |                   </div>
+    117 |                 ) : (
+  > 118 |                   <>
+        |                   ^^
+    119 |                     {console.log('Rendering plugins:', plugins)}
+    120 |                     {Object.entries(
+    121 |                     plugins.reduce((acc, plugin) => {
+
+ ERROR(TypeScript)  Type '{ widget: Widget; onShowOverlay: () => void; onUpdate: (updates: Partial<Widget>) => void; }' is not assignable to type 'IntrinsicAttributes & WidgetProps'.
+  Property 'onShowOverlay' does not exist on type 'IntrinsicAttributes & WidgetProps'.
+ FILE  /home/runner/ModularDash/client/src/components/grid/Grid.tsx:94:19
+
+    92 |                 <Widget
+    93 |                   widget={widget}
+  > 94 |                   onShowOverlay={onShowOverlay}
+       |                   ^^^^^^^^^^^^^
+    95 |                   onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+    96 |                 />
+    97 |               </div>
+
+[TypeScript] Found 2 errors. Watching for file changes.
