@@ -183,7 +183,7 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   
   return (
     <div className="w-full h-full relative overflow-hidden">
-      <div className="p-3 flex flex-col items-center justify-center h-full">
+      <div className="px-3 pt-1 pb-3 flex flex-col items-center justify-center h-full">
         {config.displayMode === 'analog' ? (
           <div className="relative group transition-all duration-300 hover:scale-105">
             <AnalogClock time={currentTime} config={config} />
