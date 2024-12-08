@@ -51,6 +51,15 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       ...(widget.pluginId === 'weather-widget' ? {
         city: widget.config.city || "San Francisco, CA, USA",
         units: (widget.config.units as 'imperial' | 'metric') || "imperial",
+      } : widget.pluginId === 'time-widget' ? {
+        displayMode: widget.config.displayMode || "digital",
+        showSeconds: widget.config.showSeconds || false,
+        use24Hour: widget.config.use24Hour || false,
+        showDate: widget.config.showDate || true,
+        dateFormat: widget.config.dateFormat || "PPP",
+        showMinuteMarks: widget.config.showMinuteMarks || true,
+        showHourMarks: widget.config.showHourMarks || true,
+        clockSize: widget.config.clockSize || 200,
       } : {}),
       autoRefresh: widget.config.autoRefresh || false,
       refreshInterval: widget.config.refreshInterval || 30,
