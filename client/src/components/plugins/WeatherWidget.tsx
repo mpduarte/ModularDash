@@ -358,11 +358,6 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             />
             <div>
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-1">
-                  {weather.name}
-                  {weather.sys?.state && `, ${weather.sys.state}`}
-                  {weather.sys?.country && `, ${weather.sys.country}`}
-                </h3>
                 <p className="text-3xl font-bold">
                   {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
                   {unitSymbol}
