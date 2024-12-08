@@ -54,13 +54,18 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         onResizeStop={(layout, oldItem, newItem, placeholder, e, node) => {
           const widget = widgets.find(w => w.id.toString() === newItem.i);
           if (widget?.pluginId === 'weather-widget') {
-            const actualHeight = node.querySelector('.weather-widget-content')?.scrollHeight || 0;
-            const rowHeight = 80;
-            const newRows = Math.max(2, Math.ceil(actualHeight / rowHeight));
-            if (newRows !== newItem.h) {
-              onLayoutChange(layout.map(item =>
-                item.i === newItem.i ? { ...item, h: newRows } : item
-              ));
+            const contentEl = node.querySelector('.weather-widget-content');
+            if (contentEl) {
+              const actualHeight = contentEl.scrollHeight;
+              const padding = 32; // Account for padding (16px top + 16px bottom)
+              const rowHeight = 80;
+              const newRows = Math.max(2, Math.ceil((actualHeight + padding) / rowHeight));
+              if (newRows !== newItem.h) {
+                const updatedLayout = layout.map(item =>
+                  item.i === newItem.i ? { ...item, h: newRows } : item
+                );
+                onLayoutChange(updatedLayout);
+              }
             }
           }
         }}
@@ -84,8 +89,8 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
             className={`relative react-grid-item ${
               widget.pluginId === 'weather-widget' ? 'weather-widget-container' : ''
             }`}>
-            <div className="w-full h-full flex flex-col">
-              <div className="weather-widget-content flex-1 p-4">
+            <div className="w-full h-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-lg border shadow-sm flex flex-col">
+              <div className="weather-widget-content flex-1 p-4 overflow-visible">
                 <Widget
                   widget={widget}
                   onShowOverlay={onShowOverlay}
