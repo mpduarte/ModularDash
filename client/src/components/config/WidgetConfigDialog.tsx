@@ -224,6 +224,103 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                           </div>
                         </div>
                       </div>
+                    ) : widget.pluginId === 'time-widget' ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="displayMode">Display Mode</Label>
+                          <Select
+                            value={form.watch("displayMode") || "digital"}
+                            onValueChange={(value) => form.setValue("displayMode", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select display mode" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="digital">Digital</SelectItem>
+                              <SelectItem value="analog">Analog</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {form.watch("displayMode") === "analog" && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="clockSize">Clock Size</Label>
+                              <Input
+                                id="clockSize"
+                                type="number"
+                                min="100"
+                                max="400"
+                                {...form.register("clockSize")}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="showHourMarks">Show Hour Marks</Label>
+                              <Switch
+                                id="showHourMarks"
+                                checked={form.watch("showHourMarks")}
+                                onCheckedChange={(checked) => form.setValue("showHourMarks", checked)}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="showMinuteMarks">Show Minute Marks</Label>
+                              <Switch
+                                id="showMinuteMarks"
+                                checked={form.watch("showMinuteMarks")}
+                                onCheckedChange={(checked) => form.setValue("showMinuteMarks", checked)}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="showSeconds">Show Seconds</Label>
+                          <Switch
+                            id="showSeconds"
+                            checked={form.watch("showSeconds")}
+                            onCheckedChange={(checked) => form.setValue("showSeconds", checked)}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="use24Hour">Use 24-Hour Format</Label>
+                          <Switch
+                            id="use24Hour"
+                            checked={form.watch("use24Hour")}
+                            onCheckedChange={(checked) => form.setValue("use24Hour", checked)}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="showDate">Show Date</Label>
+                          <Switch
+                            id="showDate"
+                            checked={form.watch("showDate")}
+                            onCheckedChange={(checked) => form.setValue("showDate", checked)}
+                          />
+                        </div>
+
+                        {form.watch("showDate") && (
+                          <div className="space-y-2">
+                            <Label htmlFor="dateFormat">Date Format</Label>
+                            <Select
+                              value={form.watch("dateFormat") || "PPP"}
+                              onValueChange={(value) => form.setValue("dateFormat", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select date format" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="PPP">Long (December 8th, 2024)</SelectItem>
+                                <SelectItem value="PP">Medium (Dec 8, 2024)</SelectItem>
+                                <SelectItem value="P">Short (12/08/2024)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <plugin.component
                         config={widget.config}
