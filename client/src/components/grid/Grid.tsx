@@ -86,20 +86,16 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       className="layout"
     >
       {widgets.map(widget => (
-        <section
+        <div
           key={widget.id.toString()}
-          className="bg-white bg-opacity-90 rounded-lg shadow-lg grid grid-rows-[auto,1fr] h-full"
+          className="bg-white bg-opacity-90 rounded-lg shadow-lg h-full"
         >
-          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-800 truncate">{widget.title}</h3>
-            <span className="drag-handle cursor-move p-1 hover:bg-gray-100 rounded">⋮</span>
-          </div>
           <Widget
             widget={widget}
             onShowOverlay={onShowOverlay}
             onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
           />
-        </section>
+        </div>
       ))}
     </ResponsiveGridLayout>
   );
