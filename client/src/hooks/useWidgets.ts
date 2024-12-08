@@ -57,13 +57,28 @@ export function useWidgets() {
     mutationFn: async (pluginId: string) => {
       // Get the plugin's default configuration
       const plugin = getPlugin(pluginId);
-      const defaultConfig = plugin?.defaultConfig || {};
+      if (!plugin) {
+        throw new Error(`Plugin ${pluginId} not found`);
+      }
+      
+      // Get default configuration and name based on plugin type
+      const defaultConfig = plugin.defaultConfig || {};
+      let defaultTitle;
+      
+      // Check specific plugin configurations
+      if (pluginId === 'time-widget') {
+        defaultTitle = 'Clock';
+      } else if (pluginId === 'weather-widget') {
+        defaultTitle = defaultConfig.city ? `Weather - ${defaultConfig.city}` : 'Weather';
+      } else {
+        defaultTitle = plugin.name || 'New Widget';
+      }
 
       const response = await fetch('/api/widgets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: plugin?.name || 'New Widget',
+          title: defaultTitle,
           content: '',
           x: 0,
           y: 0,
