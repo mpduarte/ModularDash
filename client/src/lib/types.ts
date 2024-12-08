@@ -7,7 +7,7 @@ export interface Plugin {
   version: string;
   enabled: boolean;
   config: Record<string, any>;
-  component: string;
+  component: PluginComponent;
   category: string;
 }
 

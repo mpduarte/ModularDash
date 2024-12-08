@@ -10,14 +10,18 @@ export function registerPlugin(
   component: PluginComponent,
   defaultConfig: Record<string, any> = {},
   name: string = id,
-  version: string = '1.0.0'
+  version: string = '1.0.0',
+  description: string = '',
+  category: string = 'widgets'
 ) {
-  console.log(`Registering plugin: ${id}`, { component, defaultConfig, name, version });
+  console.log(`Registering plugin: ${id}`, { component, defaultConfig, name, version, category });
   registry[id] = {
     component,
     defaultConfig,
     name,
-    version
+    version,
+    description: description || `${name} plugin`,
+    category
   };
 }
 
@@ -37,10 +41,15 @@ const TextWidget: PluginComponent = ({ config }) => (
   </div>
 );
 
-// Register text widget plugin
-registerPlugin('text-widget', TextWidget, {
-  content: ''
-}, 'Text Widget', '1.0.0');
+registerPlugin(
+  'text-widget',
+  TextWidget,
+  { content: '' },
+  'Text Widget',
+  '1.0.0',
+  'Simple text display widget',
+  'content'
+);
 
 // Register HTML widget plugin
 const HtmlWidget: PluginComponent = ({ config }) => (
@@ -50,24 +59,36 @@ const HtmlWidget: PluginComponent = ({ config }) => (
   />
 );
 
-registerPlugin('html-widget', HtmlWidget, {
-  content: ''
-}, 'HTML Widget', '1.0.0');
+registerPlugin(
+  'html-widget',
+  HtmlWidget,
+  { content: '' },
+  'HTML Widget',
+  '1.0.0',
+  'Rich HTML content widget',
+  'content'
+);
 
 // Register background manager plugin
 registerPlugin(
-  backgroundManagerPluginConfig.id,
+  'background-manager',
   backgroundManagerPluginConfig.component,
-  backgroundManagerPluginConfig.defaultConfig
+  backgroundManagerPluginConfig.defaultConfig,
+  'Background Manager',
+  '1.0.0',
+  'Controls dashboard background appearance',
+  'appearance'
 );
 
 // Register weather widget plugin
 registerPlugin(
   'weather-widget',
-  weatherWidgetConfig.component,
+  WeatherWidget,
   weatherWidgetConfig.defaultConfig,
   weatherWidgetConfig.name,
-  weatherWidgetConfig.version
+  weatherWidgetConfig.version,
+  'Displays weather information for a specified location',
+  'widgets'
 );
 
 export default registry;
