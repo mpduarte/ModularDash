@@ -116,98 +116,116 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                   </div>
                 ) : (
                   <>
-                    {console.log('Rendering plugins:', plugins)}
+                    {console.log('Starting plugin rendering, available plugins:', plugins)}
                     {Object.entries(
-                    plugins.reduce((acc, plugin) => {
-                      console.log('Processing plugin:', plugin);
-                      // Determine the category based on plugin type and id
-                      let category = plugin.category;
-                      if (plugin.id.includes('widget') || category === 'widgets' || category === 'content') {
-                        category = 'widgets';
-                      } else if (category === 'appearance') {
-                        category = 'appearance';
-                      } else {
-                        category = 'other';
-                      }
-                      
-                      // Initialize category array if it doesn't exist
-                      if (!acc[category]) {
-                        acc[category] = [];
-                      }
-                      
-                      // Add plugin to appropriate category
-                      acc[category].push(plugin);
-                      console.log(`Added plugin ${plugin.id} to category ${category}`);
-                      return acc;
-                    }, {} as Record<string, Plugin[]>)
-                  ).map(([category, categoryPlugins]) => (
-                    <Collapsible key={category} defaultOpen className="mb-4">
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="flex items-center justify-between w-full p-4 bg-muted/50 rounded-lg hover:bg-muted"
-                        >
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold capitalize">{category}</h3>
-                            <Badge variant="secondary">
-                              {categoryPlugins.length} {categoryPlugins.length === 1 ? 'plugin' : 'plugins'}
-                            </Badge>
-                          </div>
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2 space-y-2">
-                        {categoryPlugins.map(plugin => {
-                          console.log(`Rendering plugin in category: ${category}`, plugin);
-                          const registeredPlugin = getPlugin(plugin.id);
-                          console.log('Registered plugin:', registeredPlugin);
-                          const PluginComponent = registeredPlugin?.component;
-                          return (
-                            <Card key={plugin.id} className="mb-2 overflow-hidden">
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h4 className="font-medium">{plugin.name}</h4>
-                                      <Badge variant="secondary" className="text-xs">
-                                        v{plugin.version}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                      {plugin.description}
-                                    </p>
-                                    {plugin.enabled && PluginComponent && (
-                                      <div className="mt-4 border-t pt-4">
-                                        <PluginComponent
-                                          config={plugin.config || {}}
-                                          onConfigChange={(newConfig) => {
-                                            console.log('Updating plugin config:', plugin.id, newConfig);
-                                            updatePlugin(plugin.id, { config: { ...plugin.config, ...newConfig } });
-                                          }}
-                                        />
+                      plugins.reduce((acc, plugin) => {
+                        if (!plugin) {
+                          console.warn('Found null or undefined plugin in the list');
+                          return acc;
+                        }
+                        
+                        console.log('Processing plugin:', {
+                          id: plugin.id,
+                          name: plugin.name,
+                          category: plugin.category,
+                          enabled: plugin.enabled
+                        });
+
+                        // Normalize the category
+                        let category = plugin.category || 'other';
+                        
+                        // Widgets category includes actual widgets and content plugins
+                        if (category === 'widgets' || category === 'content' || plugin.id.includes('widget')) {
+                          category = 'widgets';
+                        } else if (category === 'appearance') {
+                          category = 'appearance';
+                        }
+                        
+                        console.log(`Categorizing plugin ${plugin.id} as ${category}`);
+                        
+                        // Initialize category array if needed
+                        if (!acc[category]) {
+                          acc[category] = [];
+                          console.log(`Created new category group: ${category}`);
+                        }
+                        
+                        // Add plugin to category
+                        acc[category].push(plugin);
+                        console.log(`Added plugin ${plugin.id} to ${category} category. Current count: ${acc[category].length}`);
+                        
+                        return acc;
+                      }, {} as Record<string, Plugin[]>)
+                    ).map(([category, categoryPlugins]) => {
+                      console.log(`Rendering category ${category} with ${categoryPlugins.length} plugins`);
+                      return (
+                        <Collapsible key={category} defaultOpen className="mb-4">
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="flex items-center justify-between w-full p-4 bg-muted/50 rounded-lg hover:bg-muted"
+                            >
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold capitalize">{category}</h3>
+                                <Badge variant="secondary">
+                                  {categoryPlugins.length} {categoryPlugins.length === 1 ? 'plugin' : 'plugins'}
+                                </Badge>
+                              </div>
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-2 space-y-2">
+                            {categoryPlugins.map(plugin => {
+                              console.log(`Rendering plugin in category: ${category}`, plugin);
+                              const registeredPlugin = getPlugin(plugin.id);
+                              console.log('Registered plugin:', registeredPlugin);
+                              const PluginComponent = registeredPlugin?.component;
+                              return (
+                                <Card key={plugin.id} className="mb-2 overflow-hidden">
+                                  <CardContent className="p-4">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <h4 className="font-medium">{plugin.name}</h4>
+                                          <Badge variant="secondary" className="text-xs">
+                                            v{plugin.version}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mb-4">
+                                          {plugin.description}
+                                        </p>
+                                        {plugin.enabled && PluginComponent && (
+                                          <div className="mt-4 border-t pt-4">
+                                            <PluginComponent
+                                              config={plugin.config || {}}
+                                              onConfigChange={(newConfig) => {
+                                                console.log('Updating plugin config:', plugin.id, newConfig);
+                                                updatePlugin(plugin.id, { config: { ...plugin.config, ...newConfig } });
+                                              }}
+                                            />
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                      <Power className={`h-4 w-4 ${plugin.enabled ? 'text-primary' : 'text-muted-foreground'}`} />
-                                      <Switch
-                                        checked={plugin.enabled}
-                                        onCheckedChange={(checked) => {
-                                          console.log('Toggling plugin:', plugin.id, checked);
-                                          updatePlugin(plugin.id, { enabled: checked });
-                                        }}
-                                      />
+                                      <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                          <Power className={`h-4 w-4 ${plugin.enabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                                          <Switch
+                                            checked={plugin.enabled}
+                                            onCheckedChange={(checked) => {
+                                              console.log('Toggling plugin:', plugin.id, checked);
+                                              updatePlugin(plugin.id, { enabled: checked });
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ))}
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
                   </>
                 )}
               </div>
