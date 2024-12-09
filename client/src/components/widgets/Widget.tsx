@@ -28,10 +28,63 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     onUpdate(updates);
   };
 
-  // Time widget never shows header
-  const isHeaderless = widget.pluginId === 'time-widget' || widget.config.showHeader === false;
   const isTimeWidget = widget.pluginId === 'time-widget';
+  const isHeaderless = isTimeWidget || widget.config.showHeader === false;
 
+  // Render time widget differently from other widgets
+  if (isTimeWidget) {
+    return (
+      <>
+        <Card 
+          className={cn(
+            "w-full h-full relative group transition-colors duration-200 drag-handle",
+            widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
+            widget.config.theme === "compact" && "shadow-sm",
+            widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
+            "!p-0 !m-0"
+          )}
+        >
+          <div className="relative z-[1] h-full">
+            {/* Close button */}
+            <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdate({ visible: false });
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+
+            {/* Time Widget content */}
+            {PluginComponent && (
+              <PluginComponent 
+                config={widget.config || {}}
+                onConfigChange={handleConfigChange}
+              />
+            )}
+          </div>
+        </Card>
+
+        {showConfig && (
+          <WidgetConfigDialog
+            widget={widget}
+            onClose={() => setShowConfig(false)}
+            onUpdate={(updates) => {
+              onUpdate(updates);
+              setShowConfig(false);
+            }}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Render other widgets
   return (
     <>
       <Card 
@@ -44,20 +97,17 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.borderRadius === "square" && "rounded-none",
           widget.config.borderRadius === "pill" && "rounded-full",
           isHeaderless && "!p-0 !m-0",
-          widget.config.customStyles,
-          isTimeWidget && "drag-handle cursor-move"  // Apply drag handle to the Card itself for time widgets
+          widget.config.customStyles
         )}
       >
-        {/* Main container */}
         <div className="relative z-[1] h-full">
-          {/* Drag handle only for non-time widgets */}
-          {!isTimeWidget && (
-            <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="drag-handle cursor-move">
-                <span className="hover:bg-muted/50 rounded p-1">⋮</span>
-              </div>
+          {/* Regular widget drag handle */}
+          <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="drag-handle cursor-move">
+              <span className="hover:bg-muted/50 rounded p-1">⋮</span>
             </div>
-          )}
+          </div>
+
           {/* Close button */}
           <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
