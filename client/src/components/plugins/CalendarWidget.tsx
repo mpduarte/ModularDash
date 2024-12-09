@@ -75,10 +75,19 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           if (isAllDay) {
             // For all-day events, preserve the date without timezone conversion
             const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
-            return new Date(year, month - 1, day);
+            // Create date in UTC to avoid timezone shifts
+            return new Date(Date.UTC(year, month - 1, day));
           }
-          // For time-specific events, parse as ISO and convert to local time
-          return parseISO(dateStr);
+          // For time-specific events, parse as ISO keeping the exact UTC time
+          const parsedDate = parseISO(dateStr);
+          return new Date(Date.UTC(
+            parsedDate.getUTCFullYear(),
+            parsedDate.getUTCMonth(),
+            parsedDate.getUTCDate(),
+            parsedDate.getUTCHours(),
+            parsedDate.getUTCMinutes(),
+            parsedDate.getUTCSeconds()
+          ));
         };
 
         let start = parseDate(rawStart, event.isAllDay);
