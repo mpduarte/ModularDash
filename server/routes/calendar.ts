@@ -59,6 +59,20 @@ router.get('/events', async (req, res) => {
                 end = event.end || event.start;
               }
 
+              // Check if start and end times are identical
+              const hasIdenticalTimes = !isDateOnly && 
+                start.getHours() === end.getHours() && 
+                start.getMinutes() === end.getMinutes() &&
+                start.getDate() === end.getDate() &&
+                start.getMonth() === end.getMonth() &&
+                start.getFullYear() === end.getFullYear();
+
+              // If times are identical, treat as all-day event
+              if (hasIdenticalTimes) {
+                start = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0);
+                end = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59);
+              }
+
               return {
                 summary: event.summary || 'Untitled Event',
                 description: event.description,
@@ -67,7 +81,7 @@ router.get('/events', async (req, res) => {
                 location: event.location,
                 recurrence: event.rrule ? [event.rrule.toString()] : undefined,
                 uid: event.uid,
-                isAllDay: isDateOnly
+                isAllDay: isDateOnly || hasIdenticalTimes
               };
             })
             .filter(event => event.start && event.end) // Ensure valid dates
