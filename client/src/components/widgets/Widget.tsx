@@ -47,15 +47,17 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        {/* Main container - always draggable but only time widget shows move cursor */}
+        {/* Main container */}
         <div className={cn(
-          "relative z-[1] h-full drag-handle",
-          isTimeWidget ? "cursor-move" : ""
+          "relative z-[1] h-full",
+          isTimeWidget && "drag-handle cursor-move"
         )}>
-          {/* Only render handle for non-time widgets */}
-          {!isTimeWidget && !widget.config.showHeader && (
-            <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-move">
-              <span className="hover:bg-muted/50 rounded p-1">⋮</span>
+          {/* Drag handle only for non-time widgets */}
+          {!isTimeWidget && (
+            <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="drag-handle cursor-move">
+                <span className="hover:bg-muted/50 rounded p-1">⋮</span>
+              </div>
             </div>
           )}
           {/* Close button */}
