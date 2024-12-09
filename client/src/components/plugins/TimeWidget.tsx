@@ -158,7 +158,7 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   
   return (
     <div className="flex items-center justify-center h-full">
-      <div className="flex flex-col items-center space-y-2">
+      <div className="flex flex-col items-center">
         {config.displayMode === 'analog' ? (
           <div className="group transition-all duration-300 hover:scale-105">
             <AnalogClock time={currentTime} config={config} />
@@ -179,7 +179,6 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
 };
 
 export const timeWidgetConfig = {
-  name: '',
   version: '1.0.0',
   defaultConfig: {
     format: 'HH:mm',
@@ -191,6 +190,7 @@ export const timeWidgetConfig = {
     displayMode: 'digital',
     showMinuteMarks: true,
     showHourMarks: true,
-    clockSize: 200
+    clockSize: 200,
+    theme: 'minimal'  // Add minimal theme to remove border and header space
   }
 };

@@ -138,7 +138,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                     </div>
                   )}
 
-                  {plugin?.component && (
+                  {plugin && plugin.component && (
                     <div className="space-y-4 pt-4 border-t">
                       <h4 className="font-medium">Plugin Settings</h4>
                       {widget.pluginId === 'time-widget' && (
@@ -147,7 +147,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                             <Label htmlFor="displayMode">Display Mode</Label>
                             <Select
                               value={form.watch("displayMode") || "digital"}
-                              onValueChange={(value) => form.setValue("displayMode", value)}
+                              onValueChange={(value: 'digital' | 'analog') => form.setValue("displayMode", value)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select display mode" />

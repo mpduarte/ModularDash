@@ -19,12 +19,13 @@ interface CalendarEvent {
   uid?: string;
 }
 
-interface CalendarWidgetProps extends PluginProps {
-  config?: {
+interface CalendarWidgetProps extends Omit<PluginProps, 'config'> {
+  config: {
     calendarUrl?: string;
     autoRefresh?: boolean;
     refreshInterval?: number;
     title?: string;
+    [key: string]: any;
   };
 }
 
@@ -124,7 +125,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       // Expand recurring events
       const expandedEvents = processedEvents.flatMap((event: CalendarEvent) => 
         expandRecurringEvents(
-          event,
+          {
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end)
+          },
           subMonths(new Date(), 1), // Start range from 1 month ago
           addMonths(new Date(), 3)  // End range 3 months ahead
         )
