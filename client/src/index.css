@@ -22,11 +22,15 @@
 
 /* Time widget specific styles */
 [data-widget-type="time-widget"] {
-  @apply cursor-move;
+  @apply cursor-move select-none;
 }
 
 [data-widget-type="time-widget"] .drag-handle {
   @apply hidden;
+}
+
+[data-widget-type="time-widget"]:active {
+  @apply cursor-grabbing;
 }
 
 .react-grid-item.react-draggable-dragging {

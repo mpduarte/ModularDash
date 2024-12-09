@@ -81,7 +81,7 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       onLayoutChange={handleLayoutChange}
       isResizable={true}
       isDraggable={true}
-      draggableHandle=".drag-handle"
+      draggableHandle=".drag-handle, [data-widget-type='time-widget']"
       useCSSTransforms={true}
       className="layout"
     >
