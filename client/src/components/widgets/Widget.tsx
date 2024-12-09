@@ -32,18 +32,19 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     <>
       <Card 
         className={cn(
-          "w-full h-full relative group hover:border-border/80 transition-colors duration-200",
-          widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5 p-0 m-0",
-          !widget.config.showHeader && "p-0 m-0",
+          "w-full h-full relative group transition-colors duration-200",
+          widget.config.theme === "minimal" ? "bg-transparent border-0 hover:bg-background/5 !p-0 !m-0" : "hover:border-border/80",
+          !widget.config.showHeader && "!p-0 !m-0",
           widget.config.theme === "compact" && "shadow-sm",
           widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
           widget.config.borderRadius === "rounded" && "rounded-xl",
           widget.config.borderRadius === "square" && "rounded-none",
           widget.config.borderRadius === "pill" && "rounded-full",
+          widget.config.padding === "none" && "!p-0",
           widget.config.padding === "compact" && "p-2",
           widget.config.padding === "normal" && "p-4",
           widget.config.padding === "relaxed" && "p-6",
-          "border border-border/50",
+          widget.config.theme !== "minimal" && "border border-border/50",
           widget.config.customStyles
         )}
       >

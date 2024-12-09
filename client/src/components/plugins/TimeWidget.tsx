@@ -158,8 +158,8 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <div className="flex items-center justify-center h-full p-0">
-      <div className="flex flex-col items-center p-0">
+    <div className="flex items-center justify-center h-full !p-0 !m-0">
+      <div className="flex flex-col items-center !p-0 !m-0">
         {config.displayMode === 'analog' ? (
           <div className="group transition-all duration-300 hover:scale-105">
             <AnalogClock time={currentTime} config={config} />
