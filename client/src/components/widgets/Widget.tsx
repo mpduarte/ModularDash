@@ -17,7 +17,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
   const PluginComponent = plugin?.component;
-
+  
   const handleConfigChange = (newConfig: Record<string, any>) => {
     const updates: Partial<WidgetType> = {
       config: { ...widget.config, ...newConfig }
@@ -28,28 +28,28 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     onUpdate(updates);
   };
 
+  // Time widget never shows header
+  const isHeaderless = widget.pluginId === 'time-widget' || widget.config.showHeader === false;
+
   return (
     <>
       <Card 
         className={cn(
           "w-full h-full relative group transition-colors duration-200",
-          widget.config.theme === "minimal" ? "bg-transparent border-0 hover:bg-background/5 !p-0 !m-0" : "hover:border-border/80",
-          !widget.config.showHeader && "!p-0 !m-0",
+          widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
           widget.config.theme === "compact" && "shadow-sm",
           widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
           widget.config.borderRadius === "rounded" && "rounded-xl",
           widget.config.borderRadius === "square" && "rounded-none",
           widget.config.borderRadius === "pill" && "rounded-full",
-          widget.config.padding === "none" && "!p-0",
-          widget.config.padding === "compact" && "p-2",
-          widget.config.padding === "normal" && "p-4",
-          widget.config.padding === "relaxed" && "p-6",
-          widget.config.theme !== "minimal" && "border border-border/50",
+          isHeaderless && "!p-0 !m-0",
           widget.config.customStyles
         )}
       >
+        {/* Main content wrapper with drag handle */}
         <div className={cn(
-          "relative z-[1] h-full drag-handle cursor-move"
+          "relative z-[1] h-full",
+          isHeaderless && "drag-handle cursor-move"
         )}>
           {/* Close button */}
           <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -67,12 +67,14 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           </div>
 
           {/* Widget content */}
-          {PluginComponent ? (
+          {PluginComponent && (
             <PluginComponent 
               config={widget.config || {}}
               onConfigChange={handleConfigChange}
             />
-          ) : (
+          )}
+
+          {!PluginComponent && (
             <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
           )}
         </div>
