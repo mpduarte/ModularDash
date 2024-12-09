@@ -30,6 +30,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
 
   // Time widget never shows header
   const isHeaderless = widget.pluginId === 'time-widget' || widget.config.showHeader === false;
+  const isTimeWidget = widget.pluginId === 'time-widget';
 
   return (
     <>
@@ -47,8 +48,14 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         )}
       >
         <div className={cn(
-          "relative z-[1] h-full drag-handle cursor-move"
+          "relative z-[1] h-full",
+          isTimeWidget ? "drag-handle cursor-move" : ""
         )}>
+          {!isTimeWidget && (
+            <div className="drag-handle cursor-move">
+              <span className="p-1 hover:bg-muted rounded">⋮</span>
+            </div>
+          )}
           {/* Close button */}
           <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
