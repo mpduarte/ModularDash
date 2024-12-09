@@ -20,7 +20,7 @@ interface WidgetConfigDialogProps {
 }
 
 export default function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDialogProps) {
-  const plugin = getPlugin(widget.pluginId);
+  const plugin = getPlugin(widget.pluginId) ?? null;
   const [activeTab, setActiveTab] = useState("basic");
   
   type WidgetConfig = {
@@ -139,6 +139,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                   )}
 
                   {plugin?.component && (
+                    plugin.component && (
                     <div className="space-y-4 pt-4 border-t">
                       <h4 className="font-medium">Plugin Settings</h4>
                       {widget.pluginId === 'time-widget' && (

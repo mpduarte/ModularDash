@@ -159,11 +159,11 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     // Initialize database and seed data
     await seedDefaultPlugins();
     
+    const server = createServer(app);
+    
     // Set up routes before Vite middleware
     registerRoutes(app);
     
-    const server = createServer(app);
-
     // Set up Vite or static serving based on environment
     if (app.get("env") === "development") {
       await setupVite(app, server);
@@ -183,29 +183,36 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       });
     });
 
+    // Handle server errors
+    server.on('error', (error: any) => {
+      if (error.code === 'EADDRINUSE') {
+        log(`Port ${PORT} is already in use`);
+        process.exit(1);
+      } else {
+        console.error('Server error:', error);
+        process.exit(1);
+      }
+    });
+
     // Start the server and wait for it to be ready
     await new Promise<void>((resolve, reject) => {
-      server.listen(PORT, "0.0.0.0", () => {
+      server.listen(PORT, "0.0.0.0", async () => {
         log(`Server running at http://0.0.0.0:${PORT}`);
-        // Verify the server is actually listening
-        const healthCheck = async () => {
-          try {
-            const response = await fetch(`http://localhost:${PORT}/api/health`);
-            if (response.ok) {
-              log('Health check passed');
-              if (process.send) {
-                process.send('ready');
-              }
-              resolve();
-            } else {
-              reject(new Error('Health check failed'));
+        try {
+          // Verify the server is actually listening
+          const response = await fetch(`http://localhost:${PORT}/api/health`);
+          if (response.ok) {
+            log('Health check passed');
+            if (process.send) {
+              process.send('ready');
             }
-          } catch (error) {
-            reject(error);
+            resolve();
+          } else {
+            throw new Error('Health check failed');
           }
-        };
-        // Run health check after a short delay to ensure server is ready
-        setTimeout(healthCheck, 1000);
+        } catch (error) {
+          reject(error);
+        }
       });
     });
   } catch (error) {
