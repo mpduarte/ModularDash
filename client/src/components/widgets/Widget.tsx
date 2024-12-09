@@ -47,13 +47,12 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        <div className={cn(
-          "relative z-[1] h-full",
-          isTimeWidget ? "drag-handle cursor-move" : ""
-        )}>
+        {/* Main container - always draggable */}
+        <div className="relative z-[1] h-full drag-handle cursor-move">
+          {/* Only show handle icon for non-time widgets */}
           {!isTimeWidget && (
-            <div className="drag-handle cursor-move">
-              <span className="p-1 hover:bg-muted rounded">⋮</span>
+            <div className="p-1">
+              <span className="hover:bg-muted rounded">⋮</span>
             </div>
           )}
           {/* Close button */}
