@@ -1,11 +1,35 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker, type SelectSingleEventHandler } from "react-day-picker"
+import { DayPicker, type SelectSingleEventHandler, type DayPickerDefaultProps } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = Partial<DayPickerDefaultProps>
+
+interface IconProps extends React.ComponentProps<"button"> {
+  onClick?: () => void;
+}
+
+const IconLeft: React.FC<IconProps> = React.forwardRef<HTMLButtonElement, IconProps>(
+  function IconLeft(props, ref) {
+    return (
+      <button ref={ref} onClick={props.onClick}>
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+    );
+  }
+);
+
+const IconRight: React.FC<IconProps> = React.forwardRef<HTMLButtonElement, IconProps>(
+  function IconRight(props, ref) {
+    return (
+      <button ref={ref} onClick={props.onClick}>
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    );
+  }
+);
 
 function Calendar({
   className,
@@ -17,9 +41,8 @@ function Calendar({
   ...props
 }: CalendarProps) {
   const handleSelect: SelectSingleEventHandler = (day, selectedDay, activeModifiers, e) => {
-    // Ensure we're only passing the date to onSelect if it exists
-    if (onSelect) {
-      onSelect(day || undefined, selectedDay, activeModifiers, e);
+    if (onSelect && day) {
+      onSelect(day, selectedDay, activeModifiers, e);
     }
   };
 
@@ -65,8 +88,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-        IconRight: () => <ChevronRight className="h-4 w-4" />,
+        IconLeft,
+        IconRight,
       }}
       {...props}
     />
