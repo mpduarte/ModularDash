@@ -60,22 +60,31 @@ router.get('/events', async (req, res) => {
                 end = event.end || event.start;
               }
 
+              // Function to check if times are effectively identical
+              const areTimesIdentical = (date1: Date, date2: Date) => {
+                return date1.getTime() === date2.getTime();
+              };
+
               // Check if event should be treated as all-day
-              const isSameDateTime = !isDateOnly && 
-                format(start, 'yyyy-MM-dd HH:mm:ss') === format(end, 'yyyy-MM-dd HH:mm:ss');
-              
-              // Check for same day events with same start and end time
-              const isSameDayEvent = format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd');
-              const isSameTime = format(start, 'HH:mm') === format(end, 'HH:mm');
-              
-              const shouldBeAllDay = isDateOnly || (isSameDayEvent && isSameTime);
+              const shouldBeAllDay = isDateOnly || areTimesIdentical(start, end);
 
               // Convert to all-day event if conditions are met
               if (shouldBeAllDay) {
                 // For all-day events, set start to beginning of day and end to end of day
                 const startDate = new Date(start);
-                start = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0));
-                end = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59));
+                // Use UTC to avoid timezone issues
+                start = new Date(Date.UTC(
+                  startDate.getUTCFullYear(),
+                  startDate.getUTCMonth(),
+                  startDate.getUTCDate(),
+                  0, 0, 0, 0
+                ));
+                end = new Date(Date.UTC(
+                  startDate.getUTCFullYear(),
+                  startDate.getUTCMonth(),
+                  startDate.getUTCDate(),
+                  23, 59, 59, 999
+                ));
               }
 
               const processedEvent = {
@@ -93,7 +102,10 @@ router.get('/events', async (req, res) => {
                 summary: processedEvent.summary,
                 start: format(processedEvent.start, 'yyyy-MM-dd HH:mm:ss'),
                 end: format(processedEvent.end, 'yyyy-MM-dd HH:mm:ss'),
-                isAllDay: processedEvent.isAllDay
+                isAllDay: processedEvent.isAllDay,
+                rawStartTime: start.getTime(),
+                rawEndTime: end.getTime(),
+                timeMatch: areTimesIdentical(start, end)
               });
 
               return processedEvent;
