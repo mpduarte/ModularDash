@@ -62,19 +62,23 @@ router.get('/events', async (req, res) => {
 
               // Check if event should be treated as all-day
               const isSameDateTime = !isDateOnly && 
-                format(start, 'yyyy-MM-dd HH:mm') === format(end, 'yyyy-MM-dd HH:mm');
+                format(start, 'yyyy-MM-dd HH:mm:ss') === format(end, 'yyyy-MM-dd HH:mm:ss');
               
-              const shouldBeAllDay = isDateOnly || isSameDateTime;
+              // Check for same day events with same start and end time
+              const isSameDayEvent = format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd');
+              const isSameTime = format(start, 'HH:mm') === format(end, 'HH:mm');
+              
+              const shouldBeAllDay = isDateOnly || (isSameDayEvent && isSameTime);
 
               // Convert to all-day event if conditions are met
               if (shouldBeAllDay) {
                 // For all-day events, set start to beginning of day and end to end of day
                 const startDate = new Date(start);
-                start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);
-                end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59);
+                start = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0));
+                end = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59));
               }
 
-              return {
+              const processedEvent = {
                 summary: event.summary || 'Untitled Event',
                 description: event.description,
                 start: start,
@@ -82,8 +86,17 @@ router.get('/events', async (req, res) => {
                 location: event.location,
                 recurrence: event.rrule ? [event.rrule.toString()] : undefined,
                 uid: event.uid,
-                isAllDay: isDateOnly || shouldBeAllDay
+                isAllDay: shouldBeAllDay
               };
+
+              console.log('Processed event:', {
+                summary: processedEvent.summary,
+                start: format(processedEvent.start, 'yyyy-MM-dd HH:mm:ss'),
+                end: format(processedEvent.end, 'yyyy-MM-dd HH:mm:ss'),
+                isAllDay: processedEvent.isAllDay
+              });
+
+              return processedEvent;
             })
             .filter(event => event.start && event.end) // Ensure valid dates
             .sort((a, b) => a.start.getTime() - b.start.getTime()); // Sort by start time
