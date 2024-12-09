@@ -39,9 +39,9 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         <div data-widget-type="time-widget" className="w-full h-full">
           <Card 
             className={cn(
-              "w-full h-full relative group transition-colors duration-200",
-              "bg-white/90 backdrop-blur-sm",
-              "!p-0 !m-0 border border-border/50"
+              "w-full h-full relative group transition-all duration-200",
+              "bg-background/40 backdrop-blur-md hover:bg-background/50",
+              "!p-0 !m-0 border border-border/20 shadow-sm"
             )}
           >
             <div className="relative z-[1] h-full">
