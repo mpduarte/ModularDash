@@ -342,7 +342,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           <p>{error}</p>
         </div>
       ) : weather && weather.main && weather.weather ? (
-        <div className="p-4 rounded-lg bg-background/40 backdrop-blur-md border border-border/20 shadow-sm">
+        <div className="p-4 w-full h-full relative group transition-all duration-200 bg-background/40 backdrop-blur-md hover:bg-background/50 border border-border/20 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               <div className="relative flex items-center gap-4">
