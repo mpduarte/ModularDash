@@ -36,7 +36,23 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     return (
       <>
         {/* Time widget with minimal container */}
-        <div data-widget-type="time-widget" className="w-full h-full">
+        <div data-widget-type="time-widget" className="w-full h-full relative">
+          <div 
+            className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onUpdate({ visible: false });
+            }}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
           <Card 
             className={cn(
               "w-full h-full relative group transition-all duration-200",
@@ -51,19 +67,6 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                   onConfigChange={handleConfigChange}
                 />
               )}
-              <div 
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-                  onClick={() => onUpdate({ visible: false })}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
             </div>
           </Card>
         </div>
@@ -84,40 +87,45 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   // All widgets use minimal container style
   return (
     <>
-      <Card 
-        className={cn(
-          "w-full h-full relative group transition-all duration-200",
-          "bg-background/40 backdrop-blur-md hover:bg-background/50",
-          "!p-0 !m-0 border border-border/20 shadow-sm",
-          widget.config.customStyles
-        )}
-      >
-        <div className="relative z-[1] h-full">
-          {PluginComponent ? (
-            <PluginComponent 
-              config={widget.config || {}}
-              onConfigChange={handleConfigChange}
-            />
-          ) : (
-            <div className="text-muted-foreground">
-              Plugin not found: {widget.pluginId}
-            </div>
-          )}
-          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onUpdate({ visible: false });
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+      <div className="w-full h-full relative">
+        <div 
+          className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onUpdate({ visible: false });
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+          >
+            <X className="h-3 w-3" />
+          </Button>
         </div>
-      </Card>
+        <Card 
+          className={cn(
+            "w-full h-full relative group transition-all duration-200",
+            "bg-background/40 backdrop-blur-md hover:bg-background/50",
+            "!p-0 !m-0 border border-border/20 shadow-sm",
+            widget.config.customStyles
+          )}
+        >
+          <div className="relative z-[1] h-full">
+            {PluginComponent ? (
+              <PluginComponent 
+                config={widget.config || {}}
+                onConfigChange={handleConfigChange}
+              />
+            ) : (
+              <div className="text-muted-foreground">
+                Plugin not found: {widget.pluginId}
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
       {showConfig && (
         <WidgetConfigDialog
           widget={widget}
