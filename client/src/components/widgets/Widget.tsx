@@ -36,23 +36,19 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     return (
       <>
         {/* Time widget with minimal container */}
-        <div data-widget-type="time-widget" className="w-full h-full relative">
-          <div 
-            className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
+        <div data-widget-type="time-widget" className="w-full h-full relative group">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute -top-1 -right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-50 bg-background/80 hover:bg-background shadow-sm"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onUpdate({ visible: false });
             }}
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+            <X className="h-3 w-3" />
+          </Button>
           <Card 
             className={cn(
               "w-full h-full relative group transition-all duration-200",
@@ -87,23 +83,19 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   // All widgets use minimal container style
   return (
     <>
-      <div className="w-full h-full relative">
-        <div 
-          className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
+      <div className="w-full h-full relative group">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute -top-1 -right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-50 bg-background/80 hover:bg-background shadow-sm"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onUpdate({ visible: false });
           }}
         >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
+          <X className="h-3 w-3" />
+        </Button>
         <Card 
           className={cn(
             "w-full h-full relative group transition-all duration-200",
