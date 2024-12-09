@@ -342,8 +342,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           <p>{error}</p>
         </div>
       ) : weather && weather.main && weather.weather ? (
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-4 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
               <div className="relative flex items-center gap-4">
                 <div className="relative">
@@ -378,8 +378,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1 p-3 rounded-lg bg-background/10 border border-border/10 transition-colors">
+          <div className="grid grid-cols-2 gap-3 mt-auto">
+            <div className="space-y-1 p-3 rounded-lg bg-background/30 backdrop-blur-sm border border-border/20 transition-colors hover:bg-background/40">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Feels Like</Label>
               <p className="text-lg font-semibold">
                 {typeof weather.main.feels_like === 'number' ? Math.round(weather.main.feels_like) : '--'}
@@ -388,7 +388,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
             
             {airQuality?.list?.[0] && (
-              <div className="space-y-1 p-3 rounded-lg bg-background/10 border border-border/10 transition-colors">
+              <div className="space-y-1 p-3 rounded-lg bg-background/30 backdrop-blur-sm border border-border/20 transition-colors hover:bg-background/40">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Air Quality</Label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 rounded-full bg-background/20 overflow-hidden">
@@ -410,7 +410,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           </div>
         </div>
       ) : (
-        <div className="p-6 rounded-xl bg-background/40 backdrop-blur-sm border border-border/10">
+        <div className="p-4 h-full">
           <div className="animate-pulse space-y-4">
             <div className="h-16 bg-muted rounded-lg w-3/4" />
             <div className="grid grid-cols-2 gap-4">
