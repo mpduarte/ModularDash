@@ -144,7 +144,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     }
   };
 
-  const getDayEvents = (day: Date) => {
+  const getDayEvents = (day: Date | null) => {
+    if (!day || !(day instanceof Date) || isNaN(day.getTime())) {
+      return [];
+    }
     // Convert input day to local midnight
     const dayStart = startOfDay(day);
     const dayEnd = endOfDay(day);
@@ -196,7 +199,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={(newDate) => {
+            if (newDate instanceof Date && !isNaN(newDate.getTime())) {
+              setDate(newDate);
+            }
+          }}
           className="w-full rounded-md border"
           defaultMonth={new Date()}
         />
