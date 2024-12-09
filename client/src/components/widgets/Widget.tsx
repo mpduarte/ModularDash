@@ -60,30 +60,26 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     </div>
   );
 
-  // Time widget specific render
+  // Time widget specific render - completely isolated styling
   if (isTimeWidget) {
     return (
       <>
-        <div className="w-full h-full drag-handle">
-          <Card 
-            className={cn(
-              "w-full h-full relative group transition-colors duration-200",
-              widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
-              widget.config.theme === "compact" && "shadow-sm",
-              widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
-              "!p-0 !m-0"
-            )}
-          >
-            <div className="relative z-[1] h-full">
-              {closeButton}
-              {PluginComponent && (
-                <PluginComponent 
-                  config={widget.config || {}}
-                  onConfigChange={handleConfigChange}
-                />
-              )}
-            </div>
-          </Card>
+        {/* Outer wrapper for drag functionality only */}
+        <div className="w-full h-full" {...{ 'data-grid-draggable': true }}>
+          {/* Inner wrapper to prevent style inheritance */}
+          <div className="w-full h-full">
+            <Card className="!p-0 !m-0 border-0 bg-transparent hover:bg-background/5 transition-colors duration-200">
+              <div className="relative">
+                {closeButton}
+                {PluginComponent && (
+                  <PluginComponent 
+                    config={widget.config || {}}
+                    onConfigChange={handleConfigChange}
+                  />
+                )}
+              </div>
+            </Card>
+          </div>
         </div>
         {configDialog}
       </>
