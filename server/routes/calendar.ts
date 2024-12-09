@@ -61,18 +61,17 @@ router.get('/events', async (req, res) => {
               }
 
               // Check if event should be treated as all-day
-              const shouldBeAllDay = !isDateOnly && (
-                // Case 1: Same date with same time
-                (format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd') &&
-                  start.getHours() === end.getHours() && 
-                  start.getMinutes() === end.getMinutes())
-              );
+              const isSameDateTime = !isDateOnly && 
+                format(start, 'yyyy-MM-dd HH:mm') === format(end, 'yyyy-MM-dd HH:mm');
+              
+              const shouldBeAllDay = isDateOnly || isSameDateTime;
 
               // Convert to all-day event if conditions are met
               if (shouldBeAllDay) {
-                // For all-day events, set to entire day
-                start = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-                end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59);
+                // For all-day events, set start to beginning of day and end to end of day
+                const startDate = new Date(start);
+                start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0);
+                end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59);
               }
 
               return {
