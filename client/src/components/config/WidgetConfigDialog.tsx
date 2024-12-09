@@ -138,7 +138,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                     </div>
                   )}
 
-                  {plugin && plugin.component && (
+                  {plugin?.component && (
                     <div className="space-y-4 pt-4 border-t">
                       <h4 className="font-medium">Plugin Settings</h4>
                       {widget.pluginId === 'time-widget' && (

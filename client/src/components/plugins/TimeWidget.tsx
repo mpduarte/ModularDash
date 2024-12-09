@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { cn } from "@/lib/utils";
 
 interface TimeWidgetProps {
   config: {
@@ -157,7 +158,10 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
   const fullTimeFormat = config.showSeconds ? `${timeFormat}:ss` : timeFormat;
   
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className={cn(
+      "flex items-center justify-center h-full",
+      config.theme === "minimal" && "-m-4"
+    )}>
       <div className="flex flex-col items-center">
         {config.displayMode === 'analog' ? (
           <div className="group transition-all duration-300 hover:scale-105">

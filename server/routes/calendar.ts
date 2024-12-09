@@ -76,7 +76,8 @@ router.get('/events', async (req, res) => {
           resolve(calendarEvents);
         } catch (parseError) {
           calendarProviderErrors.labels('parse_error').inc();
-          reject(new Error(`Failed to parse calendar data: ${parseError.message}`));
+          const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parse error';
+          reject(new Error(`Failed to parse calendar data: ${errorMessage}`));
         }
       });
     });
