@@ -48,8 +48,8 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        {/* Header Section */}
-        {widget.config.showHeader !== false && (
+        {/* Only render header if showHeader is explicitly true */}
+        {widget.config.showHeader === true && (
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
             <h3 className="text-sm font-semibold truncate">{widget.title}</h3>
             <span className="drag-handle cursor-move p-1 hover:bg-muted rounded">⋮</span>
@@ -71,11 +71,10 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           </Button>
         </div>
         
-        {/* Widget content */}
+        {/* Widget content with drag handle when header is hidden */}
         <div className={cn(
           "relative z-[1] h-full",
-          // Add drag handle to content area when header is hidden
-          widget.config.showHeader === false && "drag-handle cursor-move"
+          widget.config.showHeader !== true && "drag-handle cursor-move"
         )}>
           {PluginComponent ? (
             <PluginComponent 
