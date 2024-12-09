@@ -338,64 +338,86 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       )}
       
       {error ? (
-        <div className="text-destructive p-4 text-center">
+        <div className="text-destructive p-4 text-center rounded-lg border border-destructive/20 bg-destructive/10">
           <p>{error}</p>
         </div>
       ) : weather && weather.main && weather.weather ? (
-        <>
-          <div className="flex items-start space-x-3">
-            <img
-              src={
-                weather.provider === 'weatherapi' && weather.weather[0]?.icon
-                  ? weather.weather[0].icon
-                  : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
-              }
-              alt={weather.weather[0]?.description || 'Weather icon'}
-              className="w-10 h-10"
-              onError={(e) => {
-                e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
-              }}
-            />
-            <div>
-              <p className="text-2xl font-bold leading-none">
-                {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
-                {unitSymbol}
-              </p>
-              <p className="text-muted-foreground capitalize text-sm">
-                {weather.weather[0]?.description || 'Weather information unavailable'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Last updated: {new Date().toLocaleTimeString()}
-              </p>
+        <div className="p-4 rounded-xl bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-lg border border-border/10 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1">
+              <div className="relative flex items-center gap-4">
+                <div className="relative">
+                  <img
+                    src={
+                      weather.provider === 'weatherapi' && weather.weather[0]?.icon
+                        ? weather.weather[0].icon
+                        : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
+                    }
+                    alt={weather.weather[0]?.description || 'Weather icon'}
+                    className="w-16 h-16 object-contain drop-shadow-md transition-transform duration-300 hover:scale-110"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
+                    }}
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary/10 backdrop-blur-sm border border-border/20 flex items-center justify-center">
+                    <span className="text-[10px] font-medium text-primary">
+                      {typeof weather.main.humidity === 'number' ? weather.main.humidity : '--'}%
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-4xl font-bold tracking-tight">
+                    {typeof weather.main.temp === 'number' ? Math.round(weather.main.temp) : '--'}
+                    <span className="text-2xl ml-1">{unitSymbol}</span>
+                  </p>
+                  <p className="text-muted-foreground capitalize text-sm font-medium mt-1">
+                    {weather.weather[0]?.description || 'Weather information unavailable'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-2 text-xs mt-3">
-            <div>
-              <Label>Feels Like</Label>
-              <p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1 p-3 rounded-lg bg-background/40 border border-border/10 backdrop-blur-sm transition-colors duration-200 hover:bg-background/60">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Feels Like</Label>
+              <p className="text-lg font-semibold">
                 {typeof weather.main.feels_like === 'number' ? Math.round(weather.main.feels_like) : '--'}
-                {unitSymbol}
+                <span className="text-sm ml-1">{unitSymbol}</span>
               </p>
             </div>
-            <div>
-              <Label>Humidity</Label>
-              <p>{typeof weather.main.humidity === 'number' ? weather.main.humidity : '--'}%</p>
-            </div>
+            
             {airQuality?.list?.[0] && (
-              <div>
-                <Label>Air Quality</Label>
+              <div className="space-y-1 p-3 rounded-lg bg-background/40 border border-border/10 backdrop-blur-sm transition-colors duration-200 hover:bg-background/60">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Air Quality</Label>
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color}`} />
-                  <span>{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
+                  <div className="flex-1 h-2 rounded-full bg-background/60 overflow-hidden">
+                    <div 
+                      className={`h-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color} transition-all duration-300`} 
+                      style={{ width: `${(airQuality.list[0].main.aqi / 5) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium">{AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].label}</span>
                 </div>
               </div>
             )}
           </div>
-        </>
+          
+          <div className="mt-4 pt-4 border-t border-border/10">
+            <p className="text-[10px] text-muted-foreground/60 text-right">
+              Last updated: {new Date().toLocaleTimeString()}
+            </p>
+          </div>
+        </div>
       ) : (
-        <div className="text-muted-foreground p-4 text-center">
-          <p>Loading weather information...</p>
+        <div className="p-6 rounded-xl bg-background/40 backdrop-blur-sm border border-border/10">
+          <div className="animate-pulse space-y-4">
+            <div className="h-16 bg-muted rounded-lg w-3/4" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-20 bg-muted rounded-lg" />
+              <div className="h-20 bg-muted rounded-lg" />
+            </div>
+          </div>
         </div>
       )}
     </>
