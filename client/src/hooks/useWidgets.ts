@@ -68,6 +68,9 @@ export function useWidgets() {
       // Check specific plugin configurations
       if (pluginId === 'weather-widget') {
         defaultTitle = defaultConfig.city ? `Weather - ${defaultConfig.city}` : 'Weather';
+      } else if (pluginId === 'time-widget') {
+        defaultTitle = '';  // No title for time widget
+        defaultConfig.showHeader = false;  // Explicitly set showHeader to false
       } else {
         defaultTitle = plugin.name || 'New Widget';
       }

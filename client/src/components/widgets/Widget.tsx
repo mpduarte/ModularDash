@@ -48,34 +48,33 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        {/* Only render header if showHeader is explicitly true */}
-        {widget.config.showHeader === true && (
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-            <h3 className="text-sm font-semibold truncate">{widget.title}</h3>
-            <span className="drag-handle cursor-move p-1 hover:bg-muted rounded">⋮</span>
-          </div>
-        )}
-        
-        {/* Close button */}
-        <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUpdate({ visible: false });
-            }}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-        
-        {/* Widget content with drag handle when header is hidden */}
         <div className={cn(
           "relative z-[1] h-full",
           widget.config.showHeader !== true && "drag-handle cursor-move"
         )}>
+          {widget.config.showHeader === true && (
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+              <h3 className="text-sm font-semibold truncate">{widget.title}</h3>
+              <span className="drag-handle cursor-move p-1 hover:bg-muted rounded">⋮</span>
+            </div>
+          )}
+          
+          {/* Close button */}
+          <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ visible: false });
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+
+          {/* Widget content */}
           {PluginComponent ? (
             <PluginComponent 
               config={widget.config || {}}
