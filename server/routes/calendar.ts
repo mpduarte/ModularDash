@@ -1,6 +1,7 @@
 import express from 'express';
 import ical from 'node-ical';
 import { Router } from 'express';
+import { format } from 'date-fns';
 import { calendarProviderRequests, calendarProviderLatency, calendarProviderErrors } from '../metrics';
 
 const router: Router = express.Router();
