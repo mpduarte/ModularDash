@@ -20,6 +20,15 @@
   @apply cursor-move select-none;
 }
 
+/* Time widget specific styles */
+[data-widget-type="time-widget"] {
+  @apply cursor-move;
+}
+
+[data-widget-type="time-widget"] .drag-handle {
+  @apply hidden;
+}
+
 .react-grid-item.react-draggable-dragging {
   @apply shadow-lg z-[100] cursor-grabbing !important;
 }

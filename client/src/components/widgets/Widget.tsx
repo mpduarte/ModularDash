@@ -36,7 +36,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     return (
       <>
         {/* Simple container with only grid functionality */}
-        <div className="w-full h-full flex" data-grid-item>
+        <div className="w-full h-full flex" data-grid-item data-widget-type="time-widget">
           {/* Content wrapper with minimal styling */}
           <div className="w-full h-full">
             {PluginComponent && (
