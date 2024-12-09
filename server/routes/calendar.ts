@@ -49,13 +49,26 @@ router.get('/events', async (req, res) => {
               let start, end;
               
               if (isDateOnly) {
-                // For date-only events, keep the original date
-                const startStr = event.start.toISOString().split('T')[0];
-                const endStr = (event.end || event.start).toISOString().split('T')[0];
-                // Add time component to make it a full day
-                start = new Date(`${startStr}T00:00:00.000Z`);
-                end = new Date(`${endStr}T00:00:00.000Z`);
+                // For date-only events, keep the original date in local time
+                const startDate = event.start;
+                const endDate = event.end || event.start;
+                
+                // Create dates in local time (not UTC)
+                start = new Date(
+                  startDate.getFullYear(),
+                  startDate.getMonth(),
+                  startDate.getDate(),
+                  0, 0, 0, 0
+                );
+                
+                end = new Date(
+                  endDate.getFullYear(),
+                  endDate.getMonth(),
+                  endDate.getDate(),
+                  23, 59, 59, 999
+                );
               } else {
+                // For time-specific events, use the dates as-is
                 start = event.start;
                 end = event.end || event.start;
               }
@@ -114,18 +127,18 @@ router.get('/events', async (req, res) => {
                 isAllDay: shouldBeAllDay
               };
 
-              console.log('Processed event:', {
+              console.log('Processing event:', {
                 summary: processedEvent.summary,
-                start: format(start, 'yyyy-MM-dd HH:mm:ss'),
-                end: format(end, 'yyyy-MM-dd HH:mm:ss'),
+                originalStart: event.start.toISOString(),
+                originalEnd: (event.end || event.start).toISOString(),
+                processedStart: format(start, 'yyyy-MM-dd HH:mm:ss xxx'),
+                processedEnd: format(end, 'yyyy-MM-dd HH:mm:ss xxx'),
                 isAllDay: processedEvent.isAllDay,
                 isDateOnly: isDateOnly,
-                durationHours: (end.getTime() - start.getTime()) / (1000 * 60 * 60),
-                sameDate: start.getFullYear() === end.getFullYear() &&
-                         start.getMonth() === end.getMonth() &&
-                         start.getDate() === end.getDate(),
-                startTime: `${start.getHours()}:${start.getMinutes()}`,
-                endTime: `${end.getHours()}:${end.getMinutes()}`
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                startLocal: start.toLocaleString(),
+                endLocal: end.toLocaleString(),
+                durationHours: (end.getTime() - start.getTime()) / (1000 * 60 * 60)
               });
 
               return processedEvent;
