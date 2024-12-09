@@ -59,17 +59,24 @@ router.get('/events', async (req, res) => {
                 end = event.end || event.start;
               }
 
-              // Check if start and end times are identical
-              const hasIdenticalTimes = !isDateOnly && 
-                start.getHours() === end.getHours() && 
-                start.getMinutes() === end.getMinutes() &&
-                start.getDate() === end.getDate() &&
-                start.getMonth() === end.getMonth() &&
-                start.getFullYear() === end.getFullYear();
+              // Check if event should be treated as all-day
+              const shouldBeAllDay = !isDateOnly && (
+                // Case 1: Identical start and end times
+                (start.getHours() === end.getHours() && 
+                 start.getMinutes() === end.getMinutes() &&
+                 start.getDate() === end.getDate() &&
+                 start.getMonth() === end.getMonth() &&
+                 start.getFullYear() === end.getFullYear()) ||
+                // Case 2: Events spanning exactly midnight to midnight
+                (start.getHours() === 0 && start.getMinutes() === 0 &&
+                 end.getHours() === 23 && end.getMinutes() === 59)
+              );
 
-              // If times are identical, treat as all-day event
-              if (hasIdenticalTimes) {
-                start = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0);
+              // Convert to all-day event if conditions are met
+              if (shouldBeAllDay) {
+                // Set time to start of day for start date
+                start = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                // Set time to end of day for end date
                 end = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59);
               }
 
@@ -81,7 +88,7 @@ router.get('/events', async (req, res) => {
                 location: event.location,
                 recurrence: event.rrule ? [event.rrule.toString()] : undefined,
                 uid: event.uid,
-                isAllDay: isDateOnly || hasIdenticalTimes
+                isAllDay: isDateOnly || shouldBeAllDay
               };
             })
             .filter(event => event.start && event.end) // Ensure valid dates
