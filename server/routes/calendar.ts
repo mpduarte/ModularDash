@@ -60,19 +60,35 @@ router.get('/events', async (req, res) => {
                 end = event.end || event.start;
               }
 
-              // Function to check if times are effectively identical
-              const areTimesIdentical = (date1: Date, date2: Date) => {
-                return date1.getTime() === date2.getTime();
+              // Function to check if times are effectively identical or span exactly 24 hours
+              const shouldTreatAsAllDay = (start: Date, end: Date, isDateOnly: boolean) => {
+                if (isDateOnly) return true;
+
+                // Case 1: Exact same time
+                if (start.getTime() === end.getTime()) return true;
+
+                // Case 2: 24-hour duration (accounting for DST)
+                const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                if (Math.abs(durationHours - 24) < 0.1) return true;
+
+                // Case 3: Same calendar date
+                const sameDate = start.getFullYear() === end.getFullYear() &&
+                               start.getMonth() === end.getMonth() &&
+                               start.getDate() === end.getDate();
+                if (sameDate && 
+                    start.getHours() === 0 && start.getMinutes() === 0 &&
+                    end.getHours() === 23 && end.getMinutes() === 59) return true;
+
+                return false;
               };
 
               // Check if event should be treated as all-day
-              const shouldBeAllDay = isDateOnly || areTimesIdentical(start, end);
+              const shouldBeAllDay = shouldTreatAsAllDay(start, end, isDateOnly);
 
               // Convert to all-day event if conditions are met
               if (shouldBeAllDay) {
                 // For all-day events, set start to beginning of day and end to end of day
                 const startDate = new Date(start);
-                // Use UTC to avoid timezone issues
                 start = new Date(Date.UTC(
                   startDate.getUTCFullYear(),
                   startDate.getUTCMonth(),
@@ -82,8 +98,8 @@ router.get('/events', async (req, res) => {
                 end = new Date(Date.UTC(
                   startDate.getUTCFullYear(),
                   startDate.getUTCMonth(),
-                  startDate.getUTCDate(),
-                  23, 59, 59, 999
+                  startDate.getUTCDate() + 1,
+                  0, 0, 0, 0
                 ));
               }
 
@@ -100,12 +116,16 @@ router.get('/events', async (req, res) => {
 
               console.log('Processed event:', {
                 summary: processedEvent.summary,
-                start: format(processedEvent.start, 'yyyy-MM-dd HH:mm:ss'),
-                end: format(processedEvent.end, 'yyyy-MM-dd HH:mm:ss'),
+                start: format(start, 'yyyy-MM-dd HH:mm:ss'),
+                end: format(end, 'yyyy-MM-dd HH:mm:ss'),
                 isAllDay: processedEvent.isAllDay,
-                rawStartTime: start.getTime(),
-                rawEndTime: end.getTime(),
-                timeMatch: areTimesIdentical(start, end)
+                isDateOnly: isDateOnly,
+                durationHours: (end.getTime() - start.getTime()) / (1000 * 60 * 60),
+                sameDate: start.getFullYear() === end.getFullYear() &&
+                         start.getMonth() === end.getMonth() &&
+                         start.getDate() === end.getDate(),
+                startTime: `${start.getHours()}:${start.getMinutes()}`,
+                endTime: `${end.getHours()}:${end.getMinutes()}`
               });
 
               return processedEvent;
