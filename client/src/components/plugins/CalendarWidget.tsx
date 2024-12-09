@@ -198,7 +198,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'HH:mm')} - ${format(new Date(event.end), 'HH:mm')}`}
+                    {event.isAllDay || (
+                      format(new Date(event.start), 'HH:mm') === format(new Date(event.end), 'HH:mm') &&
+                      format(new Date(event.start), 'yyyy-MM-dd') === format(new Date(event.end), 'yyyy-MM-dd')
+                    ) ? "All Day" : `${format(new Date(event.start), 'HH:mm')} - ${format(new Date(event.end), 'HH:mm')}`}
                   </p>
                   {event.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
