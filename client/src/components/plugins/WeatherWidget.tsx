@@ -342,7 +342,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           <p>{error}</p>
         </div>
       ) : weather && weather.main && weather.weather ? (
-        <div className="p-4 rounded-xl bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-lg border border-border/10 shadow-lg transition-all duration-300 hover:shadow-xl">
+        <div className="p-4 rounded-lg bg-background/40 backdrop-blur-md border border-border/20 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               <div className="relative flex items-center gap-4">
@@ -379,7 +379,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1 p-3 rounded-lg bg-background/40 border border-border/10 backdrop-blur-sm transition-colors duration-200 hover:bg-background/60">
+            <div className="space-y-1 p-3 rounded-lg bg-background/20 border border-border/20 transition-colors">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Feels Like</Label>
               <p className="text-lg font-semibold">
                 {typeof weather.main.feels_like === 'number' ? Math.round(weather.main.feels_like) : '--'}
@@ -388,10 +388,10 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             </div>
             
             {airQuality?.list?.[0] && (
-              <div className="space-y-1 p-3 rounded-lg bg-background/40 border border-border/10 backdrop-blur-sm transition-colors duration-200 hover:bg-background/60">
+              <div className="space-y-1 p-3 rounded-lg bg-background/20 border border-border/20 transition-colors">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground/70">Air Quality</Label>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 rounded-full bg-background/60 overflow-hidden">
+                  <div className="flex-1 h-2 rounded-full bg-background/40 overflow-hidden">
                     <div 
                       className={`h-full ${AQI_LEVELS[airQuality.list[0].main.aqi as keyof typeof AQI_LEVELS].color} transition-all duration-300`} 
                       style={{ width: `${(airQuality.list[0].main.aqi / 5) * 100}%` }}
