@@ -48,8 +48,13 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        {/* Drag handle covers entire widget */}
-        <div className="drag-handle absolute inset-0 z-0" />
+        {/* Header Section */}
+        {widget.config.showHeader !== false && (
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+            <h3 className="text-sm font-semibold truncate">{widget.title}</h3>
+            <span className="drag-handle cursor-move p-1 hover:bg-muted rounded">⋮</span>
+          </div>
+        )}
         
         {/* Close button */}
         <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -67,7 +72,11 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         </div>
         
         {/* Widget content */}
-        <div className="relative z-[1] h-full">
+        <div className={cn(
+          "relative z-[1] h-full",
+          // Add drag handle to content area when header is hidden
+          widget.config.showHeader === false && "drag-handle cursor-move"
+        )}>
           {PluginComponent ? (
             <PluginComponent 
               config={widget.config || {}}
