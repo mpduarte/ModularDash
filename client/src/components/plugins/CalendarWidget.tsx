@@ -73,21 +73,14 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         // Function to parse date considering UTC and all-day events
         const parseDate = (dateStr: string, isAllDay: boolean = false) => {
           if (isAllDay) {
-            // For all-day events, preserve the date without timezone conversion
+            // For all-day events, create a date at midnight in local time
             const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
-            // Create date in UTC to avoid timezone shifts
-            return new Date(Date.UTC(year, month - 1, day));
+            return new Date(year, month - 1, day);
           }
-          // For time-specific events, parse as ISO keeping the exact UTC time
-          const parsedDate = parseISO(dateStr);
-          return new Date(Date.UTC(
-            parsedDate.getUTCFullYear(),
-            parsedDate.getUTCMonth(),
-            parsedDate.getUTCDate(),
-            parsedDate.getUTCHours(),
-            parsedDate.getUTCMinutes(),
-            parsedDate.getUTCSeconds()
-          ));
+          
+          // For time-specific events, parse the ISO string directly
+          // This preserves the original time exactly as received from the server
+          return new Date(dateStr);
         };
 
         let start = parseDate(rawStart, event.isAllDay);
@@ -235,7 +228,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'HH:mm')} - ${format(new Date(event.end), 'HH:mm')}`}
+                    {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'h:mm a')} - ${format(new Date(event.end), 'h:mm a')}`}
                   </p>
                   {event.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">

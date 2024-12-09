@@ -68,27 +68,29 @@ router.get('/events', async (req, res) => {
                   23, 59, 59, 999
                 );
               } else {
-                // For time-specific events, preserve the original time exactly as provided
+                // For time-specific events, preserve the original time exactly as is
                 const startDate = event.start;
                 const endDate = event.end || event.start;
                 
-                // Create dates preserving the exact time and timezone offset
-                start = new Date(Date.UTC(
-                  startDate.getUTCFullYear(),
-                  startDate.getUTCMonth(),
-                  startDate.getUTCDate(),
-                  startDate.getUTCHours(),
-                  startDate.getUTCMinutes(),
-                  startDate.getUTCSeconds()
-                ));
-                end = new Date(Date.UTC(
-                  endDate.getUTCFullYear(),
-                  endDate.getUTCMonth(),
-                  endDate.getUTCDate(),
-                  endDate.getUTCHours(),
-                  endDate.getUTCMinutes(),
-                  endDate.getUTCSeconds()
-                ));
+                // Keep the original dates without any timezone conversion
+                start = new Date(startDate);
+                end = new Date(endDate);
+                
+                // Store the original timezone offset for reference
+                const tzOffset = {
+                  start: startDate.getTimezoneOffset(),
+                  end: endDate.getTimezoneOffset()
+                };
+                
+                // Log timezone information for debugging
+                console.log('Event timezone info:', {
+                  summary: event.summary,
+                  startOriginal: startDate.toISOString(),
+                  endOriginal: endDate.toISOString(),
+                  startProcessed: start.toISOString(),
+                  endProcessed: end.toISOString(),
+                  tzOffset
+                });
               }
 
               // Function to check if times are effectively identical or span exactly 24 hours
