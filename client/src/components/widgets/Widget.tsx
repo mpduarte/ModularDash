@@ -44,14 +44,12 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.borderRadius === "square" && "rounded-none",
           widget.config.borderRadius === "pill" && "rounded-full",
           isHeaderless && "!p-0 !m-0",
-          widget.config.customStyles
+          widget.config.customStyles,
+          isTimeWidget && "drag-handle cursor-move"  // Apply drag handle to the Card itself for time widgets
         )}
       >
         {/* Main container */}
-        <div className={cn(
-          "relative z-[1] h-full",
-          isTimeWidget && "drag-handle cursor-move"
-        )}>
+        <div className="relative z-[1] h-full">
           {/* Drag handle only for non-time widgets */}
           {!isTimeWidget && (
             <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
