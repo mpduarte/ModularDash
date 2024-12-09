@@ -31,62 +31,50 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const isTimeWidget = widget.pluginId === 'time-widget';
   const isHeaderless = isTimeWidget || widget.config.showHeader === false;
 
-  // Common config dialog component
-  const configDialog = showConfig && (
-    <WidgetConfigDialog
-      widget={widget}
-      onClose={() => setShowConfig(false)}
-      onUpdate={(updates) => {
-        onUpdate(updates);
-        setShowConfig(false);
-      }}
-    />
-  );
-
-  // Common close button component
-  const closeButton = (
-    <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-        onClick={(e) => {
-          e.stopPropagation();
-          onUpdate({ visible: false });
-        }}
-      >
-        <X className="h-3 w-3" />
-      </Button>
-    </div>
-  );
-
-  // Time widget specific render - completely isolated styling
+  // Time widget specific render
   if (isTimeWidget) {
     return (
       <>
-        {/* Outer wrapper for drag functionality only */}
-        <div className="w-full h-full" {...{ 'data-grid-draggable': true }}>
-          {/* Inner wrapper to prevent style inheritance */}
+        {/* Simple container with only grid functionality */}
+        <div className="w-full h-full flex" data-grid-item>
+          {/* Content wrapper with minimal styling */}
           <div className="w-full h-full">
-            <Card className="!p-0 !m-0 border-0 bg-transparent hover:bg-background/5 transition-colors duration-200">
-              <div className="relative">
-                {closeButton}
-                {PluginComponent && (
-                  <PluginComponent 
-                    config={widget.config || {}}
-                    onConfigChange={handleConfigChange}
-                  />
-                )}
-              </div>
-            </Card>
+            {PluginComponent && (
+              <PluginComponent 
+                config={widget.config || {}}
+                onConfigChange={handleConfigChange}
+              />
+            )}
+            <div className="absolute top-1 right-1 opacity-0 hover:opacity-100">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdate({ visible: false });
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         </div>
-        {configDialog}
+        {showConfig && (
+          <WidgetConfigDialog
+            widget={widget}
+            onClose={() => setShowConfig(false)}
+            onUpdate={(updates) => {
+              onUpdate(updates);
+              setShowConfig(false);
+            }}
+          />
+        )}
       </>
     );
   }
 
-  // Regular widgets render
+  // Regular widgets render with full styling
   return (
     <>
       <Card 
@@ -109,7 +97,19 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
             </div>
           </div>
 
-          {closeButton}
+          <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ visible: false });
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
 
           {PluginComponent ? (
             <PluginComponent 
@@ -123,7 +123,16 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           )}
         </div>
       </Card>
-      {configDialog}
+      {showConfig && (
+        <WidgetConfigDialog
+          widget={widget}
+          onClose={() => setShowConfig(false)}
+          onUpdate={(updates) => {
+            onUpdate(updates);
+            setShowConfig(false);
+          }}
+        />
+      )}
     </>
   );
 }
