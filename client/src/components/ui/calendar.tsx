@@ -1,6 +1,6 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import { DayPicker, type SelectSingleEventHandler } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -11,12 +11,25 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  selected,
+  mode = "single",
+  onSelect,
   ...props
 }: CalendarProps) {
+  const handleSelect: SelectSingleEventHandler = (day, selectedDay, activeModifiers, e) => {
+    // Ensure we're only passing the date to onSelect if it exists
+    if (onSelect) {
+      onSelect(day || undefined, selectedDay, activeModifiers, e);
+    }
+  };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
+      mode={mode}
+      selected={selected}
+      onSelect={handleSelect}
       classNames={{
         months: "flex flex-col w-full space-y-4",
         month: "space-y-4 w-full",
@@ -52,8 +65,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" {...props} />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" {...props} />,
+        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
+        IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}
       {...props}
     />
