@@ -156,24 +156,52 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 (async () => {
   try {
+    log('Starting server initialization...');
+    
     // Initialize database and seed data
-    await seedDefaultPlugins();
+    try {
+      await seedDefaultPlugins();
+    } catch (error) {
+      log(`Database initialization error: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
+    }
     
     const server = createServer(app);
     
-    // Set up routes before Vite middleware
-    registerRoutes(app);
-    
-    // Set up Vite or static serving based on environment
+    // Set up environment-specific middleware first
     if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      serveStatic(app);
+      try {
+        await setupVite(app, server);
+        log('Vite middleware setup complete');
+      } catch (error) {
+        log(`Vite setup error: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
+      }
+    }
+
+    // Set up API routes after middleware
+    try {
+      registerRoutes(app);
+      log('Routes registered successfully');
+    } catch (error) {
+      log(`Route registration error: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
+    }
+    
+    // Set up static serving for production
+    if (app.get("env") !== "development") {
+      try {
+        serveStatic(app);
+        log('Static serving setup complete');
+      } catch (error) {
+        log(`Static serving setup error: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
+      }
     }
 
     // Start the server
     const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-    
+
     // Add proper signal handling for production
     process.on('SIGTERM', () => {
       log('Received SIGTERM signal. Shutting down gracefully...');
@@ -183,36 +211,53 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       });
     });
 
-    // Handle server errors
-    server.on('error', (error: any) => {
-      if (error.code === 'EADDRINUSE') {
-        log(`Port ${PORT} is already in use`);
-        process.exit(1);
-      } else {
-        console.error('Server error:', error);
-        process.exit(1);
-      }
-    });
-
-    // Start the server and wait for it to be ready
+    // Start the server
     await new Promise<void>((resolve, reject) => {
-      server.listen(PORT, "0.0.0.0", async () => {
-        log(`Server running at http://0.0.0.0:${PORT}`);
-        try {
-          // Verify the server is actually listening
-          const response = await fetch(`http://localhost:${PORT}/api/health`);
-          if (response.ok) {
-            log('Health check passed');
-            if (process.send) {
-              process.send('ready');
-            }
-            resolve();
-          } else {
-            throw new Error('Health check failed');
-          }
-        } catch (error) {
+      log('Starting server...');
+
+      // Add error handler before attempting to listen
+      server.on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE') {
+          log(`Port ${PORT} is already in use`);
+          server.close(() => {
+            log('Server closed, retrying...');
+            setTimeout(() => {
+              log('Attempting to restart server...');
+              server.listen(PORT, '0.0.0.0');
+            }, 1000);
+          });
+        } else {
+          log(`Server error: ${error.message}`);
           reject(error);
         }
+      });
+
+      // Start listening
+      server.listen(PORT, '0.0.0.0', () => {
+        log(`Server listening on port ${PORT}`);
+        
+        // Wait a bit for the server to stabilize
+        setTimeout(async () => {
+          try {
+            log('Performing health check...');
+            const response = await fetch(`http://localhost:${PORT}/api/health`);
+            
+            if (response.ok) {
+              log('Health check passed');
+              if (process.send) {
+                process.send('ready');
+              }
+              resolve();
+            } else {
+              const error = new Error('Health check failed');
+              log(`Health check failed: ${error.message}`);
+              reject(error);
+            }
+          } catch (error) {
+            log(`Health check error: ${error instanceof Error ? error.message : String(error)}`);
+            reject(error);
+          }
+        }, 2000);
       });
     });
   } catch (error) {
