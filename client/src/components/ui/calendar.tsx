@@ -1,35 +1,15 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker, type SelectSingleEventHandler, type DayPickerDefaultProps } from "react-day-picker"
+import { DayPicker, DayPickerSingleProps } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = Partial<DayPickerDefaultProps>
-
-interface IconProps extends React.ComponentProps<"button"> {
-  onClick?: () => void;
-}
-
-const IconLeft: React.FC<IconProps> = React.forwardRef<HTMLButtonElement, IconProps>(
-  function IconLeft(props, ref) {
-    return (
-      <button ref={ref} onClick={props.onClick}>
-        <ChevronLeft className="h-4 w-4" />
-      </button>
-    );
-  }
-);
-
-const IconRight: React.FC<IconProps> = React.forwardRef<HTMLButtonElement, IconProps>(
-  function IconRight(props, ref) {
-    return (
-      <button ref={ref} onClick={props.onClick}>
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    );
-  }
-);
+export type CalendarProps = Omit<DayPickerSingleProps, "mode" | "selected" | "onSelect" | "components"> & {
+  mode?: "single";
+  selected?: Date;
+  onSelect?: (date: Date | undefined) => void;
+};
 
 function Calendar({
   className,
@@ -40,25 +20,17 @@ function Calendar({
   onSelect,
   ...props
 }: CalendarProps) {
-  const handleSelect: SelectSingleEventHandler = (day, selectedDay, activeModifiers, e) => {
-    if (onSelect && day) {
-      // Only pass the date to prevent object rendering issues
-      onSelect(day, selectedDay, activeModifiers, e);
-    }
-  };
-
-  // Prevent object props from being passed to the DOM
-  const safeProps = { ...props };
-  delete safeProps.modifiers;
-  delete safeProps.modifiersClassNames;
-
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
-      mode={mode}
+      mode="single"
       selected={selected}
-      onSelect={handleSelect}
+      onSelect={onSelect}
+      components={{
+        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
+        IconRight: () => <ChevronRight className="h-4 w-4" />
+      }}
       classNames={{
         months: "flex flex-col w-full space-y-4",
         month: "space-y-4 w-full",
@@ -99,18 +71,10 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        IconLeft,
-        IconRight,
-      }}
-      {...safeProps}
-      disabled={props.disabled}
-      fromDate={props.fromDate}
-      toDate={props.toDate}
-      defaultMonth={props.defaultMonth}
     />
   )
 }
+
 Calendar.displayName = "Calendar"
 
 export { Calendar }

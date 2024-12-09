@@ -196,8 +196,9 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(newDate) => newDate && setDate(newDate)}
+          onSelect={setDate}
           className="w-full rounded-md border"
+          defaultMonth={new Date()}
         />
         
         <ScrollArea className="h-[200px] rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
