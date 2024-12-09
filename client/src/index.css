@@ -20,16 +20,12 @@
   @apply cursor-move select-none;
 }
 
-/* Time widget specific styles */
-[data-widget-type="time-widget"] {
+/* Widget styles */
+[data-widget-type] {
   @apply cursor-move select-none;
 }
 
-[data-widget-type="time-widget"] .drag-handle {
-  @apply hidden;
-}
-
-[data-widget-type="time-widget"]:active {
+[data-widget-type]:active {
   @apply cursor-grabbing;
 }
 

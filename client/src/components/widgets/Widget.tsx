@@ -81,30 +81,29 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     );
   }
 
-  // Regular widgets render with full styling
+  // All widgets use minimal container style
   return (
     <>
       <Card 
         className={cn(
           "w-full h-full relative group transition-colors duration-200",
-          widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
-          widget.config.theme === "compact" && "shadow-sm",
-          widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
-          widget.config.borderRadius === "rounded" && "rounded-xl",
-          widget.config.borderRadius === "square" && "rounded-none",
-          widget.config.borderRadius === "pill" && "rounded-full",
-          isHeaderless && "!p-0 !m-0",
+          "bg-white/90 backdrop-blur-sm",
+          "!p-0 !m-0 border border-border/50",
           widget.config.customStyles
         )}
       >
         <div className="relative z-[1] h-full">
-          <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="drag-handle cursor-move">
-              <span className="hover:bg-muted/50 rounded p-1">⋮</span>
+          {PluginComponent ? (
+            <PluginComponent 
+              config={widget.config || {}}
+              onConfigChange={handleConfigChange}
+            />
+          ) : (
+            <div className="text-muted-foreground">
+              Plugin not found: {widget.pluginId}
             </div>
-          </div>
-
-          <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          )}
+          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
@@ -117,17 +116,6 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               <X className="h-3 w-3" />
             </Button>
           </div>
-
-          {PluginComponent ? (
-            <PluginComponent 
-              config={widget.config || {}}
-              onConfigChange={handleConfigChange}
-            />
-          ) : (
-            <div className="text-muted-foreground">
-              Plugin not found: {widget.pluginId}
-            </div>
-          )}
         </div>
       </Card>
       {showConfig && (
