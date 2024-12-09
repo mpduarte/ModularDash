@@ -180,7 +180,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           className="w-full rounded-md border"
         />
         
-        <ScrollArea className="h-[200px] rounded-md border p-4">
+        <ScrollArea className="h-[200px] rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
           <div className="space-y-4">
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading events...</p>
