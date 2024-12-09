@@ -165,9 +165,23 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           return selectedDay >= eventStartDay && selectedDay <= eventEndDay;
         }
 
-        // For time-specific events, use the local timezone comparison
-        const localEventStart = new Date(eventStart.toLocaleString());
-        return localEventStart >= dayStart && localEventStart <= dayEnd;
+        // For time-specific events, convert the day boundaries to UTC for comparison
+        const eventStartUTC = new Date(eventStart);
+        const dayStartUTC = new Date(Date.UTC(
+          day.getFullYear(),
+          day.getMonth(),
+          day.getDate(),
+          -eventStartUTC.getTimezoneOffset() / 60,
+          0, 0, 0
+        ));
+        const dayEndUTC = new Date(Date.UTC(
+          day.getFullYear(),
+          day.getMonth(),
+          day.getDate(),
+          23 - eventStartUTC.getTimezoneOffset() / 60,
+          59, 59, 999
+        ));
+        return eventStartUTC >= dayStartUTC && eventStartUTC <= dayEndUTC;
       })
       .sort((a, b) => {
         if (a.isAllDay && !b.isAllDay) return -1;

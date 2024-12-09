@@ -68,24 +68,13 @@ router.get('/events', async (req, res) => {
                   23, 59, 59, 999
                 );
               } else {
-                // For time-specific events, convert to local timezone
+                // For time-specific events, preserve the original UTC time
                 const startDate = event.start;
                 const endDate = event.end || event.start;
                 
-                // Create dates preserving the local time components
-                start = new Date(startDate.getFullYear(), 
-                               startDate.getMonth(), 
-                               startDate.getDate(),
-                               startDate.getHours(),
-                               startDate.getMinutes(),
-                               startDate.getSeconds());
-                               
-                end = new Date(endDate.getFullYear(),
-                             endDate.getMonth(),
-                             endDate.getDate(),
-                             endDate.getHours(),
-                             endDate.getMinutes(),
-                             endDate.getSeconds());
+                // Create dates preserving the UTC time
+                start = new Date(startDate.toISOString());
+                end = new Date(endDate.toISOString());
               }
 
               // Function to check if times are effectively identical or span exactly 24 hours
