@@ -145,23 +145,29 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   const getDayEvents = (day: Date) => {
+    // Convert input day to local midnight
     const dayStart = startOfDay(day);
     const dayEnd = endOfDay(day);
 
     return events
       .filter(event => {
+        // Parse dates using local timezone
         const eventStart = new Date(event.start);
         const eventEnd = new Date(event.end);
 
         if (event.isAllDay) {
-          // For all-day events, check if the selected day falls within the event duration
+          // For all-day events, compare dates without time components
           const eventStartDay = startOfDay(eventStart);
           const eventEndDay = startOfDay(eventEnd);
-          return dayStart >= eventStartDay && dayStart <= eventEndDay;
+          const selectedDay = startOfDay(day);
+          
+          // Check if the selected day falls within the event's date range
+          return selectedDay >= eventStartDay && selectedDay <= eventEndDay;
         }
 
-        // For time-specific events, check if they occur on this day
-        return eventStart >= dayStart && eventStart <= dayEnd;
+        // For time-specific events, use the local timezone comparison
+        const localEventStart = new Date(eventStart.toLocaleString());
+        return localEventStart >= dayStart && localEventStart <= dayEnd;
       })
       .sort((a, b) => {
         if (a.isAllDay && !b.isAllDay) return -1;
