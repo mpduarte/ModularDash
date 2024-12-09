@@ -35,30 +35,37 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   if (isTimeWidget) {
     return (
       <>
-        {/* Simple container with only grid functionality */}
-        <div className="w-full h-full flex" data-grid-item data-widget-type="time-widget">
-          {/* Content wrapper with minimal styling */}
-          <div className="w-full h-full">
-            {PluginComponent && (
-              <PluginComponent 
-                config={widget.config || {}}
-                onConfigChange={handleConfigChange}
-              />
+        {/* Time widget with minimal container */}
+        <div data-widget-type="time-widget" className="w-full h-full">
+          <Card 
+            className={cn(
+              "w-full h-full relative group transition-colors duration-200",
+              "bg-white/90 backdrop-blur-sm",
+              "!p-0 !m-0 border border-border/50"
             )}
-            <div className="absolute top-1 right-1 opacity-0 hover:opacity-100">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdate({ visible: false });
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+          >
+            <div className="relative z-[1] h-full">
+              {PluginComponent && (
+                <PluginComponent 
+                  config={widget.config || {}}
+                  onConfigChange={handleConfigChange}
+                />
+              )}
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdate({ visible: false });
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
-          </div>
+          </Card>
         </div>
         {showConfig && (
           <WidgetConfigDialog
