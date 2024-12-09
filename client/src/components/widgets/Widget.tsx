@@ -46,11 +46,8 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           widget.config.customStyles
         )}
       >
-        {/* Main content wrapper with drag handle for entire widget */}
         <div className={cn(
-          "relative z-[1] h-full",
-          isHeaderless ? "drag-handle cursor-move" : "",
-          widget.pluginId === 'time-widget' && "drag-handle cursor-move"
+          "relative z-[1] h-full drag-handle cursor-move"
         )}>
           {/* Close button */}
           <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
