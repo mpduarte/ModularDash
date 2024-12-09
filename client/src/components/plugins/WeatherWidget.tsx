@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WeatherIcon } from "@/components/ui/weather-icon";
 import { type PluginComponent, PluginProps } from '../../lib/types';
 import { createPortal } from 'react-dom';
 
@@ -347,17 +348,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
             <div className="flex-1">
               <div className="relative flex items-center gap-4">
                 <div className="relative">
-                  <img
-                    src={
-                      weather.provider === 'weatherapi' && weather.weather[0]?.icon
-                        ? weather.weather[0].icon
-                        : `https://openweathermap.org/img/w/${weather.weather[0]?.icon || '01d'}.png`
-                    }
-                    alt={weather.weather[0]?.description || 'Weather icon'}
-                    className="w-16 h-16 object-contain drop-shadow-md transition-transform duration-300 hover:scale-110"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://openweathermap.org/img/w/01d.png';
-                    }}
+                  <WeatherIcon
+                    condition={weather.weather[0]?.icon || '01d'}
+                    size="md"
+                    animated={true}
+                    className="transition-transform duration-300 hover:scale-110"
                   />
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary/10 backdrop-blur-sm border border-border/20 flex items-center justify-center">
                     <span className="text-[10px] font-medium text-primary">
