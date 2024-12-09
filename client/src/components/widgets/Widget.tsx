@@ -31,60 +31,66 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const isTimeWidget = widget.pluginId === 'time-widget';
   const isHeaderless = isTimeWidget || widget.config.showHeader === false;
 
-  // Render time widget differently from other widgets
+  // Common config dialog component
+  const configDialog = showConfig && (
+    <WidgetConfigDialog
+      widget={widget}
+      onClose={() => setShowConfig(false)}
+      onUpdate={(updates) => {
+        onUpdate(updates);
+        setShowConfig(false);
+      }}
+    />
+  );
+
+  // Common close button component
+  const closeButton = (
+    <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          onUpdate({ visible: false });
+        }}
+      >
+        <X className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+
+  // Time widget specific render
   if (isTimeWidget) {
     return (
       <>
-        <Card 
-          className={cn(
-            "w-full h-full relative group transition-colors duration-200 drag-handle",
-            widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
-            widget.config.theme === "compact" && "shadow-sm",
-            widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
-            "!p-0 !m-0"
-          )}
-        >
-          <div className="relative z-[1] h-full">
-            {/* Close button */}
-            <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdate({ visible: false });
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-
-            {/* Time Widget content */}
-            {PluginComponent && (
-              <PluginComponent 
-                config={widget.config || {}}
-                onConfigChange={handleConfigChange}
-              />
+        <div className="w-full h-full drag-handle">
+          <Card 
+            className={cn(
+              "w-full h-full relative group transition-colors duration-200",
+              widget.config.theme === "minimal" && "bg-transparent border-0 hover:bg-background/5",
+              widget.config.theme === "compact" && "shadow-sm",
+              widget.config.theme === "performance" && "shadow-none [&_*]:!transition-none",
+              "!p-0 !m-0"
             )}
-          </div>
-        </Card>
-
-        {showConfig && (
-          <WidgetConfigDialog
-            widget={widget}
-            onClose={() => setShowConfig(false)}
-            onUpdate={(updates) => {
-              onUpdate(updates);
-              setShowConfig(false);
-            }}
-          />
-        )}
+          >
+            <div className="relative z-[1] h-full">
+              {closeButton}
+              {PluginComponent && (
+                <PluginComponent 
+                  config={widget.config || {}}
+                  onConfigChange={handleConfigChange}
+                />
+              )}
+            </div>
+          </Card>
+        </div>
+        {configDialog}
       </>
     );
   }
 
-  // Render other widgets
+  // Regular widgets render
   return (
     <>
       <Card 
@@ -101,52 +107,27 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         )}
       >
         <div className="relative z-[1] h-full">
-          {/* Regular widget drag handle */}
           <div className="absolute top-1 left-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="drag-handle cursor-move">
               <span className="hover:bg-muted/50 rounded p-1">⋮</span>
             </div>
           </div>
 
-          {/* Close button */}
-          <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onUpdate({ visible: false });
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+          {closeButton}
 
-          {/* Widget content */}
-          {PluginComponent && (
+          {PluginComponent ? (
             <PluginComponent 
               config={widget.config || {}}
               onConfigChange={handleConfigChange}
             />
-          )}
-
-          {!PluginComponent && (
-            <div className="text-muted-foreground">Plugin not found: {widget.pluginId}</div>
+          ) : (
+            <div className="text-muted-foreground">
+              Plugin not found: {widget.pluginId}
+            </div>
           )}
         </div>
       </Card>
-
-      {showConfig && (
-        <WidgetConfigDialog
-          widget={widget}
-          onClose={() => setShowConfig(false)}
-          onUpdate={(updates) => {
-            onUpdate(updates);
-            setShowConfig(false);
-          }}
-        />
-      )}
+      {configDialog}
     </>
   );
 }
