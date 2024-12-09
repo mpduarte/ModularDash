@@ -181,6 +181,7 @@ export const TimeWidget: React.FC<TimeWidgetProps> = ({ config }) => {
 
 export const timeWidgetConfig = {
   version: '1.0.0',
+  component: TimeWidget,
   defaultConfig: {
     format: 'HH:mm',
     showSeconds: false,
@@ -192,8 +193,9 @@ export const timeWidgetConfig = {
     showMinuteMarks: true,
     showHourMarks: true,
     clockSize: 200,
-    theme: 'minimal',  // Remove border and header space
-    padding: 'none',  // Explicitly remove padding
-    showHeader: false  // Ensure header is hidden
+    theme: 'minimal',
+    padding: 'none',
+    showHeader: false,
+    title: ''
   }
 };

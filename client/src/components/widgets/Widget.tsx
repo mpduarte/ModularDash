@@ -49,16 +49,8 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         )}
       >
         <div className={cn(
-          "relative z-[1] h-full",
-          widget.config.showHeader !== true && "drag-handle cursor-move"
+          "relative z-[1] h-full drag-handle cursor-move"
         )}>
-          {widget.config.showHeader === true && (
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-              <h3 className="text-sm font-semibold truncate">{widget.title}</h3>
-              <span className="drag-handle cursor-move p-1 hover:bg-muted rounded">⋮</span>
-            </div>
-          )}
-          
           {/* Close button */}
           <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
