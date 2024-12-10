@@ -38,6 +38,14 @@ args = "Build Only"
 task = "workflow.run"
 args = "Development Server with Metrics"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Client Development"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Server Development"
+
 [[workflows.workflow]]
 name = "Development Server"
 author = "agent"
@@ -50,8 +58,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
+args = "npm run dev:concurrent"
+waitForPort = 5173
 
 [[workflows.workflow]]
 name = "Build"
@@ -94,4 +102,34 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "ENABLE_METRICS=true npm run dev"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Client Development"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "vite"
+waitForPort = 5173
+
+[[workflows.workflow]]
+name = "Server Development"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "tsx watch --clear-screen=false server/index.ts"
 waitForPort = 5000

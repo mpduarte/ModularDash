@@ -88,9 +88,13 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
       {widgets.map(widget => {
         const isTimeWidget = widget.pluginId === 'time-widget';
         
-        // All widgets get minimal wrapper
+        // All widgets get wrapper with full height and draggable handle
         return (
-          <div key={widget.id.toString()} data-widget-type={widget.pluginId}>
+          <div 
+            key={widget.id.toString()} 
+            className="h-full flex flex-col"
+            data-widget-type={widget.pluginId}
+          >
             <Widget
               widget={widget}
               onShowOverlay={onShowOverlay}
