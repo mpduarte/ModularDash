@@ -161,48 +161,47 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     // Initialize database and seed data
     try {
       await seedDefaultPlugins();
+      log('Database initialization complete');
     } catch (error) {
       log(`Database initialization error: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
     
     const server = createServer(app);
+    const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
     
+    // Handle server errors globally
+    server.on('error', (error: any) => {
+      log(`Server error encountered: ${error.message}`);
+      if (error.code === 'EADDRINUSE') {
+        log('Port is already in use. Attempting to close and retry...');
+        setTimeout(() => {
+          server.close();
+          server.listen(PORT, '0.0.0.0');
+        }, 1000);
+      }
+    });
+
     // Set up environment-specific middleware first
     if (app.get("env") === "development") {
-      try {
-        await setupVite(app, server);
-        log('Vite middleware setup complete');
-      } catch (error) {
-        log(`Vite setup error: ${error instanceof Error ? error.message : String(error)}`);
-        throw error;
-      }
+      log('Setting up development middleware...');
+      await setupVite(app, server);
+      log('Vite middleware setup complete');
     }
 
-    // Set up API routes after middleware
-    try {
-      registerRoutes(app);
-      log('Routes registered successfully');
-    } catch (error) {
-      log(`Route registration error: ${error instanceof Error ? error.message : String(error)}`);
-      throw error;
-    }
+    // Set up API routes
+    log('Registering API routes...');
+    registerRoutes(app);
+    log('Routes registered successfully');
     
     // Set up static serving for production
     if (app.get("env") !== "development") {
-      try {
-        serveStatic(app);
-        log('Static serving setup complete');
-      } catch (error) {
-        log(`Static serving setup error: ${error instanceof Error ? error.message : String(error)}`);
-        throw error;
-      }
+      log('Setting up static file serving...');
+      serveStatic(app);
+      log('Static serving setup complete');
     }
 
-    // Start the server
-    const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-
-    // Add proper signal handling for production
+    // Add signal handling for graceful shutdown
     process.on('SIGTERM', () => {
       log('Received SIGTERM signal. Shutting down gracefully...');
       server.close(() => {
@@ -213,52 +212,32 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
     // Start the server
     await new Promise<void>((resolve, reject) => {
-      log('Starting server...');
-
-      // Add error handler before attempting to listen
-      server.on('error', (error: any) => {
-        if (error.code === 'EADDRINUSE') {
-          log(`Port ${PORT} is already in use`);
+      const cleanup = () => {
+        return new Promise<void>((res) => {
           server.close(() => {
-            log('Server closed, retrying...');
-            setTimeout(() => {
-              log('Attempting to restart server...');
-              server.listen(PORT, '0.0.0.0');
-            }, 1000);
+            log('Cleaned up existing server instance');
+            res();
           });
-        } else {
-          log(`Server error: ${error.message}`);
+        });
+      };
+
+      const startServer = async () => {
+        try {
+          await cleanup();
+          server.listen(PORT, '0.0.0.0', () => {
+            log(`Server listening on port ${PORT}`);
+            if (process.send) {
+              process.send('ready');
+            }
+            resolve();
+          });
+        } catch (error) {
+          log(`Failed to start server: ${error instanceof Error ? error.message : String(error)}`);
           reject(error);
         }
-      });
+      };
 
-      // Start listening
-      server.listen(PORT, '0.0.0.0', () => {
-        log(`Server listening on port ${PORT}`);
-        
-        // Wait a bit for the server to stabilize
-        setTimeout(async () => {
-          try {
-            log('Performing health check...');
-            const response = await fetch(`http://localhost:${PORT}/api/health`);
-            
-            if (response.ok) {
-              log('Health check passed');
-              if (process.send) {
-                process.send('ready');
-              }
-              resolve();
-            } else {
-              const error = new Error('Health check failed');
-              log(`Health check failed: ${error.message}`);
-              reject(error);
-            }
-          } catch (error) {
-            log(`Health check error: ${error instanceof Error ? error.message : String(error)}`);
-            reject(error);
-          }
-        }, 2000);
-      });
+      startServer().catch(reject);
     });
   } catch (error) {
     console.error('Server startup error:', error);

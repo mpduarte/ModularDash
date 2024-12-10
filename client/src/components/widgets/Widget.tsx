@@ -1,13 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Widget as WidgetType } from "../../lib/types";
-import { X } from "lucide-react";
-import { getPlugin } from "../../lib/pluginRegistry";
-import { useState, useCallback, useRef, useEffect } from "react";
-import WidgetConfigDialog from "../config/WidgetConfigDialog";
-import { cn } from "@/lib/utils";
-import * as Portal from "@radix-ui/react-portal";
-import { createPortal } from "react-dom";
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
+import { Widget as WidgetType } from '../../lib/types';
+import { X } from 'lucide-react';
+import { getPlugin } from '../../lib/pluginRegistry';
+import { cn } from '@/lib/utils';
+import { createPortal } from 'react-dom';
+import { WidgetConfigDialog } from '../config/WidgetConfigDialog';
 
 interface WidgetProps {
   widget: WidgetType;
@@ -19,48 +18,16 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
   const PluginComponent = plugin?.component;
-  
-  const handleConfigChange = (newConfig: Record<string, any>) => {
-    const updates: Partial<WidgetType> = {
-      config: { ...widget.config, ...newConfig }
-    };
-    if (newConfig.title) {
-      updates.title = newConfig.title;
-    }
-    onUpdate(updates);
-  };
-
-  const isTimeWidget = widget.pluginId === 'time-widget';
-  const isHeaderless = isTimeWidget || widget.config.showHeader === false;
-
   const containerRef = useRef<HTMLDivElement>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [showCloseButton, setShowCloseButton] = useState(false);
 
-  useEffect(() => {
-    // Create a container for the portal outside the widget
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.zIndex = '9999';
-    container.style.pointerEvents = 'none';
-    document.body.appendChild(container);
-    setPortalContainer(container);
-
-    // Update position immediately after creation
-    setTimeout(() => updateCloseButtonPosition(), 0);
-
-    return () => {
-      if (container.parentNode) {
-        document.body.removeChild(container);
-      }
-    };
-  }, [updateCloseButtonPosition]);
-
-  const handleClose = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onUpdate({ visible: false });
-  }, [onUpdate]);
+  const handleConfigChange = useCallback((updates: Partial<WidgetType>) => {
+    onUpdate({
+      config: { ...widget.config, ...updates.config },
+      ...(updates.title && { title: updates.title })
+    });
+  }, [widget.config, onUpdate]);
 
   const updateCloseButtonPosition = useCallback(() => {
     if (containerRef.current && portalContainer) {
@@ -71,8 +38,34 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     }
   }, [portalContainer]);
 
+  const handleClose = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUpdate({ visible: false });
+  }, [onUpdate]);
+
   useEffect(() => {
-    updateCloseButtonPosition();
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.zIndex = '9999';
+    container.style.pointerEvents = 'none';
+    document.body.appendChild(container);
+    setPortalContainer(container);
+
+    return () => {
+      if (container.parentNode) {
+        document.body.removeChild(container);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (containerRef.current && portalContainer) {
+      updateCloseButtonPosition();
+    }
+  }, [portalContainer, updateCloseButtonPosition]);
+
+  useEffect(() => {
     window.addEventListener('resize', updateCloseButtonPosition);
     window.addEventListener('scroll', updateCloseButtonPosition);
     
@@ -88,11 +81,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         variant="ghost"
         size="icon"
         className="absolute h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background shadow-sm rounded-full"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleClose(e);
-        }}
+        onClick={handleClose}
       >
         <X className="h-3 w-3" />
       </Button>
@@ -100,11 +89,12 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     portalContainer
   );
 
-  // Time widget specific render
+  const isTimeWidget = widget.pluginId === 'time-widget';
+  const isHeaderless = isTimeWidget || widget.config.showHeader === false;
+
   if (isTimeWidget) {
     return (
       <>
-        {/* Time widget with minimal container */}
         <div 
           ref={containerRef}
           data-widget-type="time-widget" 
@@ -123,7 +113,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
             <div className="relative z-[1] h-full">
               {PluginComponent && (
                 <PluginComponent 
-                  config={widget.config || {}}
+                  config={widget.config}
                   onConfigChange={handleConfigChange}
                 />
               )}
@@ -134,17 +124,13 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           <WidgetConfigDialog
             widget={widget}
             onClose={() => setShowConfig(false)}
-            onUpdate={(updates) => {
-              onUpdate(updates);
-              setShowConfig(false);
-            }}
+            onUpdate={handleConfigChange}
           />
         )}
       </>
     );
   }
 
-  // All widgets use minimal container style
   return (
     <>
       <div 
@@ -165,7 +151,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           <div className="relative z-[1] h-full">
             {PluginComponent ? (
               <PluginComponent 
-                config={widget.config || {}}
+                config={widget.config}
                 onConfigChange={handleConfigChange}
               />
             ) : (
@@ -180,10 +166,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
         <WidgetConfigDialog
           widget={widget}
           onClose={() => setShowConfig(false)}
-          onUpdate={(updates) => {
-            onUpdate(updates);
-            setShowConfig(false);
-          }}
+          onUpdate={handleConfigChange}
         />
       )}
     </>
