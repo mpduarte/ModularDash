@@ -2,9 +2,10 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { createServer } from "http";
-import { db } from "db";
+import { db, sql, testConnection } from "db";
 import { plugins } from "@db/schema";
 import { eq } from "drizzle-orm";
+import { metricsMiddleware, metricsHandler } from './metrics';
 
 function log(message: string) {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -19,12 +20,20 @@ function log(message: string) {
 
 const app = express();
 
-// Import metrics middleware
-import { metricsMiddleware, metricsHandler } from './metrics';
-
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Enable metrics collection if environment variable is set
 if (process.env.ENABLE_METRICS === 'true') {
@@ -70,53 +79,80 @@ async function seedDefaultPlugins() {
     {
       id: 'text-widget',
       name: 'Text Widget',
-      description: 'Simple text display widget for content',
+      description: 'Simple text display widget',
       version: '1.0.0',
       enabled: true,
+      config: { content: '' },
       component: 'TextWidget',
-      category: 'widgets',
-      config: {
-        content: 'Sample text content'
-      }
+      category: 'content'
     },
     {
       id: 'html-widget',
       name: 'HTML Widget',
-      description: 'Display custom HTML content with formatting',
+      description: 'Rich HTML content widget',
       version: '1.0.0',
       enabled: true,
+      config: { content: '' },
       component: 'HtmlWidget',
-      category: 'widgets',
-      config: {}
+      category: 'content'
     },
     {
       id: 'weather-widget',
       name: 'Weather Widget',
-      description: 'Displays current weather conditions and forecast',
+      description: 'Displays weather information for a specified location',
       version: '1.0.0',
       enabled: true,
       component: 'WeatherWidget',
       category: 'widgets',
       config: {
-        city: 'San Francisco',
+        city: 'San Francisco, CA, USA',
         units: 'imperial',
-        refreshInterval: 300000
+        titleFormat: 'city-state-country',
+        refreshInterval: 300000,
+        enableAlerts: false,
+        alertThreshold: 80,
+        weatherCondition: 'rain',
+        alertType: 'visual'
       }
     },
     {
-      id: 'background-manager',
-      name: 'Background Manager',
-      description: 'Manage dashboard background images and rotation settings',
+      id: 'time-widget',
+      name: '',
+      description: 'Displays current time with configurable format',
       version: '1.0.0',
       enabled: true,
-      component: 'BackgroundManagerPlugin',
-      category: 'appearance',
+      component: 'TimeWidget',
+      category: 'widgets',
       config: {
-        images: [],
-        currentImageIndex: 0,
-        interval: 8000,
-        isAutoRotate: false,
-        transition: 'fade'
+        format: 'HH:mm',
+        showSeconds: false,
+        use24Hour: false,
+        showDate: true,
+        dateFormat: 'PPP',
+        timezone: 'local',
+        displayMode: 'digital',
+        showMinuteMarks: true,
+        showHourMarks: true,
+        clockSize: 200,
+        theme: 'minimal',
+        padding: 'none',
+        showHeader: false,
+        title: ''
+      }
+    },
+    {
+      id: 'calendar-widget',
+      name: 'Calendar Widget',
+      description: 'Display calendar events from iCal/WebCal/CalDAV feeds',
+      version: '1.0.0',
+      enabled: true,
+      component: 'CalendarWidget',
+      category: 'widgets',
+      config: {
+        calendarUrl: '',
+        autoRefresh: false,
+        refreshInterval: 300,
+        title: 'Calendar'
       }
     }
   ];
@@ -158,31 +194,46 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   try {
     log('Starting server initialization...');
     
-    // Initialize database and seed data
+    // Initialize database and verify connection
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        // Test database connection using the new test function
+        log('Testing database connection...');
+        const isConnected = await testConnection();
+        
+        if (!isConnected) {
+          throw new Error('Database connection test failed');
+        }
+        
+        log('Database connection successful');
+        break;
+      } catch (error) {
+        retries--;
+        if (retries === 0) {
+          log(`Failed to connect to database after all retries: ${error instanceof Error ? error.message : String(error)}`);
+          console.error('Database connection error:', error);
+          process.exit(1);
+        }
+        log(`Database connection attempt failed, retrying in 2 seconds... (${retries} attempts remaining)`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+    
+    // Seed default plugins
     try {
       await seedDefaultPlugins();
       log('Database initialization complete');
     } catch (error) {
       log(`Database initialization error: ${error instanceof Error ? error.message : String(error)}`);
-      throw error;
+      console.error('Full error:', error);
+      process.exit(1);
     }
     
     const server = createServer(app);
     const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
     
-    // Handle server errors globally
-    server.on('error', (error: any) => {
-      log(`Server error encountered: ${error.message}`);
-      if (error.code === 'EADDRINUSE') {
-        log('Port is already in use. Attempting to close and retry...');
-        setTimeout(() => {
-          server.close();
-          server.listen(PORT, '0.0.0.0');
-        }, 1000);
-      }
-    });
-
-    // Set up environment-specific middleware first
+    // Set up environment-specific middleware
     if (app.get("env") === "development") {
       log('Setting up development middleware...');
       await setupVite(app, server);
@@ -196,9 +247,10 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       log('Routes registered successfully');
     } catch (error) {
       log(`Failed to register routes: ${error instanceof Error ? error.message : String(error)}`);
-      throw error;
+      console.error('Full route registration error:', error);
+      process.exit(1);
     }
-    
+
     // Set up static serving for production
     if (app.get("env") !== "development") {
       log('Setting up static file serving...');
@@ -206,33 +258,12 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       log('Static serving setup complete');
     }
 
-    // Add signal handling for graceful shutdown
-    process.on('SIGTERM', () => {
-      log('Received SIGTERM signal. Shutting down gracefully...');
-      server.close(() => {
-        log('Server closed');
-        process.exit(0);
-      });
-    });
-
     // Start the server
-    await new Promise<void>((resolve, reject) => {
-      const startServer = async () => {
-        try {
-          server.listen(PORT, '0.0.0.0', () => {
-            log(`Server listening on port ${PORT}`);
-            if (process.send) {
-              process.send('ready');
-            }
-            resolve();
-          });
-        } catch (error) {
-          log(`Failed to start server: ${error instanceof Error ? error.message : String(error)}`);
-          reject(error);
-        }
-      };
-
-      startServer().catch(reject);
+    server.listen(PORT, '0.0.0.0', () => {
+      log(`Server listening on port ${PORT}`);
+      if (process.send) {
+        process.send('ready');
+      }
     });
   } catch (error) {
     console.error('Server startup error:', error);

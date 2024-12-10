@@ -73,6 +73,8 @@ export function useWidgets() {
         // Check specific plugin configurations
         if (pluginId === 'weather-widget') {
           defaultTitle = defaultConfig.city ? `Weather - ${defaultConfig.city}` : 'Weather';
+          defaultConfig.units = 'imperial'; // Ensure imperial units
+          defaultConfig.city = defaultConfig.city || 'San Francisco, CA, USA';
         } else if (pluginId === 'time-widget') {
           defaultTitle = '';  // No title for time widget
           defaultConfig.showHeader = false;  // Explicitly set showHeader to false
@@ -85,8 +87,8 @@ export function useWidgets() {
           content: '',
           x: 0,
           y: 0,
-          w: 1,
-          h: 1,
+          w: plugin.defaultConfig?.w || 1,
+          h: plugin.defaultConfig?.h || 1,
           pluginId,
           config: defaultConfig,
           visible: true
@@ -94,24 +96,31 @@ export function useWidgets() {
         
         console.log('Sending widget creation request with data:', widgetData);
         
-        const response = await fetch('/api/widgets', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(widgetData)
-        });
+        try {
+          const response = await fetch('/api/widgets', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(widgetData)
+          });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Widget creation failed:', response.status, errorText);
-          throw new Error(`Failed to create widget: ${errorText}`);
+          const responseText = await response.text();
+          console.log('Raw response:', responseText);
+
+          if (!response.ok) {
+            console.error('Widget creation failed:', response.status, responseText);
+            throw new Error(`Failed to create widget: ${responseText}`);
+          }
+
+          const result = JSON.parse(responseText);
+          console.log('Widget created successfully:', result);
+          return result;
+        } catch (fetchError) {
+          console.error('Network or parsing error:', fetchError);
+          throw fetchError;
         }
-
-        const result = await response.json();
-        console.log('Widget created successfully:', result);
-        return result;
       } catch (error) {
         console.error('Error in widget creation:', error);
         throw error;

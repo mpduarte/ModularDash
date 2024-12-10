@@ -478,7 +478,7 @@ export async function registerRoutes(app: express.Express) {
 
   app.post("/api/widgets", async (req, res) => {
     try {
-      console.log('Received widget creation request:', req.body);
+      console.log('Received widget creation request:', JSON.stringify(req.body, null, 2));
       
       // Validate required fields
       if (!req.body.pluginId) {
@@ -489,30 +489,42 @@ export async function registerRoutes(app: express.Express) {
         });
       }
 
-      // Create the widget
-      console.log('Creating widget with data:', req.body);
-      const widget = await db.insert(widgets).values({
+      // Validate widget data structure
+      const widgetData = {
         pluginId: req.body.pluginId,
         title: req.body.title || '',
         content: req.body.content || '',
-        x: req.body.x || 0,
-        y: req.body.y || 0,
-        w: req.body.w || 1,
-        h: req.body.h || 1,
+        x: typeof req.body.x === 'number' ? req.body.x : 0,
+        y: typeof req.body.y === 'number' ? req.body.y : 0,
+        w: typeof req.body.w === 'number' ? req.body.w : 1,
+        h: typeof req.body.h === 'number' ? req.body.h : 1,
         visible: req.body.visible !== false,
         config: req.body.config || {}
-      }).returning();
+      };
+
+      console.log('Creating widget with validated data:', JSON.stringify(widgetData, null, 2));
       
-      if (!widget || !widget[0]) {
-        console.error('Widget creation failed - no widget returned');
+      try {
+        // Create the widget
+        const widget = await db.insert(widgets).values(widgetData).returning();
+        
+        if (!widget || !widget[0]) {
+          console.error('Widget creation failed - no widget returned');
+          return res.status(500).json({
+            error: 'Internal Server Error',
+            message: 'Failed to create widget in database'
+          });
+        }
+        
+        console.log('Widget created successfully:', JSON.stringify(widget[0], null, 2));
+        res.json(widget[0]);
+      } catch (dbError) {
+        console.error('Database error creating widget:', dbError);
         return res.status(500).json({
-          error: 'Internal Server Error',
-          message: 'Failed to create widget in database'
+          error: 'Database Error',
+          message: dbError instanceof Error ? dbError.message : 'Unknown database error'
         });
       }
-      
-      console.log('Widget created successfully:', widget[0]);
-      res.json(widget[0]);
     } catch (error) {
       console.error('Error creating widget:', error);
       res.status(500).json({
