@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Widget as WidgetType } from "../../lib/types";
@@ -20,8 +20,8 @@ interface WidgetConfigDialogProps {
 }
 
 export function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDialogProps) {
-  const plugin = getPlugin(widget.pluginId);
   const [activeTab, setActiveTab] = useState("basic");
+  const plugin = getPlugin(widget.pluginId);
   
   type WidgetConfig = {
     title: string;
@@ -112,7 +112,7 @@ export function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDi
   };
 
   const renderPluginSettings = () => {
-    if (!plugin) {
+    if (!plugin?.component) {
       return null;
     }
 

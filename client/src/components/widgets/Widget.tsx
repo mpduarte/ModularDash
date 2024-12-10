@@ -29,6 +29,13 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     });
   }, [widget.config, onUpdate]);
 
+  const handleClose = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUpdate({ visible: false });
+  }, [onUpdate]);
+
+  // Define updateCloseButtonPosition before using it in useEffect
   const updateCloseButtonPosition = useCallback(() => {
     if (containerRef.current && portalContainer) {
       const rect = containerRef.current.getBoundingClientRect();
@@ -38,12 +45,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     }
   }, [portalContainer]);
 
-  const handleClose = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onUpdate({ visible: false });
-  }, [onUpdate]);
-
+  // Create portal container
   useEffect(() => {
     const container = document.createElement('div');
     container.style.position = 'fixed';
@@ -59,21 +61,25 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     };
   }, []);
 
+  // Update position when container or portal changes
   useEffect(() => {
     if (containerRef.current && portalContainer) {
       updateCloseButtonPosition();
     }
   }, [portalContainer, updateCloseButtonPosition]);
 
+  // Add event listeners
   useEffect(() => {
-    window.addEventListener('resize', updateCloseButtonPosition);
-    window.addEventListener('scroll', updateCloseButtonPosition);
-    
-    return () => {
-      window.removeEventListener('resize', updateCloseButtonPosition);
-      window.removeEventListener('scroll', updateCloseButtonPosition);
-    };
-  }, [updateCloseButtonPosition]);
+    if (portalContainer) {
+      window.addEventListener('resize', updateCloseButtonPosition);
+      window.addEventListener('scroll', updateCloseButtonPosition);
+      
+      return () => {
+        window.removeEventListener('resize', updateCloseButtonPosition);
+        window.removeEventListener('scroll', updateCloseButtonPosition);
+      };
+    }
+  }, [portalContainer, updateCloseButtonPosition]);
 
   const CloseButton = () => portalContainer && createPortal(
     <div style={{ pointerEvents: 'auto' }}>
