@@ -25,6 +25,21 @@ export async function registerRoutes(app: express.Express) {
     throw new Error('Database connection failed');
   }
   console.log('[Server] Database connection verified');
+  
+  // CORS middleware - must be before route handlers
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
+  // Parse JSON bodies
+  app.use(express.json());
+  
   // Health check route
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
@@ -476,7 +491,26 @@ export async function registerRoutes(app: express.Express) {
 
       // Create the widget
       console.log('Creating widget with data:', req.body);
-      const widget = await db.insert(widgets).values(req.body).returning();
+      const widget = await db.insert(widgets).values({
+        pluginId: req.body.pluginId,
+        title: req.body.title || '',
+        content: req.body.content || '',
+        x: req.body.x || 0,
+        y: req.body.y || 0,
+        w: req.body.w || 1,
+        h: req.body.h || 1,
+        visible: req.body.visible !== false,
+        config: req.body.config || {}
+      }).returning();
+      
+      if (!widget || !widget[0]) {
+        console.error('Widget creation failed - no widget returned');
+        return res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to create widget in database'
+        });
+      }
+      
       console.log('Widget created successfully:', widget[0]);
       res.json(widget[0]);
     } catch (error) {

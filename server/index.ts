@@ -191,8 +191,13 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
     // Set up API routes
     log('Registering API routes...');
-    registerRoutes(app);
-    log('Routes registered successfully');
+    try {
+      await registerRoutes(app);
+      log('Routes registered successfully');
+    } catch (error) {
+      log(`Failed to register routes: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
+    }
     
     // Set up static serving for production
     if (app.get("env") !== "development") {
@@ -212,18 +217,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
     // Start the server
     await new Promise<void>((resolve, reject) => {
-      const cleanup = () => {
-        return new Promise<void>((res) => {
-          server.close(() => {
-            log('Cleaned up existing server instance');
-            res();
-          });
-        });
-      };
-
       const startServer = async () => {
         try {
-          await cleanup();
           server.listen(PORT, '0.0.0.0', () => {
             log(`Server listening on port ${PORT}`);
             if (process.send) {
