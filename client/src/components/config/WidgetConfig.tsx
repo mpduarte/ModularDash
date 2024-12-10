@@ -73,7 +73,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                       className="w-full"
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add {plugin.name}
+                      Add {plugin.name || (plugin.id === 'time-widget' ? 'Time Widget' : plugin.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))}
                     </Button>
                   );
                 }).filter(Boolean)}
