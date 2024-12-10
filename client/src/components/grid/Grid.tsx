@@ -93,7 +93,7 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
           <div 
             key={widget.id.toString()} 
             className="h-full flex flex-col"
-            data-widget-type={widget.pluginId}
+            
           >
             <Widget
               widget={widget}

@@ -196,7 +196,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full" data-widget-type="calendar-widget">
       <div className="flex flex-col w-full h-full space-y-4">
         <Calendar
           mode="single"

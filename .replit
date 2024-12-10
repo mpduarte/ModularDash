@@ -22,29 +22,16 @@ name = "Project"
 mode = "parallel"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Development Server"
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build"
+task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Only"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Development Server with Metrics"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Client Development"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Server Development"
+task = "shell.exec"
+args = "concurrently \"npm run dev\" \"npx vite --port 5173 --host\""
+waitForPort = 5173
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -58,8 +45,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev:concurrent"
-waitForPort = 5173
+args = "tsx watch --clear-screen=false server/index.ts"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Build"
@@ -116,7 +103,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "vite"
+args = "npx vite --port 5173 --host"
 waitForPort = 5173
 
 [[workflows.workflow]]
