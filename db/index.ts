@@ -13,11 +13,12 @@ neonConfig.webSocketConstructor = WebSocket;
 neonConfig.useSecureWebSocket = true;
 neonConfig.fetchConnectionCache = true;
 
-// Create the connection with proper SSL configuration
+// Create the connection with proper configuration
 const sql = neon(process.env.DATABASE_URL, {
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 120000,
-  max: 20,
+  fetchOptions: {
+    timeout: 5000, // 5 seconds timeout for fetch requests
+    cache: 'no-store'
+  }
 });
 
 // Initialize Drizzle with the schema
