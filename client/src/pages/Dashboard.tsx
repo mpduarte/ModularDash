@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Grid from '../components/grid/Grid';
 import BackgroundZone from '../components/zones/BackgroundZone';
 import OverlayZone from '../components/zones/OverlayZone';
@@ -11,16 +11,6 @@ export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const { widgets, updateWidget, addWidget, removeWidget } = useWidgets();
-  
-  const handleAddWidget = React.useCallback((pluginId: string) => {
-    console.log('Dashboard: Adding widget for plugin:', pluginId);
-    try {
-      addWidget(pluginId);
-      setShowConfig(false); // Close config after adding
-    } catch (error) {
-      console.error('Error adding widget:', error);
-    }
-  }, [addWidget]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
@@ -47,7 +37,7 @@ export default function Dashboard() {
       <WidgetConfig
         widgets={widgets}
         onClose={() => setShowConfig(false)}
-        onAdd={handleAddWidget}
+        onAdd={addWidget}
         onRemove={removeWidget}
         open={showConfig}
       />

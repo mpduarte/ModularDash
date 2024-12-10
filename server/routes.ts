@@ -5,41 +5,7 @@ import { eq } from "drizzle-orm";
 import { weatherProviderErrors, weatherProviderRequests, weatherProviderLatency } from "./metrics";
 import calendarRoutes from "./routes/calendar";
 
-// Database connection verification
-async function verifyDatabaseConnection() {
-  try {
-    await db.select().from(widgets).limit(1);
-    console.log('[Database] Connection successful');
-    return true;
-  } catch (error) {
-    console.error('[Database] Connection error:', error);
-    return false;
-  }
-}
-
-export async function registerRoutes(app: express.Express) {
-  // Verify database connection
-  const isDatabaseConnected = await verifyDatabaseConnection();
-  if (!isDatabaseConnected) {
-    console.error('[Server] Failed to establish database connection');
-    throw new Error('Database connection failed');
-  }
-  console.log('[Server] Database connection verified');
-  
-  // CORS middleware - must be before route handlers
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
-    }
-    next();
-  });
-
-  // Parse JSON bodies
-  app.use(express.json());
-  
+export function registerRoutes(app: express.Express) {
   // Health check route
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
@@ -478,55 +444,9 @@ export async function registerRoutes(app: express.Express) {
 
   app.post("/api/widgets", async (req, res) => {
     try {
-      console.log('Received widget creation request:', JSON.stringify(req.body, null, 2));
-      
-      // Validate required fields
-      if (!req.body.pluginId) {
-        console.error('Missing required field: pluginId');
-        return res.status(400).json({
-          error: 'Bad Request',
-          message: 'Missing required field: pluginId'
-        });
-      }
-
-      // Validate widget data structure
-      const widgetData = {
-        pluginId: req.body.pluginId,
-        title: req.body.title || '',
-        content: req.body.content || '',
-        x: typeof req.body.x === 'number' ? req.body.x : 0,
-        y: typeof req.body.y === 'number' ? req.body.y : 0,
-        w: typeof req.body.w === 'number' ? req.body.w : 1,
-        h: typeof req.body.h === 'number' ? req.body.h : 1,
-        visible: req.body.visible !== false,
-        config: req.body.config || {}
-      };
-
-      console.log('Creating widget with validated data:', JSON.stringify(widgetData, null, 2));
-      
-      try {
-        // Create the widget
-        const widget = await db.insert(widgets).values(widgetData).returning();
-        
-        if (!widget || !widget[0]) {
-          console.error('Widget creation failed - no widget returned');
-          return res.status(500).json({
-            error: 'Internal Server Error',
-            message: 'Failed to create widget in database'
-          });
-        }
-        
-        console.log('Widget created successfully:', JSON.stringify(widget[0], null, 2));
-        res.json(widget[0]);
-      } catch (dbError) {
-        console.error('Database error creating widget:', dbError);
-        return res.status(500).json({
-          error: 'Database Error',
-          message: dbError instanceof Error ? dbError.message : 'Unknown database error'
-        });
-      }
+      const widget = await db.insert(widgets).values(req.body).returning();
+      res.json(widget[0]);
     } catch (error) {
-      console.error('Error creating widget:', error);
       res.status(500).json({
         error: 'Failed to create widget',
         message: error instanceof Error ? error.message : 'Unknown error'

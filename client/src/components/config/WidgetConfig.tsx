@@ -63,24 +63,16 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                     return null;
                   }
                   
-                  const handleAddWidget = () => {
-                    console.log('Adding widget for plugin:', plugin);
-                    try {
-                      onAdd(plugin.id);
-                      console.log('Widget added successfully');
-                    } catch (error) {
-                      console.error('Error adding widget:', error);
-                    }
-                  };
-                  
                   return (
                     <Button
                       key={plugin.id}
-                      onClick={handleAddWidget}
-                      className="w-full flex items-center justify-center gap-2"
-                      variant="outline"
+                      onClick={() => {
+                        console.log('Adding widget for plugin:', plugin);
+                        onAdd(plugin.id);
+                      }}
+                      className="w-full"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="mr-2 h-4 w-4" />
                       Add {plugin.name}
                     </Button>
                   );

@@ -16,38 +16,15 @@ export function registerPlugin(
   description: string = '',
   category: string = 'widgets'
 ) {
-  try {
-    if (registry[id]) {
-      console.warn(`Plugin ${id} is already registered. Current registry state:`, registry[id]);
-      return;
-    }
-    
-    if (!component) {
-      throw new Error(`Cannot register plugin ${id}: component is required`);
-    }
-
-    if (typeof component !== 'function') {
-      throw new Error(`Invalid component type for plugin ${id}. Expected function, got ${typeof component}`);
-    }
-
-    registry[id] = {
-      component,
-      defaultConfig,
-      name,
-      version,
-      description: description || `${name} plugin`,
-      category
-    };
-    
-    console.log(`Successfully registered plugin: ${id}`, {
-      hasComponent: !!component,
-      componentType: typeof component,
-      config: defaultConfig
-    });
-  } catch (error) {
-    console.error(`Failed to register plugin ${id}:`, error);
-    throw error;
-  }
+  console.log(`Registering plugin: ${id}`, { component, defaultConfig, name, version, category });
+  registry[id] = {
+    component,
+    defaultConfig,
+    name,
+    version,
+    description: description || `${name} plugin`,
+    category
+  };
 }
 
 export function getPlugin(id: string) {

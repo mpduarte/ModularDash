@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
-import { Widget as WidgetType } from '../../lib/types';
-import { X } from 'lucide-react';
-import { getPlugin } from '../../lib/pluginRegistry';
-import { cn } from '@/lib/utils';
-import { createPortal } from 'react-dom';
-import { WidgetConfigDialog } from '../config/WidgetConfigDialog';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Widget as WidgetType } from "../../lib/types";
+import { X } from "lucide-react";
+import { getPlugin } from "../../lib/pluginRegistry";
+import { useState } from "react";
+import WidgetConfigDialog from "../config/WidgetConfigDialog";
+import { cn } from "@/lib/utils";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -18,97 +17,26 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const [showConfig, setShowConfig] = useState(false);
   const plugin = getPlugin(widget.pluginId);
   const PluginComponent = plugin?.component;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-  const [showCloseButton, setShowCloseButton] = useState(false);
-
-  const handleConfigChange = useCallback((updates: Partial<WidgetType>) => {
-    onUpdate({
-      config: { ...widget.config, ...updates.config },
-      ...(updates.title && { title: updates.title })
-    });
-  }, [widget.config, onUpdate]);
-
-  const handleClose = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onUpdate({ visible: false });
-  }, [onUpdate]);
-
-  // Define updateCloseButtonPosition before using it in useEffect
-  const updateCloseButtonPosition = useCallback(() => {
-    if (containerRef.current && portalContainer) {
-      const rect = containerRef.current.getBoundingClientRect();
-      portalContainer.style.top = `${rect.top}px`;
-      portalContainer.style.left = `${rect.right - 24}px`;
-      portalContainer.style.transform = 'translate(0, -50%)';
-    }
-  }, [portalContainer]);
-
-  // Create portal container
-  useEffect(() => {
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.zIndex = '9999';
-    container.style.pointerEvents = 'none';
-    document.body.appendChild(container);
-    setPortalContainer(container);
-
-    return () => {
-      if (container.parentNode) {
-        document.body.removeChild(container);
-      }
+  
+  const handleConfigChange = (newConfig: Record<string, any>) => {
+    const updates: Partial<WidgetType> = {
+      config: { ...widget.config, ...newConfig }
     };
-  }, []);
-
-  // Update position when container or portal changes
-  useEffect(() => {
-    if (containerRef.current && portalContainer) {
-      updateCloseButtonPosition();
+    if (newConfig.title) {
+      updates.title = newConfig.title;
     }
-  }, [portalContainer, updateCloseButtonPosition]);
-
-  // Add event listeners
-  useEffect(() => {
-    if (portalContainer) {
-      window.addEventListener('resize', updateCloseButtonPosition);
-      window.addEventListener('scroll', updateCloseButtonPosition);
-      
-      return () => {
-        window.removeEventListener('resize', updateCloseButtonPosition);
-        window.removeEventListener('scroll', updateCloseButtonPosition);
-      };
-    }
-  }, [portalContainer, updateCloseButtonPosition]);
-
-  const CloseButton = () => portalContainer && createPortal(
-    <div style={{ pointerEvents: 'auto' }}>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background shadow-sm rounded-full"
-        onClick={handleClose}
-      >
-        <X className="h-3 w-3" />
-      </Button>
-    </div>,
-    portalContainer
-  );
+    onUpdate(updates);
+  };
 
   const isTimeWidget = widget.pluginId === 'time-widget';
   const isHeaderless = isTimeWidget || widget.config.showHeader === false;
 
+  // Time widget specific render
   if (isTimeWidget) {
     return (
       <>
-        <div 
-          ref={containerRef}
-          data-widget-type="time-widget" 
-          className="w-full h-full relative group"
-          onMouseEnter={() => setShowCloseButton(true)}
-          onMouseLeave={() => setShowCloseButton(false)}
-        >
-          {showCloseButton && <CloseButton />}
+        {/* Time widget with minimal container */}
+        <div data-widget-type="time-widget" className="w-full h-full">
           <Card 
             className={cn(
               "w-full h-full relative group transition-all duration-200",
@@ -119,10 +47,23 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
             <div className="relative z-[1] h-full">
               {PluginComponent && (
                 <PluginComponent 
-                  config={widget.config}
+                  config={widget.config || {}}
                   onConfigChange={handleConfigChange}
                 />
               )}
+              <div 
+                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+                  onClick={() => onUpdate({ visible: false })}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
@@ -130,49 +71,61 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           <WidgetConfigDialog
             widget={widget}
             onClose={() => setShowConfig(false)}
-            onUpdate={handleConfigChange}
+            onUpdate={(updates) => {
+              onUpdate(updates);
+              setShowConfig(false);
+            }}
           />
         )}
       </>
     );
   }
 
+  // All widgets use minimal container style
   return (
     <>
-      <div 
-        ref={containerRef}
-        className="w-full h-full relative group"
-        onMouseEnter={() => setShowCloseButton(true)}
-        onMouseLeave={() => setShowCloseButton(false)}
+      <Card 
+        className={cn(
+          "w-full h-full relative group transition-all duration-200",
+          "bg-background/40 backdrop-blur-md hover:bg-background/50",
+          "!p-0 !m-0 border border-border/20 shadow-sm",
+          widget.config.customStyles
+        )}
       >
-        {showCloseButton && <CloseButton />}
-        <Card 
-          className={cn(
-            "w-full h-full relative group transition-all duration-200",
-            "bg-background/40 backdrop-blur-md hover:bg-background/50",
-            "!p-0 !m-0 border border-border/20 shadow-sm",
-            widget.config.customStyles
+        <div className="relative z-[1] h-full">
+          {PluginComponent ? (
+            <PluginComponent 
+              config={widget.config || {}}
+              onConfigChange={handleConfigChange}
+            />
+          ) : (
+            <div className="text-muted-foreground">
+              Plugin not found: {widget.pluginId}
+            </div>
           )}
-        >
-          <div className="relative z-[1] h-full">
-            {PluginComponent ? (
-              <PluginComponent 
-                config={widget.config}
-                onConfigChange={handleConfigChange}
-              />
-            ) : (
-              <div className="text-muted-foreground">
-                Plugin not found: {widget.pluginId}
-              </div>
-            )}
+          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ visible: false });
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
           </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
       {showConfig && (
         <WidgetConfigDialog
           widget={widget}
           onClose={() => setShowConfig(false)}
-          onUpdate={handleConfigChange}
+          onUpdate={(updates) => {
+            onUpdate(updates);
+            setShowConfig(false);
+          }}
         />
       )}
     </>
