@@ -112,7 +112,13 @@ export function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDi
   };
 
   const renderPluginSettings = () => {
-    if (!plugin?.component) {
+    if (!plugin) {
+      console.warn(`Plugin not found for ID: ${widget.pluginId}`);
+      return null;
+    }
+
+    if (!plugin.component) {
+      console.error(`No component found for plugin: ${widget.pluginId}`);
       return null;
     }
 

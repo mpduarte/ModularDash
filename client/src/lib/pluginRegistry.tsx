@@ -16,7 +16,16 @@ export function registerPlugin(
   description: string = '',
   category: string = 'widgets'
 ) {
-  console.log(`Registering plugin: ${id}`, { component, defaultConfig, name, version, category });
+  if (registry[id]) {
+    console.warn(`Plugin ${id} is already registered. Skipping registration.`);
+    return;
+  }
+  
+  if (!component) {
+    console.error(`Cannot register plugin ${id}: component is required`);
+    return;
+  }
+
   registry[id] = {
     component,
     defaultConfig,
@@ -25,6 +34,8 @@ export function registerPlugin(
     description: description || `${name} plugin`,
     category
   };
+  
+  console.log(`Successfully registered plugin: ${id}`);
 }
 
 export function getPlugin(id: string) {
