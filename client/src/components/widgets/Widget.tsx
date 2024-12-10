@@ -52,14 +52,18 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                 />
               )}
               <div 
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
                 onClick={(e) => e.stopPropagation()}
+                style={{ pointerEvents: 'auto' }}
               >
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
-                  onClick={() => onUpdate({ visible: false })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUpdate({ visible: false });
+                  }}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -103,7 +107,11 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               Plugin not found: {widget.pluginId}
             </div>
           )}
-          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div 
+            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
+            onClick={(e) => e.stopPropagation()}
+            style={{ pointerEvents: 'auto' }}
+          >
             <Button
               variant="ghost"
               size="icon"
