@@ -51,22 +51,27 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                 />
               )}
               <div 
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
+                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ 
+                  zIndex: 9999,
+                  position: 'absolute',
+                  pointerEvents: 'all'
                 }}
-                style={{ pointerEvents: 'auto' }}
               >
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+                  className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     onUpdate({ visible: false });
                   }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  style={{ pointerEvents: 'all' }}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -111,22 +116,27 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
             </div>
           )}
           <div 
-            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
+            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ 
+              zIndex: 9999,
+              position: 'absolute',
+              pointerEvents: 'all'
             }}
-            style={{ pointerEvents: 'auto' }}
           >
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
+              className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
                 onUpdate({ visible: false });
               }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              style={{ pointerEvents: 'all' }}
             >
               <X className="h-3 w-3" />
             </Button>
