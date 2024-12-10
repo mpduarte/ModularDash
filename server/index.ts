@@ -156,6 +156,11 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 (async () => {
   try {
+    // Test database connection before proceeding
+    const { testConnection } = await import("db");
+    await testConnection();
+    console.log("Database connection established successfully");
+
     // Initialize database and seed data
     await seedDefaultPlugins();
     
