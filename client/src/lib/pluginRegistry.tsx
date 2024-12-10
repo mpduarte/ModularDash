@@ -98,7 +98,7 @@ registerPlugin(
   'time-widget',
   TimeWidget,
   timeWidgetConfig.defaultConfig,
-  '',
+  'Time Widget',
   timeWidgetConfig.version,
   'Displays current time with configurable format',
   'widgets'
