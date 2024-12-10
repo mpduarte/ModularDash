@@ -35,7 +35,6 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   if (isTimeWidget) {
     return (
       <>
-        {/* Time widget with minimal container */}
         <div data-widget-type="time-widget" className="w-full h-full">
           <Card 
             className={cn(
@@ -53,7 +52,10 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               )}
               <div 
                 className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
                 style={{ pointerEvents: 'auto' }}
               >
                 <Button
@@ -62,6 +64,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                   className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
                   onClick={(e) => {
                     e.stopPropagation();
+                    e.preventDefault();
                     onUpdate({ visible: false });
                   }}
                 >
@@ -85,7 +88,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     );
   }
 
-  // All widgets use minimal container style
+  // Regular widget render
   return (
     <>
       <Card 
@@ -109,7 +112,10 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
           )}
           <div 
             className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-50"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
             style={{ pointerEvents: 'auto' }}
           >
             <Button
@@ -118,6 +124,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               className="h-6 w-6 bg-background/80 hover:bg-background shadow-sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onUpdate({ visible: false });
               }}
             >
