@@ -21,7 +21,20 @@ interface WidgetConfigDialogProps {
 
 export function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDialogProps) {
   const [activeTab, setActiveTab] = useState("basic");
+  const [error, setError] = useState<string | null>(null);
   const plugin = getPlugin(widget.pluginId);
+
+  useEffect(() => {
+    if (!plugin) {
+      console.error(`Plugin not found: ${widget.pluginId}`);
+      setError(`Plugin ${widget.pluginId} not found`);
+    } else if (!plugin.component) {
+      console.error(`Plugin component not found: ${widget.pluginId}`);
+      setError(`Component for plugin ${widget.pluginId} not found`);
+    } else {
+      setError(null);
+    }
+  }, [widget.pluginId]);
   
   type WidgetConfig = {
     title: string;
@@ -264,6 +277,11 @@ export function WidgetConfigDialog({ widget, onClose, onUpdate }: WidgetConfigDi
           <DialogDescription>
             Customize widget settings and appearance
           </DialogDescription>
+          {error && (
+            <div className="mt-2 text-sm text-red-500">
+              {error}
+            </div>
+          )}
         </DialogHeader>
         
         <Form {...form}>
