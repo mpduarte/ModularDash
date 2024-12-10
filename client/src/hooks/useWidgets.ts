@@ -55,30 +55,32 @@ export function useWidgets() {
 
   const addWidget = useMutation({
     mutationFn: async (pluginId: string) => {
-      // Get the plugin's default configuration
-      const plugin = getPlugin(pluginId);
-      if (!plugin) {
-        throw new Error(`Plugin ${pluginId} not found`);
-      }
-      
-      // Get default configuration and name based on plugin type
-      const defaultConfig = plugin.defaultConfig || {};
-      let defaultTitle;
-      
-      // Check specific plugin configurations
-      if (pluginId === 'weather-widget') {
-        defaultTitle = defaultConfig.city ? `Weather - ${defaultConfig.city}` : 'Weather';
-      } else if (pluginId === 'time-widget') {
-        defaultTitle = '';  // No title for time widget
-        defaultConfig.showHeader = false;  // Explicitly set showHeader to false
-      } else {
-        defaultTitle = plugin.name || 'New Widget';
-      }
+      try {
+        console.log('Starting widget creation for plugin:', pluginId);
+        
+        // Get the plugin's default configuration
+        const plugin = getPlugin(pluginId);
+        if (!plugin) {
+          console.error('Plugin not found:', pluginId);
+          throw new Error(`Plugin ${pluginId} not found`);
+        }
+        console.log('Found plugin:', plugin);
+        
+        // Get default configuration and name based on plugin type
+        const defaultConfig = plugin.defaultConfig || {};
+        let defaultTitle;
+        
+        // Check specific plugin configurations
+        if (pluginId === 'weather-widget') {
+          defaultTitle = defaultConfig.city ? `Weather - ${defaultConfig.city}` : 'Weather';
+        } else if (pluginId === 'time-widget') {
+          defaultTitle = '';  // No title for time widget
+          defaultConfig.showHeader = false;  // Explicitly set showHeader to false
+        } else {
+          defaultTitle = plugin.name || 'New Widget';
+        }
 
-      const response = await fetch('/api/widgets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        const widgetData = {
           title: defaultTitle,
           content: '',
           x: 0,
@@ -86,10 +88,34 @@ export function useWidgets() {
           w: 1,
           h: 1,
           pluginId,
-          config: defaultConfig
-        })
-      });
-      return response.json();
+          config: defaultConfig,
+          visible: true
+        };
+        
+        console.log('Sending widget creation request with data:', widgetData);
+        
+        const response = await fetch('/api/widgets', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(widgetData)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Widget creation failed:', response.status, errorText);
+          throw new Error(`Failed to create widget: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Widget created successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('Error in widget creation:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['widgets'] });

@@ -5,7 +5,26 @@ import { eq } from "drizzle-orm";
 import { weatherProviderErrors, weatherProviderRequests, weatherProviderLatency } from "./metrics";
 import calendarRoutes from "./routes/calendar";
 
-export function registerRoutes(app: express.Express) {
+// Database connection verification
+async function verifyDatabaseConnection() {
+  try {
+    await db.select().from(widgets).limit(1);
+    console.log('[Database] Connection successful');
+    return true;
+  } catch (error) {
+    console.error('[Database] Connection error:', error);
+    return false;
+  }
+}
+
+export async function registerRoutes(app: express.Express) {
+  // Verify database connection
+  const isDatabaseConnected = await verifyDatabaseConnection();
+  if (!isDatabaseConnected) {
+    console.error('[Server] Failed to establish database connection');
+    throw new Error('Database connection failed');
+  }
+  console.log('[Server] Database connection verified');
   // Health check route
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
@@ -444,9 +463,24 @@ export function registerRoutes(app: express.Express) {
 
   app.post("/api/widgets", async (req, res) => {
     try {
+      console.log('Received widget creation request:', req.body);
+      
+      // Validate required fields
+      if (!req.body.pluginId) {
+        console.error('Missing required field: pluginId');
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Missing required field: pluginId'
+        });
+      }
+
+      // Create the widget
+      console.log('Creating widget with data:', req.body);
       const widget = await db.insert(widgets).values(req.body).returning();
+      console.log('Widget created successfully:', widget[0]);
       res.json(widget[0]);
     } catch (error) {
+      console.error('Error creating widget:', error);
       res.status(500).json({
         error: 'Failed to create widget',
         message: error instanceof Error ? error.message : 'Unknown error'
