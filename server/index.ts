@@ -176,7 +176,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       serveStatic(app);
     }
 
-    // Start the server with port fallback
+    // Start the server with port fallback and health check
     let PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
     let attempts = 0;
     const maxAttempts = 3;
@@ -185,7 +185,25 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     while (attempts < maxAttempts) {
       try {
         await new Promise<void>((resolve, reject) => {
-          server.listen(PORT, "0.0.0.0", () => resolve());
+          server.listen(PORT, "0.0.0.0", async () => {
+            log(`Server running at http://0.0.0.0:${PORT}`);
+            try {
+              // Health check
+              const response = await fetch(`http://localhost:${PORT}/api/health`);
+              if (response.ok) {
+                log('Health check passed');
+                if (process.send) {
+                  process.send('ready');
+                }
+                resolve();
+              } else {
+                reject(new Error('Health check failed'));
+              }
+            } catch (error) {
+              reject(error);
+            }
+          });
+          
           server.once('error', (err: any) => {
             if (err.code === 'EADDRINUSE') {
               PORT = portRange[++attempts];
@@ -212,10 +230,6 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
         process.exit(0);
       });
     });
-
-    // Start the server and wait for it to be ready
-    await new Promise<void>((resolve, reject) => {
-      server.listen(PORT, "0.0.0.0", () => {
         log(`Server running at http://0.0.0.0:${PORT}`);
         // Verify the server is actually listening
         const healthCheck = async () => {
