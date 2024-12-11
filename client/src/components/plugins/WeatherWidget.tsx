@@ -165,7 +165,7 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       try {
         console.log('Fetching weather data from OpenWeatherMap for city:', city);
         const response = await fetch(
-          `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=openweathermap`,
+          `${baseUrl}/api/weather?city=${encodeURIComponent(city)}&units=${targetUnits || units}&provider=openweathermap&apiKey=${encodeURIComponent(config.apiKey || '')}`,
           {
             headers: {
               'Accept': 'application/json',

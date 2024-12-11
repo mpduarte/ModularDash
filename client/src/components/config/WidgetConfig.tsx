@@ -404,6 +404,28 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                       {plugin.id === 'weather-widget' && (
                                         <div className="space-y-4">
                                           <div className="space-y-2">
+                                            <Label>API Key</Label>
+                                            <Input
+                                              type="password"
+                                              placeholder="Enter OpenWeather API key"
+                                              value={plugin.config?.apiKey || ''}
+                                              onChange={(e) => {
+                                                updatePlugin(plugin.id, {
+                                                  config: {
+                                                    ...(plugin.config || {}),
+                                                    apiKey: e.target.value
+                                                  },
+                                                  enabled: plugin.enabled,
+                                                  id: plugin.id,
+                                                  version: plugin.version
+                                                });
+                                              }}
+                                            />
+                                            <p className="text-xs text-muted-foreground">
+                                              Required for weather data fetching
+                                            </p>
+                                          </div>
+                                          <div className="space-y-2">
                                             <Label>City</Label>
                                             <Input
                                               placeholder="Enter city (e.g., San Francisco, CA, USA)"
