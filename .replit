@@ -39,14 +39,14 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Project"
+args = "Flask Server"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow]]
-name = "Project"
+name = "Flask Server"
 author = "agent"
 
 [workflows.workflow.metadata]
