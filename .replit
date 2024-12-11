@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
-run = ["sh", "-c", "npm run dev"]
+run = ["sh", "-c", "npm install && npm run build"]
 
 [[ports]]
 localPort = 3000
@@ -39,14 +39,14 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Project"
+args = "Install Dependencies"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow]]
-name = "Project"
+name = "Install Dependencies"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -57,8 +57,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
-waitForPort = 3000
+args = "npm install && npm run build"
 
 [[workflows.workflow]]
 name = "Project"
