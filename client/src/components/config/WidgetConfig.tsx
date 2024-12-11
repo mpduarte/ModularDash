@@ -354,10 +354,13 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                           return acc;
                         }
                         
+                        // Skip widget plugins in the plugins tab
+                        if (plugin.category === 'widgets' || plugin.category === 'content' || plugin.id.includes('widget')) {
+                          return acc;
+                        }
+                        
                         let category = plugin.category || 'other';
-                        if (category === 'widgets' || category === 'content' || plugin.id.includes('widget')) {
-                          category = 'widgets';
-                        } else if (category === 'appearance') {
+                        if (category === 'appearance') {
                           category = 'appearance';
                         }
                         
