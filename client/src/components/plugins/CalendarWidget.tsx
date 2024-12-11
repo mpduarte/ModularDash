@@ -188,11 +188,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
                 setDate(newDate);
               }
             }}
-            className="w-full border-x border-t rounded-t-md border-border/20 bg-background"
+            className="w-full border-x border-t rounded-t-md border-border bg-background"
             defaultMonth={new Date()}
           />
           
-          <ScrollArea className="flex-1 h-full border-x border-b rounded-b-md border-t-0 border-border/20 p-4 bg-background/40 backdrop-blur-md">
+          <ScrollArea className="flex-1 h-full border-x border-b rounded-b-md border-border p-4 bg-background/40 backdrop-blur-md -mt-px">
             <div className="space-y-4">
               {loading ? (
                 <p className="text-sm text-muted-foreground">Loading events...</p>
