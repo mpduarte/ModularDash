@@ -1,11 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Widget as WidgetType } from "../../lib/types";
-import { X } from "lucide-react";
-import { getPlugin } from "../../lib/pluginRegistry";
+
 import { useState } from "react";
-import WidgetConfigDialog from "../config/WidgetConfigDialog";
+import { X } from "lucide-react";
+import { Widget as WidgetType } from "../../lib/types";
+import { getPlugin } from "../../lib/pluginRegistry";
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import WidgetConfigDialog from "../config/WidgetConfigDialog";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -31,18 +32,15 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
   const isTimeWidget = widget.pluginId === 'time-widget';
   const isHeaderless = isTimeWidget || widget.config.showHeader === false;
 
-  // Time widget specific render
   if (isTimeWidget) {
     return (
       <>
         <div data-widget-type="time-widget" className="w-full h-full">
-          <Card 
-            className={cn(
-              "w-full h-full relative group transition-all duration-200",
-              "bg-background/40 backdrop-blur-md hover:bg-background/50",
-              "!p-0 !m-0 border border-border/20 shadow-sm"
-            )}
-          >
+          <Card className={cn(
+            "w-full h-full relative group transition-all duration-200",
+            "bg-background/40 backdrop-blur-md hover:bg-background/50",
+            "!p-0 !m-0 border border-border/20 shadow-sm"
+          )}>
             <div className="relative z-[1] h-full">
               {PluginComponent && (
                 <PluginComponent 
@@ -50,14 +48,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                   onConfigChange={handleConfigChange}
                 />
               )}
-              <div 
-                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ 
-                  zIndex: 9999,
-                  position: 'absolute',
-                  pointerEvents: 'all'
-                }}
-              >
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -67,11 +58,6 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                     e.preventDefault();
                     onUpdate({ visible: false });
                   }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  style={{ pointerEvents: 'all' }}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -93,17 +79,14 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
     );
   }
 
-  // Regular widget render
   return (
     <>
-      <Card 
-        className={cn(
-          "w-full h-full relative group transition-all duration-200",
-          "bg-background/40 backdrop-blur-md hover:bg-background/50",
-          "!p-0 !m-0 border border-border/20 shadow-sm",
-          widget.config.customStyles
-        )}
-      >
+      <Card className={cn(
+        "w-full h-full relative group transition-all duration-200",
+        "bg-background/40 backdrop-blur-md hover:bg-background/50",
+        "!p-0 !m-0 border border-border/20 shadow-sm",
+        widget.config.customStyles
+      )}>
         <div className="relative z-[1] h-full">
           {PluginComponent ? (
             <PluginComponent 
@@ -115,14 +98,7 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
               Plugin not found: {widget.pluginId}
             </div>
           )}
-          <div 
-            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ 
-              zIndex: 9999,
-              position: 'absolute',
-              pointerEvents: 'all'
-            }}
-          >
+          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
@@ -132,11 +108,6 @@ export default function Widget({ widget, onUpdate, onShowOverlay }: WidgetProps)
                 e.preventDefault();
                 onUpdate({ visible: false });
               }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              style={{ pointerEvents: 'all' }}
             >
               <X className="h-3 w-3" />
             </Button>

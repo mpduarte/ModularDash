@@ -1,11 +1,12 @@
+
 import { useState } from 'react';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Grid from '../components/grid/Grid';
 import BackgroundZone from '../components/zones/BackgroundZone';
 import OverlayZone from '../components/zones/OverlayZone';
 import WidgetConfig from '../components/config/WidgetConfig';
-import { Button } from '@/components/ui/button';
 import { useWidgets } from '../hooks/useWidgets';
-import { Settings } from 'lucide-react';
 
 export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
