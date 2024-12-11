@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Calendar } from '../ui/calendar';
@@ -6,6 +7,7 @@ import { format, startOfDay, endOfDay, parseISO, subMonths, addMonths } from 'da
 import { Badge } from '../ui/badge';
 import { expandRecurringEvents } from '@/lib/recurringEvents';
 import { type PluginProps } from '@/lib/types';
+import { Separator } from '../ui/separator';
 
 interface CalendarEvent {
   summary: string;
@@ -64,52 +66,37 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const { events: calendarEvents } = await response.json();
       
-      // Process the basic event properties
       let processedEvents = calendarEvents.map((event: CalendarEvent) => {
-        // Parse dates considering UTC and all-day events
         const rawStart = typeof event.start === 'string' ? event.start : event.start.toString();
         const rawEnd = typeof event.end === 'string' ? event.end : event.end.toString();
         
-        // Function to parse date considering UTC and all-day events
         const parseDate = (dateStr: string, isAllDay: boolean = false) => {
           if (isAllDay) {
-            // For all-day events, create a date at midnight in local time
             const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
             return new Date(year, month - 1, day);
           }
-          
-          // For time-specific events, parse the ISO string directly
-          // This preserves the original time exactly as received from the server
           return new Date(dateStr);
         };
 
         let start = parseDate(rawStart, event.isAllDay);
         let end = parseDate(rawEnd, event.isAllDay);
 
-        // Use the server-provided isAllDay flag or calculate it
         const isAllDay = event.isAllDay ?? (() => {
-          // Case 1: Date-only strings (no time component)
           if (!rawStart.includes('T') && !rawEnd.includes('T')) {
             return true;
           }
-
-          // Case 2: Same date with same time
           if (format(start, 'yyyy-MM-dd') === format(end, 'yyyy-MM-dd') &&
               start.getHours() === end.getHours() && 
               start.getMinutes() === end.getMinutes()) {
             return true;
           }
-
-          // Case 3: Exactly 24 hours apart
           const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          if (Math.abs(diffHours - 24) < 0.1) { // Allow small precision differences
+          if (Math.abs(diffHours - 24) < 0.1) {
             return true;
           }
-
           return false;
         })();
 
-        // For all-day events, ensure dates are at the start of the day
         if (isAllDay) {
           start = startOfDay(start);
           end = startOfDay(end);
@@ -124,7 +111,6 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         };
       });
 
-      // Expand recurring events
       const expandedEvents = processedEvents.flatMap((event: CalendarEvent) => 
         expandRecurringEvents(
           {
@@ -132,8 +118,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
             start: new Date(event.start),
             end: new Date(event.end)
           },
-          subMonths(new Date(), 1), // Start range from 1 month ago
-          addMonths(new Date(), 3)  // End range 3 months ahead
+          subMonths(new Date(), 1),
+          addMonths(new Date(), 3)
         )
       );
       
@@ -150,27 +136,21 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     if (!day || !(day instanceof Date) || isNaN(day.getTime())) {
       return [];
     }
-    // Convert input day to local midnight
     const dayStart = startOfDay(day);
     const dayEnd = endOfDay(day);
 
     return events
       .filter(event => {
-        // Parse dates using local timezone
         const eventStart = new Date(event.start);
         const eventEnd = new Date(event.end);
 
         if (event.isAllDay) {
-          // For all-day events, compare dates without time components
           const eventStartDay = startOfDay(eventStart);
           const eventEndDay = startOfDay(eventEnd);
           const selectedDay = startOfDay(day);
-          
-          // Check if the selected day falls within the event's date range
           return selectedDay >= eventStartDay && selectedDay <= eventEndDay;
         }
 
-        // For time-specific events, convert the day boundaries to UTC for comparison
         const eventStartUTC = new Date(eventStart);
         const dayStartUTC = new Date(Date.UTC(
           day.getFullYear(),
@@ -197,7 +177,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden" data-widget-type={config.pluginId}>
-      <div className="flex flex-col w-full h-full space-y-4 flex-grow">
+      <Card className="flex flex-col w-full h-full space-y-4 p-4 bg-background/40">
         <Calendar
           mode="single"
           selected={date}
@@ -209,8 +189,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           className="w-full rounded-md border backdrop-blur-md"
           defaultMonth={new Date()}
         />
-        
-        <ScrollArea className="flex-1 h-full rounded-md border border-border/20 p-4 bg-background/40">
+        <Separator className="my-2 bg-white/20" />
+        <ScrollArea className="flex-1">
           <div className="space-y-4">
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading events...</p>
@@ -249,7 +229,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
             )}
           </div>
         </ScrollArea>
-      </div>
+      </Card>
     </div>
   );
 };
