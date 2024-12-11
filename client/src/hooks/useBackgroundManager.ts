@@ -11,7 +11,7 @@ interface BackgroundState {
   interval: number;
   isAutoRotate: boolean;
   transition: string;
-  setImages: (images: BackgroundImage[]) => void;
+  setImages: (images: BackgroundImage[] | ((prev: BackgroundImage[]) => BackgroundImage[])) => void;
   setCurrentImage: (indexOrUpdater: number | ((prev: number) => number)) => void;
   setInterval: (interval: number) => void;
   setAutoRotate: (isAutoRotate: boolean) => void;
@@ -42,9 +42,10 @@ export const useBackgroundManager = create<BackgroundState>((set, get) => ({
   interval: 3000,
   isAutoRotate: true,
   transition: 'fade',
-  setImages: (newImages: BackgroundImage[]) => {
+  setImages: (newImages: BackgroundImage[] | ((prev: BackgroundImage[]) => BackgroundImage[])) => {
+    const images = typeof newImages === 'function' ? newImages(get().images) : newImages;
     // Validate images
-    const validImages = newImages.filter(img => {
+    const validImages = images.filter(img => {
       const isValid = isValidImageUrl(img.url);
       if (!isValid) {
         console.warn(`Invalid image URL: ${img.url}`);
