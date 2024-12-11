@@ -13,32 +13,55 @@ export default function BackgroundZone({ children }: BackgroundZoneProps) {
   // Debug logging
   // Handle background rotation
   useEffect(() => {
-    const { isAutoRotate, interval } = useBackgroundManager.getState();
-    let rotationTimer: number | undefined;
+    const rotationController = new AbortController();
+    let rotationTimeout: number | undefined;
 
-    if (isAutoRotate && images.length > 1) {
-      rotationTimer = window.setInterval(() => {
+    const rotateBackground = () => {
+      const { isAutoRotate, interval } = useBackgroundManager.getState();
+      
+      if (isAutoRotate && images.length > 1 && !rotationController.signal.aborted) {
         const nextIndex = (currentImageIndex + 1) % images.length;
-        console.log('Rotating background:', {
-          from: currentImageIndex,
-          to: nextIndex,
-          totalImages: images.length,
-          interval
-        });
+        
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Rotating background:', {
+            from: currentImageIndex,
+            to: nextIndex,
+            totalImages: images.length,
+            interval
+          });
+        }
+        
         useBackgroundManager.getState().setCurrentImage(nextIndex);
-      }, interval);
+        rotationTimeout = window.setTimeout(rotateBackground, interval);
+      }
+    };
 
-      console.log('Background rotation started', {
-        interval,
-        totalImages: images.length,
-        currentIndex: currentImageIndex
-      });
-    }
+    const startRotation = () => {
+      const { isAutoRotate, interval } = useBackgroundManager.getState();
+      if (isAutoRotate && images.length > 1) {
+        rotationTimeout = window.setTimeout(rotateBackground, interval);
+        
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Background rotation started', {
+            interval,
+            totalImages: images.length,
+            currentIndex: currentImageIndex
+          });
+        }
+      }
+    };
+
+    startRotation();
 
     return () => {
-      if (rotationTimer) {
-        window.clearInterval(rotationTimer);
-        console.log('Background rotation stopped');
+      rotationController.abort();
+      if (rotationTimeout) {
+        window.clearTimeout(rotationTimeout);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Background rotation stopped');
+        }
       }
     };
   }, [images.length, currentImageIndex]);
@@ -55,38 +78,62 @@ export default function BackgroundZone({ children }: BackgroundZoneProps) {
 
   // Preload images and track loaded status
   useEffect(() => {
-    console.log('Starting to load images...');
-    const imagePromises = images.map(image => {
-      return new Promise((resolve, reject) => {
+    const imageCache = new Map<string, HTMLImageElement>();
+    const abortController = new AbortController();
+    
+    const loadImage = async (image: BackgroundImage) => {
+      try {
+        if (imageCache.has(image.url)) return;
+        
         const img = new Image();
-        img.onload = () => {
-          console.log(`Image loaded successfully: ${image.url}`);
-          setLoadedImages(prev => {
-            const newSet = new Set(prev);
-            newSet.add(image.url);
-            return newSet;
-          });
-          resolve(null);
-        };
-        img.onerror = (error) => {
-          console.error(`Failed to load image: ${image.url}`, error);
-          reject(error);
-        };
+        const loadPromise = new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            if (!abortController.signal.aborted) {
+              imageCache.set(image.url, img);
+              setLoadedImages(prev => {
+                const newSet = new Set(prev);
+                newSet.add(image.url);
+                return newSet;
+              });
+            }
+            resolve();
+          };
+          img.onerror = (error) => {
+            console.error(`Failed to load image: ${image.url}`, error);
+            reject(error);
+          };
+        });
+        
         img.src = image.url;
-      });
-    });
+        await loadPromise;
+      } catch (error) {
+        console.error(`Error loading image: ${image.url}`, error);
+      }
+    };
 
-    Promise.all(imagePromises)
-      .then(() => console.log('All images loaded successfully'))
-      .catch(error => console.error('Failed to load some background images:', error));
+    const loadImages = async () => {
+      try {
+        await Promise.all(images.map(loadImage));
+        if (!abortController.signal.aborted) {
+          console.log('All images loaded successfully');
+        }
+      } catch (error) {
+        console.error('Failed to load some background images:', error);
+      }
+    };
+
+    loadImages();
 
     return () => {
+      abortController.abort();
       // Cleanup function
       images.forEach(image => {
-        if (loadedImages.has(image.url)) {
+        if (image.url.startsWith('blob:')) {
           URL.revokeObjectURL(image.url);
         }
+        imageCache.delete(image.url);
       });
+      imageCache.clear();
     };
   }, [images]);
 

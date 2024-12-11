@@ -22,16 +22,47 @@ export const BackgroundManagerPlugin: React.FC = () => {
 
   // Removed rotation logic as it's now handled by BackgroundZone
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
-    if (fileList) {
-      const newImages: BackgroundImage[] = Array.from(fileList).map(file => ({
+    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    
+    if (!fileList) return;
+
+    // Convert FileList to array and filter valid images
+    const validFiles = Array.from(fileList).filter(file => {
+      if (!validImageTypes.includes(file.type)) {
+        console.warn(`Invalid file type: ${file.type}. Skipping.`);
+        return false;
+      }
+      if (file.size > maxFileSize) {
+        console.warn(`File too large: ${file.name}. Max size is 5MB.`);
+        return false;
+      }
+      return true;
+    });
+
+    try {
+      // Create object URLs and cleanup old ones if needed
+      const newImages: BackgroundImage[] = validFiles.map(file => ({
         url: URL.createObjectURL(file),
-        id: Math.random().toString(36).substr(2, 9)
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       }));
-      
-      setImages([...images, ...newImages]);
+
+      // Cleanup old object URLs before setting new ones
+      images.forEach(image => {
+        if (image.url.startsWith('blob:')) {
+          URL.revokeObjectURL(image.url);
+        }
+      });
+
+      setImages(prev => [...prev, ...newImages]);
+    } catch (error) {
+      console.error('Error processing uploaded files:', error);
     }
+
+    // Clear input to allow uploading the same file again
+    event.target.value = '';
   };
 
   const removeImage = (id: string) => {

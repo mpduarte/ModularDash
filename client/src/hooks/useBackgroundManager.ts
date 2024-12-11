@@ -18,6 +18,11 @@ interface BackgroundState {
   setTransition: (transition: string) => void;
 }
 
+// Validate image URL
+const isValidImageUrl = (url: string): boolean => {
+  return url.startsWith('http') || url.startsWith('https') || url.startsWith('blob:') || url.startsWith('data:image/');
+};
+
 export const useBackgroundManager = create<BackgroundState>((set, get) => ({
   images: [
     {
@@ -37,9 +42,25 @@ export const useBackgroundManager = create<BackgroundState>((set, get) => ({
   interval: 3000,
   isAutoRotate: true,
   transition: 'fade',
-  setImages: (images: BackgroundImage[]) => {
-    console.log('Setting new images:', images);
-    set({ images });
+  setImages: (newImages: BackgroundImage[]) => {
+    // Validate images
+    const validImages = newImages.filter(img => {
+      const isValid = isValidImageUrl(img.url);
+      if (!isValid) {
+        console.warn(`Invalid image URL: ${img.url}`);
+      }
+      return isValid;
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Setting new images:', validImages);
+    }
+    
+    set({ 
+      images: validImages,
+      // Reset current index if necessary
+      currentImageIndex: (get().currentImageIndex >= validImages.length) ? 0 : get().currentImageIndex
+    });
   },
   setCurrentImage: (indexOrUpdater: number | ((prev: number) => number)) => {
     const state = get();
@@ -47,18 +68,42 @@ export const useBackgroundManager = create<BackgroundState>((set, get) => ({
       ? indexOrUpdater(state.currentImageIndex)
       : indexOrUpdater;
     
-    console.log('Changing image:', {
-      from: state.currentImageIndex,
-      to: newIndex,
-      totalImages: state.images.length
-    });
+    // Validate index
+    if (newIndex < 0 || newIndex >= state.images.length) {
+      console.warn('Invalid image index:', newIndex);
+      return;
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Changing image:', {
+        from: state.currentImageIndex,
+        to: newIndex,
+        totalImages: state.images.length
+      });
+    }
     
     set({ currentImageIndex: newIndex });
   },
-  setInterval: (interval: number) => set({ interval }),
+  setInterval: (newInterval: number) => {
+    // Validate interval (minimum 1 second, maximum 1 hour)
+    const validInterval = Math.max(1000, Math.min(newInterval, 3600000));
+    if (validInterval !== newInterval) {
+      console.warn(`Invalid interval ${newInterval}ms, using ${validInterval}ms instead`);
+    }
+    set({ interval: validInterval });
+  },
   setAutoRotate: (isAutoRotate: boolean) => {
-    console.log('Auto-rotate changed:', { isAutoRotate });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Auto-rotate changed:', { isAutoRotate });
+    }
     set({ isAutoRotate });
   },
-  setTransition: (transition: string) => set({ transition }),
+  setTransition: (transition: string) => {
+    const validTransitions = ['fade', 'slide', 'none'];
+    if (!validTransitions.includes(transition)) {
+      console.warn(`Invalid transition "${transition}", using "fade" instead`);
+      transition = 'fade';
+    }
+    set({ transition });
+  },
 }));
