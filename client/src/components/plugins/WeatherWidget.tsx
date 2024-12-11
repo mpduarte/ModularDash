@@ -153,11 +153,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setError(null);
       let weatherData = null;
       
-      // Let's use only city for initial title until we get the actual data
-      if (onConfigChange) {
+      // Fixed title configuration
+      if (onConfigChange && !config.title) {
         onConfigChange({
           ...config,
-          city: city
+          title: 'Weather Widget'
         });
       }
       
@@ -252,12 +252,11 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
         };
         setWeather(validatedWeatherData);
         
-        // Generate and update the location-based title using the configured format
-        const generatedTitle = formatLocationTitle(config.city, weatherData.name, config.titleFormat);
-        if (onConfigChange) {
+        // Ensure we maintain the fixed title
+        if (onConfigChange && !config.title) {
           onConfigChange({
             ...config,
-            title: generatedTitle
+            title: 'Weather Widget'
           });
         }
         
@@ -431,7 +430,7 @@ export const weatherWidgetConfig = {
   defaultConfig: {
     city: 'San Francisco, CA, USA',
     units: 'imperial',
-    titleFormat: 'city-state-country', // Options: 'city-only', 'city-country', 'city-state', 'city-state-country'
+    title: 'Weather Widget',
     refreshInterval: 300000,
     enableAlerts: false,
     alertThreshold: 80,
