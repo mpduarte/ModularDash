@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
-run = ["sh", "-c", "npm run dev"]
+run = ["sh", "-c", "npm install && npm run dev"]
 
 [[ports]]
 localPort = 5000
@@ -35,14 +35,14 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Flask Server"
+args = "Project"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow]]
-name = "Flask Server"
+name = "Project"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -53,7 +53,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "npm install && npm run dev"
 waitForPort = 5173
 
 [[workflows.workflow]]
