@@ -38,6 +38,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
     autoRefresh: boolean;
     refreshInterval: number;
     theme: string;
+    apiKey?: string; // Added apiKey to WidgetConfig
     [key: string]: any;
   };
 
@@ -47,6 +48,7 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       ...(widget.pluginId === 'weather-widget' ? {
         city: widget.config.city || "San Francisco, CA, USA",
         units: (widget.config.units as 'imperial' | 'metric') || "imperial",
+        apiKey: widget.config.apiKey || "", // Added apiKey to defaultValues
       } : widget.pluginId === 'time-widget' ? {
         displayMode: widget.config.displayMode || "digital",
         showSeconds: widget.config.showSeconds || false,
@@ -65,11 +67,12 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
 
   const onSubmit = (data: WidgetConfig) => {
     if (widget.pluginId === 'weather-widget') {
-      const { city, units, ...rest } = data;
+      const { city, units, apiKey, ...rest } = data; // Added apiKey
       onUpdate({
         config: {
           city,
           units,
+          apiKey, // Added apiKey
           ...rest,
         },
       });
@@ -247,11 +250,11 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                             <Input
                               id="apiKey"
                               type="password"
-                              {...form.register("apiKey")}
+                              {...form.register("config.apiKey")}
                               placeholder="Enter OpenWeather API key"
                             />
                             <p className="text-xs text-muted-foreground">
-                              Required for weather data fetching. Get an API key from OpenWeather.
+                              Required for weather data fetching
                             </p>
                           </div>
                           <div className="space-y-2">
