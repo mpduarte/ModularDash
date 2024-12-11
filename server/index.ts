@@ -176,8 +176,33 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       serveStatic(app);
     }
 
-    // Start the server
-    const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+    // Start the server with port fallback
+    let PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+    let attempts = 0;
+    const maxAttempts = 3;
+    const portRange = [3000, 3001, 3002, 3003];
+
+    while (attempts < maxAttempts) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          server.listen(PORT, "0.0.0.0", () => resolve());
+          server.once('error', (err: any) => {
+            if (err.code === 'EADDRINUSE') {
+              PORT = portRange[++attempts];
+              reject(err);
+            } else {
+              reject(err);
+            }
+          });
+        });
+        break;
+      } catch (err) {
+        if (attempts === maxAttempts - 1) {
+          throw new Error(`Could not find an available port after ${maxAttempts} attempts`);
+        }
+        log(`Port ${PORT} in use, trying next port`);
+      }
+    }
     
     // Add proper signal handling for production
     process.on('SIGTERM', () => {
