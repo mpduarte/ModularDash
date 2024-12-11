@@ -153,8 +153,8 @@ const WeatherWidgetComponent: React.FC<PluginProps> = ({ config, onConfigChange 
       setError(null);
       let weatherData = null;
       
-      // Fixed title configuration
-      if (onConfigChange && !config.title) {
+      // Always ensure the title is "Weather Widget"
+      if (onConfigChange) {
         onConfigChange({
           ...config,
           title: 'Weather Widget'
@@ -430,11 +430,12 @@ export const weatherWidgetConfig = {
   defaultConfig: {
     city: 'San Francisco, CA, USA',
     units: 'imperial',
-    title: 'Weather Widget',
+    title: 'Weather Widget',  // Fixed title that won't change
     refreshInterval: 300000,
     enableAlerts: false,
     alertThreshold: 80,
     weatherCondition: 'rain',
-    alertType: 'visual'
+    alertType: 'visual',
+    showCityInHeader: false  // New flag to ensure city name isn't shown in header
   }
 };

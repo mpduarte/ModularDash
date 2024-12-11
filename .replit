@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
-run = ["sh", "-c", "cd client && npm install && npx vite --port 5173 --host 0.0.0.0"]
+run = ["sh", "-c", "cd server && npm install && npm start"]
 
 [[ports]]
 localPort = 3000
@@ -39,14 +39,14 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "React App"
+args = "Server"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow]]
-name = "React App"
+name = "Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -57,8 +57,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd client && npm install && npx vite --port 5173 --host 0.0.0.0"
-waitForPort = 5173
+args = "cd server && npm install && npm start"
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Project"
