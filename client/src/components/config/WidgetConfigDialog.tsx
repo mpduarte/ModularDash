@@ -38,7 +38,8 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
     autoRefresh: boolean;
     refreshInterval: number;
     theme: string;
-    apiKey?: string; // Added apiKey to WidgetConfig
+    openWeatherApiKey?: string; // Added openWeatherApiKey to WidgetConfig
+    weatherApiKey?: string; // Added weatherApiKey to WidgetConfig
     [key: string]: any;
   };
 
@@ -48,7 +49,8 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
       ...(widget.pluginId === 'weather-widget' ? {
         city: widget.config.city || "San Francisco, CA, USA",
         units: (widget.config.units as 'imperial' | 'metric') || "imperial",
-        apiKey: widget.config.apiKey || "", // Added apiKey to defaultValues
+        openWeatherApiKey: widget.config.openWeatherApiKey || "", // Added openWeatherApiKey to defaultValues
+        weatherApiKey: widget.config.weatherApiKey || "", // Added weatherApiKey to defaultValues
       } : widget.pluginId === 'time-widget' ? {
         displayMode: widget.config.displayMode || "digital",
         showSeconds: widget.config.showSeconds || false,
@@ -67,12 +69,13 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
 
   const onSubmit = (data: WidgetConfig) => {
     if (widget.pluginId === 'weather-widget') {
-      const { city, units, apiKey, ...rest } = data; // Added apiKey
+      const { city, units, openWeatherApiKey, weatherApiKey, ...rest } = data; // Added openWeatherApiKey and weatherApiKey
       onUpdate({
         config: {
           city,
           units,
-          apiKey, // Added apiKey
+          openWeatherApiKey, // Added openWeatherApiKey
+          weatherApiKey, // Added weatherApiKey
           ...rest,
         },
       });
@@ -246,15 +249,27 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                       {widget.pluginId === 'weather-widget' && (
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="apiKey">API Key</Label>
+                            <Label htmlFor="openWeatherApiKey">OpenWeatherMap API Key</Label>
                             <Input
-                              id="apiKey"
+                              id="openWeatherApiKey"
                               type="password"
-                              {...form.register("config.apiKey")}
-                              placeholder="Enter OpenWeather API key"
+                              {...form.register("openWeatherApiKey")}
+                              placeholder="Enter OpenWeatherMap API key"
                             />
                             <p className="text-xs text-muted-foreground">
-                              Required for weather data fetching
+                              Primary weather data provider
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="weatherApiKey">WeatherAPI Key</Label>
+                            <Input
+                              id="weatherApiKey"
+                              type="password"
+                              {...form.register("weatherApiKey")}
+                              placeholder="Enter WeatherAPI key"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Backup weather data provider
                             </p>
                           </div>
                           <div className="space-y-2">
