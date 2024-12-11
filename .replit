@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
-run = ["sh", "-c", "npm run build"]
+run = ["sh", "-c", "npx concurrently \"cd client && npx vite\" \"npx tsx watch --clear-screen=false server/index.ts\""]
 
 [[ports]]
 localPort = 3000
@@ -39,14 +39,14 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Project"
+args = "Development"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run build"
 
 [[workflows.workflow]]
-name = "Project"
+name = "Development"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -57,7 +57,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run build"
+args = "npx concurrently \"cd client && npx vite\" \"npx tsx watch --clear-screen=false server/index.ts\""
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Project"
