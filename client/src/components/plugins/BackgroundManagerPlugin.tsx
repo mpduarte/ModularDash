@@ -56,7 +56,7 @@ export const BackgroundManagerPlugin: React.FC = () => {
         }
       });
 
-      setImages(prev => [...prev, ...newImages]);
+      setImages((prev: BackgroundImage[]) => [...prev, ...newImages]);
     } catch (error) {
       console.error('Error processing uploaded files:', error);
     }

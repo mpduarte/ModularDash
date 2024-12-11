@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { useBackgroundManager } from '../../hooks/useBackgroundManager';
+import { useBackgroundManager, BackgroundImage } from '../../hooks/useBackgroundManager';
 
 interface BackgroundZoneProps {
   children: ReactNode;
