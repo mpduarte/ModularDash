@@ -54,7 +54,8 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
             <div className="space-y-4">
               {plugins
                 .filter(plugin => plugin.enabled && 
-                  (plugin.category === 'widgets' || plugin.category === 'content'))
+                  (plugin.category === 'widgets' || plugin.category === 'content') &&
+                  !['text-widget', 'html-widget'].includes(plugin.id))
                 .map(plugin => {
                   console.log('Rendering plugin button:', plugin);
                   const registeredPlugin = getPlugin(plugin.id);
