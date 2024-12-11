@@ -230,28 +230,6 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
         process.exit(0);
       });
     });
-        log(`Server running at http://0.0.0.0:${PORT}`);
-        // Verify the server is actually listening
-        const healthCheck = async () => {
-          try {
-            const response = await fetch(`http://localhost:${PORT}/api/health`);
-            if (response.ok) {
-              log('Health check passed');
-              if (process.send) {
-                process.send('ready');
-              }
-              resolve();
-            } else {
-              reject(new Error('Health check failed'));
-            }
-          } catch (error) {
-            reject(error);
-          }
-        };
-        // Run health check after a short delay to ensure server is ready
-        setTimeout(healthCheck, 1000);
-      });
-    });
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);
