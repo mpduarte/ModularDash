@@ -92,8 +92,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         return (
           <div 
             key={widget.id.toString()} 
-            className="h-full flex flex-col"
-            
+            className="h-full flex flex-col w-full"
+            data-widget-type={widget.pluginId}
+            style={{ height: '100%', touchAction: 'none' }}
           >
             <Widget
               widget={widget}
