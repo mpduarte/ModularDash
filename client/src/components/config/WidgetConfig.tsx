@@ -401,16 +401,66 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                       <p className="text-sm text-muted-foreground mb-4">
                                         {plugin.description}
                                       </p>
-                                      {plugin.enabled && PluginComponent && (
-                                        <div className="mt-4 border-t pt-4">
-                                          <PluginComponent
-                                            config={plugin.config || {}}
-                                            onConfigChange={(newConfig) => {
-                                              updatePlugin(plugin.id, { config: { ...plugin.config, ...newConfig } });
-                                            }}
-                                          />
-                                        </div>
-                                      )}
+                                      {plugin?.component && (
+                            <div className="mt-4 border-t pt-4">
+                              <PluginComponent
+                                config={plugin.config || {}}
+                                onConfigChange={(newConfig) => {
+                                  updatePlugin(plugin.id, { 
+                                    config: { ...plugin.config, ...newConfig },
+                                    enabled: plugin.enabled 
+                                  });
+                                }}
+                              />
+                            </div>
+                          )}
+                          <div className="mt-4 pt-4">
+                            {plugin?.id === 'calendar-widget' && (
+                              <div className="space-y-4">
+                                <div className="space-y-2">
+                                  <Label>Calendar URL</Label>
+                                  <Input
+                                    placeholder="Enter iCal/WebCal/CalDAV feed URL"
+                                    value={plugin.config?.calendarUrl || ''}
+                                    onChange={(e) => {
+                                      updatePlugin(plugin.id, { 
+                                        config: { ...plugin.config, calendarUrl: e.target.value },
+                                        enabled: plugin.enabled 
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <Label>Auto Refresh</Label>
+                                  <Switch
+                                    checked={plugin.config?.autoRefresh || false}
+                                    onCheckedChange={(checked) => {
+                                      updatePlugin(plugin.id, { 
+                                        config: { ...plugin.config, autoRefresh: checked },
+                                        enabled: plugin.enabled 
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                {plugin.config?.autoRefresh && (
+                                  <div className="space-y-2">
+                                    <Label>Refresh Interval (seconds)</Label>
+                                    <Input
+                                      type="number"
+                                      min="5"
+                                      value={plugin.config?.refreshInterval || 30}
+                                      onChange={(e) => {
+                                        updatePlugin(plugin.id, { 
+                                          config: { ...plugin.config, refreshInterval: Number(e.target.value) },
+                                          enabled: plugin.enabled 
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                       <div className="flex items-center gap-2">
