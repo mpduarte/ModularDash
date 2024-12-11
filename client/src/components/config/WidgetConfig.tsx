@@ -401,7 +401,7 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                       <p className="text-sm text-muted-foreground mb-4">
                                         {plugin.description}
                                       </p>
-                                      {plugin?.component && (
+                                      {plugin.component && (
                             <div className="mt-4 border-t pt-4">
                               <PluginComponent
                                 config={plugin.config || {}}
