@@ -243,6 +243,18 @@ export default function WidgetConfigDialog({ widget, onClose, onUpdate }: Widget
                       {widget.pluginId === 'weather-widget' && (
                         <div className="space-y-4">
                           <div className="space-y-2">
+                            <Label htmlFor="apiKey">API Key</Label>
+                            <Input
+                              id="apiKey"
+                              type="password"
+                              {...form.register("apiKey")}
+                              placeholder="Enter OpenWeather API key"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Required for weather data fetching. Get an API key from OpenWeather.
+                            </p>
+                          </div>
+                          <div className="space-y-2">
                             <Label htmlFor="city">City</Label>
                             <Input
                               id="city"
