@@ -409,8 +409,12 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                               placeholder="Enter city (e.g., San Francisco, CA, USA)"
                                               value={plugin.config?.city || ''}
                                               onChange={(e) => {
+                                                const newConfig = {
+                                                  ...plugin.config,
+                                                  city: e.target.value
+                                                };
                                                 updatePlugin(plugin.id, {
-                                                  config: { ...plugin.config, city: e.target.value },
+                                                  config: newConfig,
                                                   enabled: plugin.enabled
                                                 });
                                               }}
