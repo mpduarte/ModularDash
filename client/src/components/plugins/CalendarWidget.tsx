@@ -198,57 +198,59 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   return (
     <div className="flex flex-col h-full w-full overflow-hidden" data-widget-type={config.pluginId}>
       <div className="flex flex-col w-full h-full space-y-4 flex-grow">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={(newDate) => {
-            if (newDate instanceof Date && !isNaN(newDate.getTime())) {
-              setDate(newDate);
-            }
-          }}
-          className="w-full rounded-md border"
-          defaultMonth={new Date()}
-        />
-        
-        <ScrollArea className="flex-1 h-full rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
-          <div className="space-y-4">
-            {loading ? (
-              <p className="text-sm text-muted-foreground">Loading events...</p>
-            ) : error ? (
-              <p className="text-sm text-destructive">{error}</p>
-            ) : getDayEvents(date).length > 0 ? (
-              getDayEvents(date).map((event, index) => (
-                <div key={`${event.uid}-${index}`} className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-medium">{event.summary}</h4>
-                    {event.isRecurring && (
-                      <Badge variant="outline" className="text-xs">
-                        Recurring
-                      </Badge>
+        <div className="space-y-4">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(newDate) => {
+              if (newDate instanceof Date && !isNaN(newDate.getTime())) {
+                setDate(newDate);
+              }
+            }}
+            className="w-full"
+            defaultMonth={new Date()}
+          />
+          
+          <ScrollArea className="flex-1 h-full rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
+            <div className="space-y-4">
+              {loading ? (
+                <p className="text-sm text-muted-foreground">Loading events...</p>
+              ) : error ? (
+                <p className="text-sm text-destructive">{error}</p>
+              ) : getDayEvents(date).length > 0 ? (
+                getDayEvents(date).map((event, index) => (
+                  <div key={`${event.uid}-${index}`} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">{event.summary}</h4>
+                      {event.isRecurring && (
+                        <Badge variant="outline" className="text-xs">
+                          Recurring
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'h:mm a')} - ${format(new Date(event.end), 'h:mm a')}`}
+                    </p>
+                    {event.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {event.description}
+                      </p>
+                    )}
+                    {event.location && (
+                      <p className="text-sm text-muted-foreground">
+                        📍 {event.location}
+                      </p>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {event.isAllDay ? "All Day" : `${format(new Date(event.start), 'h:mm a')} - ${format(new Date(event.end), 'h:mm a')}`}
-                  </p>
-                  {event.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
-                  {event.location && (
-                    <p className="text-sm text-muted-foreground">
-                      📍 {event.location}
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {config?.calendarUrl ? 'No events for this day' : 'No calendar URL configured'}
-              </p>
-            )}
-          </div>
-        </ScrollArea>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {config?.calendarUrl ? 'No events for this day' : 'No calendar URL configured'}
+                </p>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

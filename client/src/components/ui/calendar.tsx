@@ -32,14 +32,14 @@ function Calendar({
         IconRight: () => <ChevronRight className="h-4 w-4" />
       }}
       classNames={{
-        months: "flex flex-col w-full space-y-4",
-        month: "space-y-4 w-full",
+        months: "flex flex-col w-full space-y-2",
+        month: "space-y-2 w-full",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium text-center flex-1",
         nav: "space-x-1 flex items-center absolute w-full justify-between",
         nav_button: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          buttonVariants({ variant: "ghost" }),
+          "h-7 w-7 p-0 opacity-50 hover:opacity-100"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -51,7 +51,7 @@ function Calendar({
         cell: cn(
           "flex-1 relative text-center",
           "before:absolute before:inset-0 before:rounded-md before:transition-colors",
-          "[&:has([aria-selected])]:before:bg-accent",
+          "[&:has([aria-selected])]:before:bg-accent/50",
           "first:[&:has([aria-selected])]:before:rounded-l-md",
           "last:[&:has([aria-selected])]:before:rounded-r-md"
         ),
@@ -61,13 +61,13 @@ function Calendar({
         ),
         day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
+          "bg-primary/80 text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground focus:bg-primary/90 focus:text-primary-foreground",
+        day_today: "bg-accent/30 text-accent-foreground",
         day_outside:
           "text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          "aria-selected:bg-accent/30 aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
       }}
