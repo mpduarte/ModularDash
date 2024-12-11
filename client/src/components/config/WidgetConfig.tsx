@@ -401,6 +401,43 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                                       <p className="text-sm text-muted-foreground mb-4">
                                         {plugin.description}
                                       </p>
+                                      {plugin.id === 'weather-widget' && (
+                                        <div className="space-y-4">
+                                          <div className="space-y-2">
+                                            <Label>City</Label>
+                                            <Input
+                                              placeholder="Enter city (e.g., San Francisco, CA, USA)"
+                                              value={plugin.config?.city || ''}
+                                              onChange={(e) => {
+                                                updatePlugin(plugin.id, {
+                                                  config: { ...plugin.config, city: e.target.value },
+                                                  enabled: plugin.enabled
+                                                });
+                                              }}
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label>Units</Label>
+                                            <Select
+                                              value={plugin.config?.units || 'imperial'}
+                                              onValueChange={(value) => {
+                                                updatePlugin(plugin.id, {
+                                                  config: { ...plugin.config, units: value },
+                                                  enabled: plugin.enabled
+                                                });
+                                              }}
+                                            >
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Select units" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="imperial">Fahrenheit (°F)</SelectItem>
+                                                <SelectItem value="metric">Celsius (°C)</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                        </div>
+                                      )}
                                       {Boolean(plugin.component) && (
                             <div className="mt-4 border-t pt-4">
                               <PluginComponent
