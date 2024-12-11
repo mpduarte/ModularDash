@@ -33,9 +33,9 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
         constraints.h = Math.max(constraints.minH, widget.h || 3);
         break;
       case 'calendar-widget':
-        constraints.minH = 4;
-        constraints.maxH = 8;
-        constraints.h = Math.max(constraints.minH, widget.h || 4);
+        constraints.minH = 6;  // Increased minimum height to accommodate events list
+        constraints.maxH = 12; // Increased maximum height for more events
+        constraints.h = Math.max(constraints.minH, widget.h || 6);
         break;
       case 'time-widget':
         constraints.minH = 2;
@@ -96,11 +96,17 @@ export default function Grid({ widgets, onWidgetUpdate, onShowOverlay }: GridPro
             style={{ height: '100%', touchAction: 'none' }}
             data-widget-type={widget.pluginId}
           >
-            <Widget
-              widget={widget}
-              onShowOverlay={onShowOverlay}
-              onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
-            />
+            <div 
+              className="h-full w-full flex flex-col"
+              data-widget-type={widget.pluginId}
+              style={{ touchAction: 'none' }}
+            >
+              <Widget
+                widget={widget}
+                onShowOverlay={onShowOverlay}
+                onUpdate={(updates) => onWidgetUpdate(widget.id, updates)}
+              />
+            </div>
           </div>
         );
       })}

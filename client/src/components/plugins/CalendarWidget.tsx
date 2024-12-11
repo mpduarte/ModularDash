@@ -196,7 +196,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
+    <div className="flex flex-col h-full w-full overflow-hidden" data-widget-type={config.pluginId}>
       <div className="flex flex-col w-full h-full space-y-4 flex-grow">
         <Calendar
           mode="single"
@@ -210,7 +210,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           defaultMonth={new Date()}
         />
         
-        <ScrollArea className="flex-1 min-h-[200px] rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
+        <ScrollArea className="flex-1 h-full rounded-md border border-border/20 p-4 bg-background/40 backdrop-blur-md">
           <div className="space-y-4">
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading events...</p>
