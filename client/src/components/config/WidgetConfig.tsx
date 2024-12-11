@@ -240,6 +240,38 @@ export default function WidgetConfig({ widgets, onClose, onAdd, onRemove, open }
                         {widget.pluginId === 'weather-widget' && (
                           <>
                             <div className="space-y-2">
+                              <Label>OpenWeatherMap API Key</Label>
+                              <Input
+                                type="password"
+                                placeholder="Enter OpenWeatherMap API key"
+                                value={config.openWeatherApiKey || ''}
+                                onChange={(e) => {
+                                  updateWidget(widget.id, {
+                                    config: { ...config, openWeatherApiKey: e.target.value }
+                                  });
+                                }}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Primary weather data provider
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>WeatherAPI Key</Label>
+                              <Input
+                                type="password"
+                                placeholder="Enter WeatherAPI key"
+                                value={config.weatherApiKey || ''}
+                                onChange={(e) => {
+                                  updateWidget(widget.id, {
+                                    config: { ...config, weatherApiKey: e.target.value }
+                                  });
+                                }}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Backup weather data provider
+                              </p>
+                            </div>
+                            <div className="space-y-2">
                               <Label>City</Label>
                               <Input
                                 placeholder="Enter city (e.g., San Francisco, CA, USA)"
